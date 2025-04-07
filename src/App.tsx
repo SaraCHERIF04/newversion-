@@ -15,6 +15,12 @@ import SubProjectsPage from "./pages/SubProjectsPage";
 import SubProjectNewPage from "./pages/SubProjectNewPage";
 import SubProjectEditPage from "./pages/SubProjectEditPage";
 import SubProjectDetailsPage from "./pages/SubProjectDetailsPage";
+import DocumentsPage from "./pages/DocumentsPage";
+import DocumentFormPage from "./pages/DocumentFormPage";
+import DocumentDetailsPage from "./pages/DocumentDetailsPage";
+import MeetingsPage from "./pages/MeetingsPage";
+import MeetingFormPage from "./pages/MeetingFormPage";
+import MeetingDetailsPage from "./pages/MeetingDetailsPage";
 import React from "react";
 
 // Create a new query client instance inside the component
@@ -39,12 +45,18 @@ function App() {
               <Route path="sous-projet/new" element={<SubProjectNewPage />} />
               <Route path="sous-projet/edit/:id" element={<SubProjectEditPage />} />
               <Route path="sous-projet/:id" element={<SubProjectDetailsPage />} />
+              <Route path="documents" element={<DocumentsPage />} />
+              <Route path="documents/new" element={<DocumentFormPage />} />
+              <Route path="documents/edit/:id" element={<DocumentFormPage />} />
+              <Route path="documents/:id" element={<DocumentDetailsPage />} />
+              <Route path="reunion" element={<MeetingsPage />} />
+              <Route path="reunion/new" element={<MeetingFormPage />} />
+              <Route path="reunion/edit/:id" element={<MeetingFormPage />} />
+              <Route path="reunion/:id" element={<MeetingDetailsPage />} />
               <Route path="dashboard" element={<div>Dashboard Page</div>} />
               <Route path="incidents" element={<div>Incidents Page</div>} />
-              <Route path="documents" element={<div>Documents Page</div>} />
               <Route path="maitre-ouvrage" element={<div>Maitre Ouvrage Page</div>} />
               <Route path="marche" element={<div>Marché Page</div>} />
-              <Route path="reunion" element={<div>Réunion Page</div>} />
               <Route path="parametres" element={<div>Paramètres Page</div>} />
               <Route path="about" element={<div>About Us Page</div>} />
             </Route>

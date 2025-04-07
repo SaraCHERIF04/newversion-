@@ -58,7 +58,8 @@ const ProjectDetailsPage: React.FC = () => {
     documents: [
       { id: '1', title: 'Rapport initial.pdf', url: '/documents/rapport.pdf' },
       { id: '2', title: 'Plans techniques.pdf', url: '/documents/plans.pdf' }
-    ]
+    ],
+    subProjects: []
   };
   
   return <ProjectDetails project={project || sampleProject} />;

@@ -100,7 +100,8 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
         avatar: 'https://randomuser.me/api/portraits/men/44.jpg',
         dateJoined: '20/03/2023'
       },
-    ]
+    ],
+    subProjects: []
   };
 
   // We'll use both subProjects from the project and from localStorage
