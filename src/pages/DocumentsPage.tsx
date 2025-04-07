@@ -144,7 +144,7 @@ const DocumentsPage = () => {
           <TableBody>
             {filteredDocuments.length > 0 ? (
               filteredDocuments.map((doc) => (
-                <TableRow key={doc.id} className={doc.id % 2 === 0 ? 'bg-gray-100' : ''}>
+                <TableRow key={doc.id}>
                   <TableCell>{doc.title}</TableCell>
                   <TableCell>{doc.type}</TableCell>
                   <TableCell>{doc.dateAdded}</TableCell>
@@ -172,16 +172,6 @@ const DocumentsPage = () => {
             )}
           </TableBody>
         </Table>
-        
-        <div className="flex justify-center p-4">
-          <nav className="flex items-center space-x-2">
-            <Button variant="outline" size="sm" disabled>Précédent</Button>
-            <Button variant="outline" size="sm" className="bg-blue-600 text-white">1</Button>
-            <Button variant="outline" size="sm">2</Button>
-            <Button variant="outline" size="sm">3</Button>
-            <Button variant="outline" size="sm">Suivant</Button>
-          </nav>
-        </div>
       </div>
     </div>
   );

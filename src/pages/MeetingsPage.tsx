@@ -145,16 +145,6 @@ const MeetingsPage: React.FC = () => {
           </div>
         )}
       </div>
-      
-      <div className="flex justify-center mt-8">
-        <nav className="flex items-center space-x-2">
-          <Button variant="outline" size="sm" disabled>Précédent</Button>
-          <Button variant="outline" size="sm" className="bg-blue-600 text-white">1</Button>
-          <Button variant="outline" size="sm">2</Button>
-          <Button variant="outline" size="sm">3</Button>
-          <Button variant="outline" size="sm">Suivant</Button>
-        </nav>
-      </div>
     </div>
   );
 };

@@ -144,6 +144,12 @@ const MeetingDetailsPage: React.FC = () => {
                 <div className="text-sm text-gray-500">Projet</div>
                 <div className="font-medium">{projectName || 'Non associé'}</div>
               </div>
+              {meeting.type && (
+                <div>
+                  <div className="text-sm text-gray-500">Type</div>
+                  <div className="font-medium">{meeting.type}</div>
+                </div>
+              )}
               <div>
                 <div className="text-sm text-gray-500">Date</div>
                 <div className="font-medium">{formatDate(meeting.date)}</div>
@@ -165,7 +171,7 @@ const MeetingDetailsPage: React.FC = () => {
         
         {/* Membres présents */}
         <div className="mb-8">
-          <h2 className="text-lg font-medium mb-4">Membres du projet</h2>
+          <h2 className="text-lg font-medium mb-4">Personnes présentes</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {meeting.attendees && meeting.attendees.length > 0 ? (
               meeting.attendees.map((attendee) => (
@@ -183,7 +189,7 @@ const MeetingDetailsPage: React.FC = () => {
               ))
             ) : (
               <div className="col-span-full text-center text-gray-500">
-                Aucun membre présent
+                Aucune personne présente
               </div>
             )}
           </div>

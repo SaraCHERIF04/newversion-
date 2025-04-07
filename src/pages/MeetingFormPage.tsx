@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Upload } from 'lucide-react';
+import { ArrowLeft, Upload, Plus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,6 +15,12 @@ type ProjectMember = {
   id: string;
   name: string;
   avatar: string;
+  role?: string;
+};
+
+type CustomAttendee = {
+  id: string;
+  name: string;
   role?: string;
 };
 
@@ -32,9 +38,13 @@ const MeetingFormPage: React.FC = () => {
   const [description, setDescription] = useState('');
   const [attendees, setAttendees] = useState<ProjectMember[]>([]);
   const [selectedAttendees, setSelectedAttendees] = useState<string[]>([]);
+  const [customAttendees, setCustomAttendees] = useState<CustomAttendee[]>([]);
+  const [newAttendeeName, setNewAttendeeName] = useState('');
+  const [newAttendeeRole, setNewAttendeeRole] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [documents, setDocuments] = useState<Array<{id: string, title: string, url: string}>>([]);
   const [status, setStatus] = useState<'annulé' | 'terminé' | 'à venir'>('à venir');
+  const [type, setType] = useState('');
   
   const [projects, setProjects] = useState<Project[]>([]);
   const [availableMembers, setAvailableMembers] = useState<ProjectMember[]>([]);
@@ -70,6 +80,14 @@ const MeetingFormPage: React.FC = () => {
             setSelectedAttendees(meeting.attendees.map((a: any) => a.id));
             setDocuments(meeting.documents || []);
             setStatus(meeting.status || 'à venir');
+            setType(meeting.type || '');
+            
+            // Separate project members from custom attendees
+            const projectMembers = meeting.attendees.filter((a: any) => a.id.startsWith('member-'));
+            const custom = meeting.attendees.filter((a: any) => !a.id.startsWith('member-'));
+            if (custom.length > 0) {
+              setCustomAttendees(custom);
+            }
           }
         } catch (error) {
           console.error('Error loading meeting:', error);
@@ -122,6 +140,24 @@ const MeetingFormPage: React.FC = () => {
     });
   };
   
+  const addCustomAttendee = () => {
+    if (newAttendeeName.trim()) {
+      const newAttendee: CustomAttendee = {
+        id: `custom-${Date.now()}`,
+        name: newAttendeeName.trim(),
+        role: newAttendeeRole.trim() || undefined
+      };
+      
+      setCustomAttendees(prev => [...prev, newAttendee]);
+      setNewAttendeeName('');
+      setNewAttendeeRole('');
+    }
+  };
+  
+  const removeCustomAttendee = (id: string) => {
+    setCustomAttendees(prev => prev.filter(attendee => attendee.id !== id));
+  };
+  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -142,6 +178,17 @@ const MeetingFormPage: React.FC = () => {
       selectedAttendees.includes(member.id)
     );
     
+    // Combine project members and custom attendees
+    const allAttendees = [
+      ...selectedAttendeesList,
+      ...customAttendees.map(attendee => ({
+        id: attendee.id,
+        name: attendee.name,
+        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(attendee.name)}&background=random`,
+        role: attendee.role
+      }))
+    ];
+    
     const meetingData: Meeting = {
       id: id || `meeting-${Date.now()}`,
       pvNumber,
@@ -151,9 +198,10 @@ const MeetingFormPage: React.FC = () => {
       startTime,
       endTime,
       description,
-      attendees: selectedAttendeesList,
+      attendees: allAttendees,
       documents: documentsList,
-      status
+      status,
+      type
     };
     
     // Save meeting to localStorage
@@ -258,6 +306,16 @@ const MeetingFormPage: React.FC = () => {
             </div>
             
             <div>
+              <Label htmlFor="type" className="mb-2 block">Type de réunion</Label>
+              <Input
+                id="type"
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+                placeholder="Spécifiez le type de réunion"
+              />
+            </div>
+            
+            <div>
               <Label htmlFor="date" className="mb-2 block">Date réunion</Label>
               <Input
                 id="date"
@@ -303,6 +361,59 @@ const MeetingFormPage: React.FC = () => {
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
             />
+          </div>
+          
+          <div className="mb-6">
+            <Label className="mb-2 block">Ajouter des assistants externes</Label>
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-3 mb-3">
+              <div className="md:col-span-2">
+                <Input
+                  placeholder="Nom"
+                  value={newAttendeeName}
+                  onChange={(e) => setNewAttendeeName(e.target.value)}
+                />
+              </div>
+              <div className="md:col-span-2">
+                <Input
+                  placeholder="Rôle/Fonction"
+                  value={newAttendeeRole}
+                  onChange={(e) => setNewAttendeeRole(e.target.value)}
+                />
+              </div>
+              <div>
+                <Button 
+                  type="button" 
+                  onClick={addCustomAttendee}
+                  className="w-full bg-blue-600 hover:bg-blue-700"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            
+            {customAttendees.length > 0 && (
+              <div className="mb-4 border border-gray-200 rounded-md p-3">
+                <p className="text-sm font-medium mb-2">Assistants ajoutés:</p>
+                <div className="space-y-2">
+                  {customAttendees.map(attendee => (
+                    <div key={attendee.id} className="flex items-center justify-between bg-gray-50 p-2 rounded-md">
+                      <div>
+                        <span className="font-medium">{attendee.name}</span>
+                        {attendee.role && <span className="text-xs text-gray-500 ml-2">({attendee.role})</span>}
+                      </div>
+                      <Button 
+                        type="button" 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => removeCustomAttendee(attendee.id)}
+                      >
+                        <X className="h-4 w-4 text-gray-500" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
           
           {projectId && (
