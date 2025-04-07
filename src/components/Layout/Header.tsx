@@ -13,7 +13,12 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery }) => {
 
   return (
     <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-6">
-      <div className="flex-1">
+      <div className="flex items-center gap-4">
+        <img 
+          src="https://apua-asea.org/wp-content/uploads/2023/01/sonelgaz.png" 
+          alt="Sonelgaz Logo" 
+          className="h-10"
+        />
         <div className="relative w-full max-w-md">
           <input
             type="text"

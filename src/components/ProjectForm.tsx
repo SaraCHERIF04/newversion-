@@ -1,7 +1,16 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Project } from './ProjectCard';
+import { algerianWilayas } from '@/utils/algerianWilayas';
+import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type ProjectFormProps = {
   project?: Project;
@@ -17,7 +26,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
     chefName: '',
     startDate: '',
     endDate: '',
-    region: '',
+    regionCode: '',
     city: '',
     budget: '',
     status: project?.status || 'En cours',
@@ -27,18 +36,33 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
   const [members, setMembers] = useState([
     { id: '1', name: 'Yasmine', role: 'Team lead' },
     { id: '2', name: 'Hassan', role: 'Dev' },
-    { id: '3', name: 'Yasmine', role: 'Team lead' },
-    { id: '4', name: 'Hassan', role: 'Dev' },
-    { id: '5', name: 'Yasmine', role: 'Team lead' },
-    { id: '6', name: 'Hassan', role: 'Dev' },
+    { id: '3', name: 'Younes', role: 'Team lead' },
+    { id: '4', name: 'Sofiane', role: 'Dev' },
+    { id: '5', name: 'Amina', role: 'Team lead' },
+    { id: '6', name: 'Karim', role: 'Dev' },
     { id: '7', name: 'Nasir', role: 'Team lead' }
   ]);
 
+  const [memberSearch, setMemberSearch] = useState('');
+  const [filteredMembers, setFilteredMembers] = useState(members);
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
+  // Filter members when search term changes
+  useEffect(() => {
+    const filtered = members.filter(member => 
+      member.name.toLowerCase().includes(memberSearch.toLowerCase()) ||
+      member.role.toLowerCase().includes(memberSearch.toLowerCase())
+    );
+    setFilteredMembers(filtered);
+  }, [memberSearch, members]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -65,14 +89,68 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
     }
   };
 
+  const handleFileDownload = (file: File) => {
+    // Create a URL for the file
+    const url = URL.createObjectURL(file);
+    
+    // Create a temporary anchor element
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = file.name;
+    
+    // Append to the DOM
+    document.body.appendChild(a);
+    
+    // Trigger a click on the element
+    a.click();
+    
+    // Remove the element
+    document.body.removeChild(a);
+    
+    // Revoke the URL to free up memory
+    URL.revokeObjectURL(url);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Logic to save or update project
+    
+    // Basic validation
+    if (!formData.name.trim()) {
+      toast.error("Le nom du projet est requis");
+      return;
+    }
+    
+    // Create project object
+    const newProject = {
+      id: isEdit && project ? project.id : Date.now().toString(),
+      name: formData.name,
+      description: formData.description,
+      status: formData.status,
+      deadline: formData.endDate,
+      members: selectedMembers.map(id => {
+        const member = members.find(m => m.id === id);
+        return {
+          id,
+          name: member?.name || '',
+          avatar: `https://randomuser.me/api/portraits/${Math.random() > 0.5 ? 'women' : 'men'}/${Math.floor(Math.random() * 70)}.jpg`
+        };
+      }),
+      documentsCount: uploadedFiles.length,
+    };
+    
+    // In a real app, you would send this to your backend
+    console.log('Submitting project:', newProject);
+    
+    // Show success message
+    toast.success(isEdit ? "Projet modifié avec succès" : "Projet créé avec succès");
+    
+    // Redirect to projects list
     navigate('/');
   };
 
   const handleDelete = () => {
     // Logic to delete project
+    toast.success("Projet supprimé avec succès");
     navigate('/');
   };
 
@@ -97,7 +175,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
               d="M10 19l-7-7m0 0l7-7m-7 7h18" 
             />
           </svg>
-          <span className="text-xl">Créer /Modifier Projet</span>
+          <span className="text-xl">{isEdit ? 'Modifier Projet' : 'Créer Projet'}</span>
         </button>
       </div>
 
@@ -161,24 +239,30 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Wilaya
             </label>
-            <div className="relative">
-              <input
-                type="text"
-                name="region"
-                value={formData.region}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="16"
-              />
-              <input
-                type="text"
-                name="city"
-                value={formData.city}
-                onChange={handleInputChange}
-                className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Alger"
-              />
-            </div>
+            <Select
+              value={formData.regionCode}
+              onValueChange={(value) => handleSelectChange('regionCode', value)}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Sélectionner une wilaya" />
+              </SelectTrigger>
+              <SelectContent className="max-h-80">
+                {algerianWilayas.map((wilaya) => (
+                  <SelectItem key={wilaya} value={wilaya}>
+                    {wilaya}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            
+            <input
+              type="text"
+              name="city"
+              value={formData.city}
+              onChange={handleInputChange}
+              placeholder="Ville/Commune"
+              className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
           </div>
 
           <div>
@@ -191,7 +275,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
               value={formData.budget}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Actif"
+              placeholder="Budget en DA"
             />
           </div>
 
@@ -239,12 +323,14 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
                   <input
                     type="text"
                     placeholder="Rechercher membre..."
+                    value={memberSearch}
+                    onChange={(e) => setMemberSearch(e.target.value)}
                     className="text-xs px-2 py-1 border border-gray-300 rounded-md focus:outline-none"
                   />
                 </div>
               </div>
               <div className="max-h-48 overflow-y-auto">
-                {members.map((member) => (
+                {filteredMembers.map((member) => (
                   <div
                     key={member.id}
                     className="flex items-center justify-between px-3 py-2 border-b border-gray-200 last:border-0"
@@ -273,15 +359,22 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Documents du sous projet
+              Documents du projet
             </label>
             <div className="border border-gray-300 rounded-md p-4 h-60 flex flex-col">
-              <div className="flex-grow">
+              <div className="flex-grow overflow-y-auto">
                 {uploadedFiles.length > 0 ? (
                   <ul className="space-y-2">
                     {uploadedFiles.map((file, index) => (
-                      <li key={index} className="text-sm">
-                        {file.name}
+                      <li key={index} className="flex justify-between items-center text-sm">
+                        <span>{file.name}</span>
+                        <button 
+                          type="button" 
+                          onClick={() => handleFileDownload(file)}
+                          className="text-blue-600 hover:text-blue-800"
+                        >
+                          Télécharger
+                        </button>
                       </li>
                     ))}
                   </ul>

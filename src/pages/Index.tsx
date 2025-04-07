@@ -1,12 +1,9 @@
 
-import React, { useState } from 'react';
-import MainLayout from '@/components/Layout/MainLayout';
-import ProjectsPage from '@/pages/ProjectsPage';
+import React from 'react';
+import { Navigate } from 'react-router-dom';
 
 const Index: React.FC = () => {
-  return (
-    <MainLayout />
-  );
+  return <Navigate to="/project" replace />;
 };
 
 export default Index;

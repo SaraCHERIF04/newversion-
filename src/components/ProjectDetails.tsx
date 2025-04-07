@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Project } from './ProjectCard';
+import { Download, Printer } from 'lucide-react';
 
 type ProjectMember = {
   id: string;
@@ -14,6 +15,7 @@ type ProjectMember = {
 type Document = {
   id: string;
   title: string;
+  url?: string;
 };
 
 type SubProject = {
@@ -45,10 +47,10 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
     endDate: '20/3/2023',
     description: 'Description détaillée du projet ici...',
     documents: [
-      { id: '1', title: 'Titre de document' },
-      { id: '2', title: 'Titre de document' },
-      { id: '3', title: 'Titre de document' },
-      { id: '4', title: 'Titre de document' },
+      { id: '1', title: 'Rapport initial.pdf', url: '/documents/rapport.pdf' },
+      { id: '2', title: 'Plans techniques.pdf', url: '/documents/plans.pdf' },
+      { id: '3', title: 'Budget détaillé.xlsx', url: '/documents/budget.xlsx' },
+      { id: '4', title: 'Contrat.pdf', url: '/documents/contrat.pdf' },
     ],
     members: [
       { 
@@ -103,6 +105,17 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
 
   const printProject = () => {
     window.print();
+  };
+
+  const downloadDocument = (doc: Document) => {
+    // In a real app, you would have a real URL to download from
+    // For demonstration, we'll create a mock file download
+    const a = document.createElement('a');
+    a.href = doc.url || '#';
+    a.download = doc.title;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
   return (
@@ -188,8 +201,9 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
             </button>
             <button 
               onClick={printProject}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center"
             >
+              <Printer className="mr-2 h-4 w-4" />
               Imprimer
             </button>
           </div>
@@ -202,8 +216,14 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
             <h3 className="text-lg font-medium mb-3">Document du projets</h3>
             <div className="space-y-2">
               {projectDetails.documents.map(doc => (
-                <div key={doc.id} className="p-2 bg-blue-50 text-blue-600 rounded-md">
-                  {doc.title}
+                <div key={doc.id} className="p-2 bg-blue-50 text-blue-600 rounded-md flex justify-between items-center">
+                  <span>{doc.title}</span>
+                  <button 
+                    onClick={() => downloadDocument(doc)}
+                    className="text-blue-700 hover:text-blue-900"
+                  >
+                    <Download className="h-4 w-4" />
+                  </button>
                 </div>
               ))}
             </div>

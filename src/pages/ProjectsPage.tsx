@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import ProjectCard, { Project } from '@/components/ProjectCard';
+import { useSearchQuery } from '@/components/Layout/MainLayout';
+import { Eye } from 'lucide-react';
 
 // Sample data for projects
 const sampleProjects: Project[] = [
@@ -83,19 +85,22 @@ const sampleProjects: Project[] = [
 ];
 
 const ProjectsPage: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const { searchQuery } = useSearchQuery();
+  const [localSearchTerm, setLocalSearchTerm] = useState('');
   const [filteredProjects, setFilteredProjects] = useState<Project[]>(sampleProjects);
 
+  // Effect to handle both header search and local search
   useEffect(() => {
+    const combinedSearchTerm = searchQuery || localSearchTerm;
     const results = sampleProjects.filter(project =>
-      project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.description.toLowerCase().includes(searchTerm.toLowerCase())
+      project.name.toLowerCase().includes(combinedSearchTerm.toLowerCase()) ||
+      project.description.toLowerCase().includes(combinedSearchTerm.toLowerCase())
     );
     setFilteredProjects(results);
-  }, [searchTerm]);
+  }, [searchQuery, localSearchTerm]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
+    setLocalSearchTerm(e.target.value);
   };
 
   return (
@@ -107,7 +112,7 @@ const ProjectsPage: React.FC = () => {
             <input
               type="text"
               placeholder="Rechercher un projet..."
-              value={searchTerm}
+              value={localSearchTerm}
               onChange={handleSearch}
               className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
             />
@@ -139,7 +144,15 @@ const ProjectsPage: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredProjects.map(project => (
-          <ProjectCard key={project.id} project={project} />
+          <div key={project.id} className="relative group">
+            <ProjectCard project={project} />
+            <Link 
+              to={`/project/${project.id}`} 
+              className="absolute top-4 right-4 bg-white p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <Eye className="h-5 w-5 text-[#192759]" />
+            </Link>
+          </div>
         ))}
       </div>
     </div>
