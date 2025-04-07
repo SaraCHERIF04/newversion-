@@ -27,6 +27,7 @@ import MaitreOuvrageDetailsPage from "./pages/MaitreOuvrageDetailsPage";
 import MarchePage from "./pages/MarchePage";
 import MarcheFormPage from "./pages/MarcheFormPage";
 import MarcheDetailsPage from "./pages/MarcheDetailsPage";
+import ProfilePage from "./pages/ProfilePage";
 import React from "react";
 
 // Create a new query client instance inside the component
@@ -67,6 +68,7 @@ function App() {
               <Route path="marche/new" element={<MarcheFormPage />} />
               <Route path="marche/edit/:id" element={<MarcheFormPage />} />
               <Route path="marche/:id" element={<MarcheDetailsPage />} />
+              <Route path="profile" element={<ProfilePage />} />
               <Route path="dashboard" element={<div>Dashboard Page</div>} />
               <Route path="incidents" element={<div>Incidents Page</div>} />
               <Route path="parametres" element={<div>Paramètres Page</div>} />

@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 type HeaderProps = {
@@ -10,6 +10,7 @@ type HeaderProps = {
 
 const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-6">
@@ -70,7 +71,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery }) => {
             className="flex items-center gap-2"
             onClick={() => setIsProfileOpen(!isProfileOpen)}
           >
-            <span className="text-sm font-medium text-gray-700">Amina Agrawal</span>
+            <span className="text-sm font-medium text-gray-700">Alexa Rowles</span>
             <span className="text-xs text-gray-500">Chef de projet</span>
             <img
               src="https://randomuser.me/api/portraits/women/44.jpg"
@@ -82,27 +83,30 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery }) => {
           {isProfileOpen && (
             <div className="absolute right-0 top-full z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
               <div className="py-1" role="menu" aria-orientation="vertical">
-                <a
-                  href="#"
+                <Link
+                  to="/profile"
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   role="menuitem"
+                  onClick={() => setIsProfileOpen(false)}
                 >
                   Votre profil
-                </a>
-                <a
-                  href="#"
+                </Link>
+                <Link
+                  to="/parametres"
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   role="menuitem"
+                  onClick={() => setIsProfileOpen(false)}
                 >
                   Paramètres
-                </a>
-                <a
-                  href="#"
+                </Link>
+                <Link
+                  to="/"
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   role="menuitem"
+                  onClick={() => setIsProfileOpen(false)}
                 >
                   Se déconnecter
-                </a>
+                </Link>
               </div>
             </div>
           )}
