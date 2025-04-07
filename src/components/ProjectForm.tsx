@@ -21,7 +21,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [formData, setFormData] = useState({
+  const initialFormState = {
     name: project?.name || '',
     chefName: '',
     startDate: '',
@@ -31,7 +31,9 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
     budget: '',
     status: project?.status || 'En cours',
     description: project?.description || '',
-  });
+  };
+
+  const [formData, setFormData] = useState(initialFormState);
 
   const [members, setMembers] = useState([
     { id: '1', name: 'Yasmine', role: 'Team lead' },
@@ -45,7 +47,9 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
 
   const [memberSearch, setMemberSearch] = useState('');
   const [filteredMembers, setFilteredMembers] = useState(members);
-  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+  const [selectedMembers, setSelectedMembers] = useState<string[]>(
+    project?.members ? project.members.map(m => m.id) : []
+  );
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
   // Filter members when search term changes
@@ -111,6 +115,13 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
     URL.revokeObjectURL(url);
   };
 
+  const resetForm = () => {
+    setFormData(initialFormState);
+    setSelectedMembers([]);
+    setUploadedFiles([]);
+    setMemberSearch('');
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -144,21 +155,26 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
     // Show success message
     toast.success(isEdit ? "Projet modifié avec succès" : "Projet créé avec succès");
     
+    // Reset form if creating new project
+    if (!isEdit) {
+      resetForm();
+    }
+    
     // Redirect to projects list
-    navigate('/');
+    navigate('/project');
   };
 
   const handleDelete = () => {
     // Logic to delete project
     toast.success("Projet supprimé avec succès");
-    navigate('/');
+    navigate('/project');
   };
 
   return (
     <div className="max-w-5xl mx-auto bg-white rounded-lg shadow-sm border border-gray-200">
       <div className="flex items-center mb-6">
         <button 
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/project')}
           className="flex items-center text-gray-600 hover:text-gray-900 font-medium"
         >
           <svg 

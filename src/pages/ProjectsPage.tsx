@@ -1,9 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import ProjectCard, { Project } from '@/components/ProjectCard';
 import { useSearchQuery } from '@/components/Layout/MainLayout';
-import { Eye } from 'lucide-react';
 
 // Sample data for projects
 const sampleProjects: Project[] = [
@@ -144,15 +142,11 @@ const ProjectsPage: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredProjects.map(project => (
-          <div key={project.id} className="relative group">
-            <ProjectCard project={project} />
-            <Link 
-              to={`/project/${project.id}`} 
-              className="absolute top-4 right-4 bg-white p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
-            >
-              <Eye className="h-5 w-5 text-[#192759]" />
-            </Link>
-          </div>
+          <Link key={project.id} to={`/project/${project.id}`} className="block">
+            <div className="h-full transition-transform hover:scale-102 hover:shadow-lg">
+              <ProjectCard project={project} />
+            </div>
+          </Link>
         ))}
       </div>
     </div>

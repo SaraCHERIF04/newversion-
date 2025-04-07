@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Project } from './ProjectCard';
-import { Download, Printer } from 'lucide-react';
+import { Download, Printer, ArrowLeft } from 'lucide-react';
 
 type ProjectMember = {
   id: string;
@@ -118,8 +118,22 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
     document.body.removeChild(a);
   };
 
+  const handleBack = () => {
+    navigate('/project');
+  };
+
   return (
     <div className="max-w-7xl mx-auto">
+      <div className="flex items-center mb-6">
+        <button 
+          onClick={handleBack}
+          className="flex items-center text-gray-600 hover:text-gray-900 font-medium"
+        >
+          <ArrowLeft className="h-5 w-5 mr-2" />
+          <span>Retour aux projets</span>
+        </button>
+      </div>
+      
       <h1 className="text-2xl font-bold mb-8">Détails de projets</h1>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
