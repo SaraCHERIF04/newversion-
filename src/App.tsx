@@ -21,6 +21,12 @@ import DocumentDetailsPage from "./pages/DocumentDetailsPage";
 import MeetingsPage from "./pages/MeetingsPage";
 import MeetingFormPage from "./pages/MeetingFormPage";
 import MeetingDetailsPage from "./pages/MeetingDetailsPage";
+import MaitreOuvragePage from "./pages/MaitreOuvragePage";
+import MaitreOuvrageFormPage from "./pages/MaitreOuvrageFormPage";
+import MaitreOuvrageDetailsPage from "./pages/MaitreOuvrageDetailsPage";
+import MarchePage from "./pages/MarchePage";
+import MarcheFormPage from "./pages/MarcheFormPage";
+import MarcheDetailsPage from "./pages/MarcheDetailsPage";
 import React from "react";
 
 // Create a new query client instance inside the component
@@ -53,10 +59,16 @@ function App() {
               <Route path="reunion/new" element={<MeetingFormPage />} />
               <Route path="reunion/edit/:id" element={<MeetingFormPage />} />
               <Route path="reunion/:id" element={<MeetingDetailsPage />} />
+              <Route path="maitre-ouvrage" element={<MaitreOuvragePage />} />
+              <Route path="maitre-ouvrage/new" element={<MaitreOuvrageFormPage />} />
+              <Route path="maitre-ouvrage/edit/:id" element={<MaitreOuvrageFormPage />} />
+              <Route path="maitre-ouvrage/:id" element={<MaitreOuvrageDetailsPage />} />
+              <Route path="marche" element={<MarchePage />} />
+              <Route path="marche/new" element={<MarcheFormPage />} />
+              <Route path="marche/edit/:id" element={<MarcheFormPage />} />
+              <Route path="marche/:id" element={<MarcheDetailsPage />} />
               <Route path="dashboard" element={<div>Dashboard Page</div>} />
               <Route path="incidents" element={<div>Incidents Page</div>} />
-              <Route path="maitre-ouvrage" element={<div>Maitre Ouvrage Page</div>} />
-              <Route path="marche" element={<div>Marché Page</div>} />
               <Route path="parametres" element={<div>Paramètres Page</div>} />
               <Route path="about" element={<div>About Us Page</div>} />
             </Route>
