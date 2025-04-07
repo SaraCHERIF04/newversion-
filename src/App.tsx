@@ -11,38 +11,43 @@ import ProjectsPage from "./pages/ProjectsPage";
 import ProjectNewPage from "./pages/ProjectNewPage";
 import ProjectEditPage from "./pages/ProjectEditPage";
 import ProjectDetailsPage from "./pages/ProjectDetailsPage";
+import React from "react";
 
-const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<MainLayout />}>
-            <Route index element={<Index />} />
-            <Route path="project" element={<ProjectsPage />} />
-            <Route path="project/new" element={<ProjectNewPage />} />
-            <Route path="project/edit/:id" element={<ProjectEditPage />} />
-            <Route path="project/:id" element={<ProjectDetailsPage />} />
-            <Route path="sous-projet" element={<div>Sous Projet Page</div>} />
-            <Route path="dashboard" element={<div>Dashboard Page</div>} />
-            <Route path="incidents" element={<div>Incidents Page</div>} />
-            <Route path="documents" element={<div>Documents Page</div>} />
-            <Route path="maitre-ouvrage" element={<div>Maitre Ouvrage Page</div>} />
-            <Route path="marche" element={<div>Marché Page</div>} />
-            <Route path="reunion" element={<div>Réunion Page</div>} />
-            <Route path="parametres" element={<div>Paramètres Page</div>} />
-            <Route path="about" element={<div>About Us Page</div>} />
-          </Route>
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+// Create a new query client instance inside the component
+function App() {
+  // Create the client inside the component
+  const queryClient = new QueryClient();
+  
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<MainLayout />}>
+              <Route index element={<Index />} />
+              <Route path="project" element={<ProjectsPage />} />
+              <Route path="project/new" element={<ProjectNewPage />} />
+              <Route path="project/edit/:id" element={<ProjectEditPage />} />
+              <Route path="project/:id" element={<ProjectDetailsPage />} />
+              <Route path="sous-projet" element={<div>Sous Projet Page</div>} />
+              <Route path="dashboard" element={<div>Dashboard Page</div>} />
+              <Route path="incidents" element={<div>Incidents Page</div>} />
+              <Route path="documents" element={<div>Documents Page</div>} />
+              <Route path="maitre-ouvrage" element={<div>Maitre Ouvrage Page</div>} />
+              <Route path="marche" element={<div>Marché Page</div>} />
+              <Route path="reunion" element={<div>Réunion Page</div>} />
+              <Route path="parametres" element={<div>Paramètres Page</div>} />
+              <Route path="about" element={<div>About Us Page</div>} />
+            </Route>
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+}
 
 export default App;
