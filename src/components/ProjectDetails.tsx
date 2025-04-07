@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Project } from './ProjectCard';
 import { Download, Printer, ArrowLeft } from 'lucide-react';
 
+// Extend the ProjectMember type with additional properties
 type ProjectMember = {
   id: string;
   name: string;
@@ -27,6 +28,17 @@ type SubProject = {
   documentsCount: number;
 };
 
+// Since we can't modify the original Project type directly, we'll create a ProjectWithDetails type
+type ProjectWithDetails = Project & {
+  chef?: string;
+  region?: string;
+  budget?: string;
+  startDate?: string;
+  endDate?: string;
+  documents?: Document[];
+  subProjects?: SubProject[];
+};
+
 type ProjectDetailsProps = {
   project?: Project;
 };
@@ -36,7 +48,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
   const { id } = useParams();
   
   // Get project from localStorage if available
-  const getProjectFromStorage = (projectId: string): Project | undefined => {
+  const getProjectFromStorage = (projectId: string): ProjectWithDetails | undefined => {
     try {
       const projectsString = localStorage.getItem('projects');
       if (projectsString) {
@@ -51,7 +63,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
 
   // Try to get project from localStorage, fallback to props
   const storedProject = id ? getProjectFromStorage(id) : undefined;
-  const projectDetails = storedProject || project || {
+  const projectDetails: ProjectWithDetails = storedProject || project || {
     id: id || '1',
     name: 'Construction d\'une nouvelle station gaz',
     status: 'En cours' as const,

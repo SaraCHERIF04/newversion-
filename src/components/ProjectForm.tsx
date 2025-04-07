@@ -20,22 +20,41 @@ type ProjectDocument = {
   id: string;
   title: string;
   file: File;
+  url?: string;
+};
+
+const getProjectData = (project: Project | undefined) => {
+  if (!project) return null;
+  return {
+    name: project.name || '',
+    description: project.description || '',
+    status: project.status || 'En cours',
+    chef: (project as any).chef || '',
+    startDate: (project as any).startDate || '',
+    endDate: (project as any).endDate || '',
+    regionCode: (project as any).region || '',
+    city: (project as any).city || '',
+    budget: (project as any).budget || '',
+    members: project.members || [],
+    documents: (project as any).documents || []
+  };
 };
 
 const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) => {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const projectData = getProjectData(project);
 
   const initialFormState = {
-    name: project?.name || '',
-    chefName: '',
-    startDate: '',
-    endDate: '',
-    regionCode: '',
-    city: '',
-    budget: '',
-    status: project?.status || 'En cours',
-    description: project?.description || '',
+    name: projectData?.name || '',
+    chefName: projectData?.chef || '',
+    startDate: projectData?.startDate || '',
+    endDate: projectData?.endDate || '',
+    regionCode: projectData?.regionCode || '',
+    city: projectData?.city || '',
+    budget: projectData?.budget || '',
+    status: projectData?.status || 'En cours',
+    description: projectData?.description || '',
   };
 
   const [formData, setFormData] = useState(initialFormState);
@@ -58,9 +77,17 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
   const [projectDocuments, setProjectDocuments] = useState<ProjectDocument[]>([]);
 
   useEffect(() => {
-    if (isEdit && project) {
-      if (project.documents) {
-        setProjectDocuments(project.documents);
+    if (isEdit && project && (project as any).documents) {
+      try {
+        const docs = (project as any).documents.map((doc: any) => ({
+          id: doc.id,
+          title: doc.title,
+          url: doc.url,
+          file: new File([], doc.title)
+        }));
+        setProjectDocuments(docs);
+      } catch (error) {
+        console.error('Error processing documents:', error);
       }
     }
   }, [isEdit, project]);
@@ -111,14 +138,23 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
   };
 
   const handleFileDownload = (document: ProjectDocument) => {
-    const url = URL.createObjectURL(document.file);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = document.title;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    if (document.url) {
+      const a = document.createElement('a');
+      a.href = document.url;
+      a.download = document.title;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } else if (document.file) {
+      const url = URL.createObjectURL(document.file);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = document.title;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
   };
 
   const handleRemoveDocument = (id: string) => {
@@ -178,7 +214,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
       documents: projectDocuments.map(doc => ({
         id: doc.id,
         title: doc.title,
-        url: URL.createObjectURL(doc.file)
+        url: doc.url || (doc.file ? URL.createObjectURL(doc.file) : '')
       })),
       chef: formData.chefName,
       region: formData.regionCode,

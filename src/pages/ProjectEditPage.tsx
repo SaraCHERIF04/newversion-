@@ -4,10 +4,21 @@ import { useParams, useNavigate } from 'react-router-dom';
 import ProjectForm from '@/components/ProjectForm';
 import { Project } from '@/components/ProjectCard';
 
+// Extended Project type to include additional properties
+type ExtendedProject = Project & {
+  chef?: string;
+  region?: string; 
+  budget?: string;
+  startDate?: string;
+  endDate?: string;
+  documents?: Array<{id: string, title: string, url: string}>;
+  city?: string;
+};
+
 const ProjectEditPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [project, setProject] = useState<Project | undefined>(undefined);
+  const [project, setProject] = useState<ExtendedProject | undefined>(undefined);
   
   useEffect(() => {
     if (id) {
@@ -18,6 +29,7 @@ const ProjectEditPage: React.FC = () => {
           const projects = JSON.parse(projectsString);
           const foundProject = projects.find((p: Project) => p.id === id);
           if (foundProject) {
+            console.log("Found project to edit:", foundProject);
             setProject(foundProject);
           } else {
             console.error('Project not found');
@@ -29,7 +41,7 @@ const ProjectEditPage: React.FC = () => {
         }
       } else {
         // If no projects in localStorage, use sample data
-        const sampleProject: Project = {
+        const sampleProject: ExtendedProject = {
           id: id,
           name: 'Construction d\'une nouvelle station gaz',
           description: 'Description détaillée du projet ici...',
@@ -41,6 +53,12 @@ const ProjectEditPage: React.FC = () => {
             { id: '3', name: 'User 3', avatar: 'https://randomuser.me/api/portraits/men/44.jpg' },
           ],
           documentsCount: 5,
+          chef: '',
+          region: '',
+          budget: '',
+          startDate: '',
+          endDate: '',
+          city: ''
         };
         setProject(sampleProject);
       }
