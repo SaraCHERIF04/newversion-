@@ -74,8 +74,8 @@ const MaitreOuvrageFormPage = () => {
         // Update existing maître d'ouvrage
         maitreOuvrages = maitreOuvrages.map(mo => mo.id === id ? maitreOuvrageData : mo);
       } else {
-        // Add new maître d'ouvrage
-        maitreOuvrages.push(maitreOuvrageData);
+        // Add new maître d'ouvrage to the beginning of the array
+        maitreOuvrages.unshift(maitreOuvrageData);
       }
 
       localStorage.setItem('maitreOuvrages', JSON.stringify(maitreOuvrages));

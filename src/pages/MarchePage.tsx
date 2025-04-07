@@ -231,14 +231,14 @@ const MarchePage = () => {
           <TableBody>
             {filteredMarches.length > 0 ? (
               filteredMarches.map((marche) => (
-                <TableRow key={marche.id} className={marche.id % 2 === 0 ? 'bg-gray-100' : ''}>
+                <TableRow key={marche.id} className={marche.id === '2' || marche.id === '4' || marche.id === '6' || marche.id === '8' ? 'bg-gray-100' : ''}>
                   <TableCell>{marche.numeroMarche}</TableCell>
                   <TableCell>{marche.nom}</TableCell>
                   <TableCell>{marche.dateSignature}</TableCell>
                   <TableCell>{marche.type}</TableCell>
                   <TableCell>{getProjectName(marche.projetId)}</TableCell>
                   <TableCell>{marche.fournisseur}</TableCell>
-                  <TableCell className="text-right space-x-2">
+                  <TableCell className="text-right flex justify-end space-x-2">
                     <Button variant="ghost" size="sm" onClick={() => handleViewMarche(marche)}>
                       <Eye className="h-4 w-4" />
                     </Button>

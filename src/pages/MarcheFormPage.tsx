@@ -114,8 +114,8 @@ const MarcheFormPage = () => {
         // Update existing marché
         marches = marches.map(m => m.id === id ? marcheData : m);
       } else {
-        // Add new marché
-        marches.push(marcheData);
+        // Add new marché to the beginning of the array
+        marches.unshift(marcheData);
       }
 
       localStorage.setItem('marches', JSON.stringify(marches));
@@ -167,17 +167,12 @@ const MarcheFormPage = () => {
 
             <div>
               <Label htmlFor="type" className="mb-2 block">Type du marché</Label>
-              <Select value={type} onValueChange={setType}>
-                <SelectTrigger id="type">
-                  <SelectValue placeholder="Sélectionnez un type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="AOTF">AOTF</SelectItem>
-                  <SelectItem value="AON">AON</SelectItem>
-                  <SelectItem value="Consultation">Consultation</SelectItem>
-                  <SelectItem value="Autre">Autre</SelectItem>
-                </SelectContent>
-              </Select>
+              <Input
+                id="type"
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+                placeholder="Entrez le type"
+              />
             </div>
 
             <div>

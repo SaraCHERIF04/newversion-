@@ -157,7 +157,7 @@ const MaitreOuvragePage = () => {
           <TableBody>
             {filteredMaitreOuvrages.length > 0 ? (
               filteredMaitreOuvrages.map((mo) => (
-                <TableRow key={mo.id} className={mo.id % 2 === 0 ? 'bg-gray-100' : ''}>
+                <TableRow key={mo.id} className={mo.id === '2' || mo.id === '4' || mo.id === '6' || mo.id === '8' ? 'bg-gray-100' : ''}>
                   <TableCell>{mo.nom}</TableCell>
                   <TableCell>{mo.type}</TableCell>
                   <TableCell>{mo.email}</TableCell>
