@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import ProjectCard, { Project } from '@/components/ProjectCard';
@@ -85,17 +86,34 @@ const sampleProjects: Project[] = [
 const ProjectsPage: React.FC = () => {
   const { searchQuery } = useSearchQuery();
   const [localSearchTerm, setLocalSearchTerm] = useState('');
-  const [filteredProjects, setFilteredProjects] = useState<Project[]>(sampleProjects);
+  const [allProjects, setAllProjects] = useState<Project[]>([]);
+  const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
+
+  // Load projects from localStorage on component mount
+  useEffect(() => {
+    const savedProjects = localStorage.getItem('projects');
+    if (savedProjects) {
+      try {
+        const parsedProjects = JSON.parse(savedProjects);
+        setAllProjects([...parsedProjects, ...sampleProjects]);
+      } catch (error) {
+        console.error('Error parsing projects from localStorage:', error);
+        setAllProjects(sampleProjects);
+      }
+    } else {
+      setAllProjects(sampleProjects);
+    }
+  }, []);
 
   // Effect to handle both header search and local search
   useEffect(() => {
     const combinedSearchTerm = searchQuery || localSearchTerm;
-    const results = sampleProjects.filter(project =>
+    const results = allProjects.filter(project =>
       project.name.toLowerCase().includes(combinedSearchTerm.toLowerCase()) ||
       project.description.toLowerCase().includes(combinedSearchTerm.toLowerCase())
     );
     setFilteredProjects(results);
-  }, [searchQuery, localSearchTerm]);
+  }, [searchQuery, localSearchTerm, allProjects]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLocalSearchTerm(e.target.value);

@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Project } from './ProjectCard';
@@ -15,6 +14,12 @@ import {
 type ProjectFormProps = {
   project?: Project;
   isEdit?: boolean;
+};
+
+type ProjectDocument = {
+  id: string;
+  title: string;
+  file: File;
 };
 
 const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) => {
@@ -50,9 +55,16 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
   const [selectedMembers, setSelectedMembers] = useState<string[]>(
     project?.members ? project.members.map(m => m.id) : []
   );
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [projectDocuments, setProjectDocuments] = useState<ProjectDocument[]>([]);
 
-  // Filter members when search term changes
+  useEffect(() => {
+    if (isEdit && project) {
+      if (project.documents) {
+        setProjectDocuments(project.documents);
+      }
+    }
+  }, [isEdit, project]);
+
   useEffect(() => {
     const filtered = members.filter(member => 
       member.name.toLowerCase().includes(memberSearch.toLowerCase()) ||
@@ -89,49 +101,65 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const filesArray = Array.from(e.target.files);
-      setUploadedFiles((prev) => [...prev, ...filesArray]);
+      const newDocuments = filesArray.map(file => ({
+        id: Math.random().toString(36).substring(2, 11),
+        title: file.name,
+        file
+      }));
+      setProjectDocuments(prev => [...prev, ...newDocuments]);
     }
   };
 
-  const handleFileDownload = (file: File) => {
-    // Create a URL for the file
-    const url = URL.createObjectURL(file);
-    
-    // Create a temporary anchor element
+  const handleFileDownload = (document: ProjectDocument) => {
+    const url = URL.createObjectURL(document.file);
     const a = document.createElement('a');
     a.href = url;
-    a.download = file.name;
-    
-    // Append to the DOM
+    a.download = document.title;
     document.body.appendChild(a);
-    
-    // Trigger a click on the element
     a.click();
-    
-    // Remove the element
     document.body.removeChild(a);
-    
-    // Revoke the URL to free up memory
     URL.revokeObjectURL(url);
+  };
+
+  const handleRemoveDocument = (id: string) => {
+    setProjectDocuments(prev => prev.filter(doc => doc.id !== id));
   };
 
   const resetForm = () => {
     setFormData(initialFormState);
     setSelectedMembers([]);
-    setUploadedFiles([]);
+    setProjectDocuments([]);
     setMemberSearch('');
+  };
+
+  const saveProjectToLocalStorage = (newProject: Project) => {
+    try {
+      const existingProjectsJSON = localStorage.getItem('projects') || '[]';
+      const existingProjects = JSON.parse(existingProjectsJSON);
+      
+      if (isEdit && project) {
+        const updatedProjects = existingProjects.map((p: Project) => 
+          p.id === project.id ? newProject : p
+        );
+        localStorage.setItem('projects', JSON.stringify(updatedProjects));
+      } else {
+        existingProjects.push(newProject);
+        localStorage.setItem('projects', JSON.stringify(existingProjects));
+      }
+    } catch (error) {
+      console.error('Error saving project to localStorage:', error);
+      toast.error('Erreur lors de la sauvegarde du projet');
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Basic validation
     if (!formData.name.trim()) {
       toast.error("Le nom du projet est requis");
       return;
     }
     
-    // Create project object
     const newProject = {
       id: isEdit && project ? project.id : Date.now().toString(),
       name: formData.name,
@@ -146,28 +174,48 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
           avatar: `https://randomuser.me/api/portraits/${Math.random() > 0.5 ? 'women' : 'men'}/${Math.floor(Math.random() * 70)}.jpg`
         };
       }),
-      documentsCount: uploadedFiles.length,
+      documentsCount: projectDocuments.length,
+      documents: projectDocuments.map(doc => ({
+        id: doc.id,
+        title: doc.title,
+        url: URL.createObjectURL(doc.file)
+      })),
+      chef: formData.chefName,
+      region: formData.regionCode,
+      budget: formData.budget,
+      startDate: formData.startDate,
+      endDate: formData.endDate,
+      city: formData.city
     };
     
-    // In a real app, you would send this to your backend
-    console.log('Submitting project:', newProject);
+    saveProjectToLocalStorage(newProject);
     
-    // Show success message
     toast.success(isEdit ? "Projet modifié avec succès" : "Projet créé avec succès");
     
-    // Reset form if creating new project
     if (!isEdit) {
       resetForm();
     }
     
-    // Redirect to projects list
     navigate('/project');
   };
 
   const handleDelete = () => {
-    // Logic to delete project
-    toast.success("Projet supprimé avec succès");
-    navigate('/project');
+    if (isEdit && project) {
+      try {
+        const existingProjectsJSON = localStorage.getItem('projects') || '[]';
+        const existingProjects = JSON.parse(existingProjectsJSON);
+        
+        const updatedProjects = existingProjects.filter((p: Project) => p.id !== project.id);
+        localStorage.setItem('projects', JSON.stringify(updatedProjects));
+        
+        toast.success("Projet supprimé avec succès");
+        
+        navigate('/project');
+      } catch (error) {
+        console.error('Error deleting project from localStorage:', error);
+        toast.error('Erreur lors de la suppression du projet');
+      }
+    }
   };
 
   return (
@@ -379,18 +427,27 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
             </label>
             <div className="border border-gray-300 rounded-md p-4 h-60 flex flex-col">
               <div className="flex-grow overflow-y-auto">
-                {uploadedFiles.length > 0 ? (
+                {projectDocuments.length > 0 ? (
                   <ul className="space-y-2">
-                    {uploadedFiles.map((file, index) => (
-                      <li key={index} className="flex justify-between items-center text-sm">
-                        <span>{file.name}</span>
-                        <button 
-                          type="button" 
-                          onClick={() => handleFileDownload(file)}
-                          className="text-blue-600 hover:text-blue-800"
-                        >
-                          Télécharger
-                        </button>
+                    {projectDocuments.map((doc) => (
+                      <li key={doc.id} className="flex justify-between items-center text-sm">
+                        <span className="truncate">{doc.title}</span>
+                        <div className="flex gap-2">
+                          <button 
+                            type="button" 
+                            onClick={() => handleFileDownload(doc)}
+                            className="text-blue-600 hover:text-blue-800"
+                          >
+                            Télécharger
+                          </button>
+                          <button 
+                            type="button" 
+                            onClick={() => handleRemoveDocument(doc.id)}
+                            className="text-red-600 hover:text-red-800"
+                          >
+                            Supprimer
+                          </button>
+                        </div>
                       </li>
                     ))}
                   </ul>

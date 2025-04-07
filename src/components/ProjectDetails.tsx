@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Project } from './ProjectCard';
 import { Download, Printer, ArrowLeft } from 'lucide-react';
@@ -7,9 +7,9 @@ import { Download, Printer, ArrowLeft } from 'lucide-react';
 type ProjectMember = {
   id: string;
   name: string;
-  role: string;
+  role?: string;
   avatar: string;
-  dateJoined: string;
+  dateJoined?: string;
 };
 
 type Document = {
@@ -35,8 +35,23 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
   const navigate = useNavigate();
   const { id } = useParams();
   
-  // Mock data
-  const projectDetails = {
+  // Get project from localStorage if available
+  const getProjectFromStorage = (projectId: string): Project | undefined => {
+    try {
+      const projectsString = localStorage.getItem('projects');
+      if (projectsString) {
+        const projects = JSON.parse(projectsString);
+        return projects.find((p: Project) => p.id === projectId);
+      }
+    } catch (error) {
+      console.error('Error getting project from localStorage:', error);
+    }
+    return undefined;
+  };
+
+  // Try to get project from localStorage, fallback to props
+  const storedProject = id ? getProjectFromStorage(id) : undefined;
+  const projectDetails = storedProject || project || {
     id: id || '1',
     name: 'Construction d\'une nouvelle station gaz',
     status: 'En cours' as const,
@@ -108,14 +123,23 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
   };
 
   const downloadDocument = (doc: Document) => {
-    // In a real app, you would have a real URL to download from
-    // For demonstration, we'll create a mock file download
-    const a = document.createElement('a');
-    a.href = doc.url || '#';
-    a.download = doc.title;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    if (doc.url) {
+      // Create a temporary anchor element
+      const a = document.createElement('a');
+      a.href = doc.url;
+      a.download = doc.title;
+      
+      // Append to the DOM
+      document.body.appendChild(a);
+      
+      // Trigger a click on the element
+      a.click();
+      
+      // Remove the element
+      document.body.removeChild(a);
+    } else {
+      console.error('Document URL is missing');
+    }
   };
 
   const handleBack = () => {
@@ -153,7 +177,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
               </svg>
               <div>
                 <div className="text-xs text-gray-500">Chef du projet</div>
-                <div className="text-sm">{projectDetails.chef}</div>
+                <div className="text-sm">{projectDetails.chef || "Non spécifié"}</div>
               </div>
             </div>
 
@@ -164,7 +188,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
               </svg>
               <div>
                 <div className="text-xs text-gray-500">Wilya</div>
-                <div className="text-sm">{projectDetails.region}</div>
+                <div className="text-sm">{projectDetails.region || "Non spécifié"}</div>
               </div>
             </div>
 
@@ -174,7 +198,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
               </svg>
               <div>
                 <div className="text-xs text-gray-500">Budget</div>
-                <div className="text-sm">{projectDetails.budget}</div>
+                <div className="text-sm">{projectDetails.budget || "Non spécifié"}</div>
               </div>
             </div>
 
@@ -184,7 +208,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
               </svg>
               <div>
                 <div className="text-xs text-gray-500">Date debut</div>
-                <div className="text-sm">{projectDetails.startDate}</div>
+                <div className="text-sm">{projectDetails.startDate || "Non spécifié"}</div>
               </div>
             </div>
 
@@ -194,7 +218,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
               </svg>
               <div>
                 <div className="text-xs text-gray-500">Date fin</div>
-                <div className="text-sm">{projectDetails.endDate}</div>
+                <div className="text-sm">{projectDetails.endDate || "Non spécifié"}</div>
               </div>
             </div>
           </div>
@@ -228,38 +252,46 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
           {/* Documents */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <h3 className="text-lg font-medium mb-3">Document du projets</h3>
-            <div className="space-y-2">
-              {projectDetails.documents.map(doc => (
-                <div key={doc.id} className="p-2 bg-blue-50 text-blue-600 rounded-md flex justify-between items-center">
-                  <span>{doc.title}</span>
-                  <button 
-                    onClick={() => downloadDocument(doc)}
-                    className="text-blue-700 hover:text-blue-900"
-                  >
-                    <Download className="h-4 w-4" />
-                  </button>
-                </div>
-              ))}
+            <div className="space-y-2 max-h-60 overflow-y-auto">
+              {projectDetails.documents && projectDetails.documents.length > 0 ? (
+                projectDetails.documents.map(doc => (
+                  <div key={doc.id} className="p-2 bg-blue-50 text-blue-600 rounded-md flex justify-between items-center">
+                    <span className="truncate">{doc.title}</span>
+                    <button 
+                      onClick={() => downloadDocument(doc)}
+                      className="text-blue-700 hover:text-blue-900 ml-2"
+                    >
+                      <Download className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center text-gray-500">Aucun document disponible</div>
+              )}
             </div>
           </div>
 
           {/* Team Members */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <h3 className="text-lg font-medium mb-3">Membres du projet</h3>
-            <div className="space-y-3">
-              {projectDetails.members.map(member => (
-                <div key={member.id} className="flex items-center gap-3">
-                  <img 
-                    src={member.avatar} 
-                    alt={member.name} 
-                    className="h-10 w-10 rounded-full"
-                  />
-                  <div>
-                    <div className="text-sm font-medium">{member.name}</div>
-                    <div className="text-xs text-gray-500">{member.role}</div>
+            <div className="space-y-3 max-h-60 overflow-y-auto">
+              {projectDetails.members && projectDetails.members.length > 0 ? (
+                projectDetails.members.map(member => (
+                  <div key={member.id} className="flex items-center gap-3">
+                    <img 
+                      src={member.avatar} 
+                      alt={member.name} 
+                      className="h-10 w-10 rounded-full"
+                    />
+                    <div>
+                      <div className="text-sm font-medium">{member.name}</div>
+                      <div className="text-xs text-gray-500">{member.role || "Membre"}</div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <div className="text-center text-gray-500">Aucun membre ajouté</div>
+              )}
             </div>
           </div>
         </div>
@@ -269,41 +301,45 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
       <div className="mt-8">
         <h3 className="text-xl font-medium mb-4">Sous projet</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {projectDetails.subProjects.map(subProject => (
-            <div key={subProject.id} className="bg-white rounded-lg border border-gray-200 p-4">
-              <h4 className="font-medium mb-1">{subProject.name}</h4>
-              <p className="text-sm text-gray-600 mb-3">{subProject.description}</p>
-              
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span className="text-xs text-gray-500">{subProject.daysAgo} Jours</span>
-                </div>
+          {projectDetails.subProjects && projectDetails.subProjects.length > 0 ? (
+            projectDetails.subProjects.map(subProject => (
+              <div key={subProject.id} className="bg-white rounded-lg border border-gray-200 p-4">
+                <h4 className="font-medium mb-1">{subProject.name}</h4>
+                <p className="text-sm text-gray-600 mb-3">{subProject.description}</p>
                 
-                <div className="flex items-center gap-2">
-                  <div className="flex -space-x-1">
-                    {subProject.members.map(member => (
-                      <img 
-                        key={member.id}
-                        src={member.avatar} 
-                        alt="member" 
-                        className="h-6 w-6 rounded-full border border-white"
-                      />
-                    ))}
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="text-xs text-gray-500">{subProject.daysAgo} Jours</span>
                   </div>
                   
-                  <div className="flex items-center text-xs text-gray-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    {subProject.documentsCount}
+                  <div className="flex items-center gap-2">
+                    <div className="flex -space-x-1">
+                      {subProject.members.map(member => (
+                        <img 
+                          key={member.id}
+                          src={member.avatar} 
+                          alt="member" 
+                          className="h-6 w-6 rounded-full border border-white"
+                        />
+                      ))}
+                    </div>
+                    
+                    <div className="flex items-center text-xs text-gray-500">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      {subProject.documentsCount}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <div className="text-center text-gray-500 col-span-2 p-4">Aucun sous-projet disponible</div>
+          )}
         </div>
       </div>
     </div>
