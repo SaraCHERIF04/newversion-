@@ -3,6 +3,8 @@ import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Project } from './ProjectCard';
 import { Download, Printer, ArrowLeft } from 'lucide-react';
+import { ExtendedProject } from '@/pages/ProjectDetailsPage';
+import { SubProject } from './SubProjectCard';
 
 // Extend the ProjectMember type with additional properties
 type ProjectMember = {
@@ -19,28 +21,8 @@ type Document = {
   url?: string;
 };
 
-type SubProject = {
-  id: string;
-  name: string;
-  description: string;
-  daysAgo: number;
-  members: { id: string; avatar: string }[];
-  documentsCount: number;
-};
-
-// Since we can't modify the original Project type directly, we'll create a ProjectWithDetails type
-type ProjectWithDetails = Project & {
-  chef?: string;
-  region?: string;
-  budget?: string;
-  startDate?: string;
-  endDate?: string;
-  documents?: Document[];
-  subProjects?: SubProject[];
-};
-
 type ProjectDetailsProps = {
-  project?: Project;
+  project?: ExtendedProject;
 };
 
 const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
@@ -48,7 +30,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
   const { id } = useParams();
   
   // Get project from localStorage if available
-  const getProjectFromStorage = (projectId: string): ProjectWithDetails | undefined => {
+  const getProjectFromStorage = (projectId: string): ExtendedProject | undefined => {
     try {
       const projectsString = localStorage.getItem('projects');
       if (projectsString) {
@@ -60,10 +42,26 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
     }
     return undefined;
   };
+  
+  // Get all subprojects for this project
+  const getSubProjectsForProject = (projectId: string): SubProject[] => {
+    try {
+      const subProjectsString = localStorage.getItem('subProjects');
+      if (subProjectsString) {
+        const subProjects = JSON.parse(subProjectsString);
+        return subProjects.filter((sp: SubProject) => sp.projectId === projectId);
+      }
+    } catch (error) {
+      console.error('Error getting subprojects:', error);
+    }
+    return [];
+  };
 
   // Try to get project from localStorage, fallback to props
   const storedProject = id ? getProjectFromStorage(id) : undefined;
-  const projectDetails: ProjectWithDetails = storedProject || project || {
+  const subProjects = id ? getSubProjectsForProject(id) : [];
+  
+  const projectDetails = storedProject || project || {
     id: id || '1',
     name: 'Construction d\'une nouvelle station gaz',
     status: 'En cours' as const,
@@ -102,34 +100,16 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
         avatar: 'https://randomuser.me/api/portraits/men/44.jpg',
         dateJoined: '20/03/2023'
       },
-    ],
-    subProjects: [
-      {
-        id: '1',
-        name: 'Nom sous_projet',
-        description: 'Petite description du sous projet',
-        daysAgo: 3,
-        members: [
-          { id: '1', avatar: 'https://randomuser.me/api/portraits/women/44.jpg' },
-          { id: '2', avatar: 'https://randomuser.me/api/portraits/men/32.jpg' },
-          { id: '3', avatar: 'https://randomuser.me/api/portraits/men/44.jpg' },
-        ],
-        documentsCount: 5
-      },
-      {
-        id: '2',
-        name: 'Nom sous_projet',
-        description: 'Petite description du sous projet',
-        daysAgo: 12,
-        members: [
-          { id: '1', avatar: 'https://randomuser.me/api/portraits/women/44.jpg' },
-          { id: '2', avatar: 'https://randomuser.me/api/portraits/men/32.jpg' },
-          { id: '3', avatar: 'https://randomuser.me/api/portraits/men/44.jpg' },
-        ],
-        documentsCount: 5
-      }
     ]
   };
+
+  // We'll use both subProjects from the project and from localStorage
+  const combinedSubProjects = [
+    ...(projectDetails.subProjects || []),
+    ...subProjects.filter(sp => 
+      !(projectDetails.subProjects || []).some((existingSp: any) => existingSp.id === sp.id)
+    )
+  ];
 
   const printProject = () => {
     window.print();
@@ -157,6 +137,32 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
 
   const handleBack = () => {
     navigate('/project');
+  };
+
+  // Delete functionality
+  const handleDelete = () => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce projet?')) {
+      try {
+        const projectsString = localStorage.getItem('projects');
+        if (projectsString && projectDetails.id) {
+          const projects = JSON.parse(projectsString);
+          const updatedProjects = projects.filter((p: Project) => p.id !== projectDetails.id);
+          localStorage.setItem('projects', JSON.stringify(updatedProjects));
+          
+          // Also delete related subprojects
+          const subProjectsString = localStorage.getItem('subProjects');
+          if (subProjectsString) {
+            const subProjects = JSON.parse(subProjectsString);
+            const updatedSubProjects = subProjects.filter((sp: SubProject) => sp.projectId !== projectDetails.id);
+            localStorage.setItem('subProjects', JSON.stringify(updatedSubProjects));
+          }
+          
+          navigate('/project');
+        }
+      } catch (error) {
+        console.error('Error deleting project:', error);
+      }
+    }
   };
 
   return (
@@ -245,6 +251,12 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
 
           <div className="flex justify-end space-x-3">
             <button 
+              onClick={handleDelete}
+              className="px-4 py-2 border border-red-300 text-red-600 rounded-md hover:bg-red-50"
+            >
+              Supprimer
+            </button>
+            <button 
               onClick={() => navigate(`/project/edit/${projectDetails.id}`)}
               className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
             >
@@ -314,9 +326,9 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
       <div className="mt-8">
         <h3 className="text-xl font-medium mb-4">Sous projet</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {projectDetails.subProjects && projectDetails.subProjects.length > 0 ? (
-            projectDetails.subProjects.map(subProject => (
-              <div key={subProject.id} className="bg-white rounded-lg border border-gray-200 p-4">
+          {combinedSubProjects && combinedSubProjects.length > 0 ? (
+            combinedSubProjects.map((subProject, index) => (
+              <div key={`${subProject.id}-${index}`} className="bg-white rounded-lg border border-gray-200 p-4">
                 <h4 className="font-medium mb-1">{subProject.name}</h4>
                 <p className="text-sm text-gray-600 mb-3">{subProject.description}</p>
                 
@@ -330,14 +342,19 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
                   
                   <div className="flex items-center gap-2">
                     <div className="flex -space-x-1">
-                      {subProject.members.map(member => (
+                      {subProject.members.slice(0, 3).map((member, idx) => (
                         <img 
-                          key={member.id}
+                          key={`${member.id || idx}`}
                           src={member.avatar} 
                           alt="member" 
                           className="h-6 w-6 rounded-full border border-white"
                         />
                       ))}
+                      {subProject.members.length > 3 && (
+                        <div className="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center text-xs text-gray-600 border border-white">
+                          +{subProject.members.length - 3}
+                        </div>
+                      )}
                     </div>
                     
                     <div className="flex items-center text-xs text-gray-500">

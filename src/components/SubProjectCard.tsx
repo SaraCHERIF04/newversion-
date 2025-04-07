@@ -12,10 +12,12 @@ export type SubProject = {
   endDate?: string;
   members: {
     id: string;
-    avatar: string;
     name?: string;
+    avatar: string;
+    role?: string;
   }[];
   documentsCount: number;
+  documents?: Array<{id: string, title: string, url: string}>;
 };
 
 type SubProjectCardProps = {

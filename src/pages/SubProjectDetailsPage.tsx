@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { SubProject } from '@/components/SubProjectCard';
 import { ArrowLeft, Printer, Download } from 'lucide-react';
+import SubProjectMembersList from '@/components/SubProjectMembersList';
 
 type Document = {
   id: string;
@@ -54,38 +55,26 @@ const SubProjectDetailsPage: React.FC = () => {
     startDate: '10/4/2023',
     endDate: '15/9/2023',
     members: [
-      { id: '1', avatar: 'https://randomuser.me/api/portraits/women/44.jpg' },
-      { id: '2', avatar: 'https://randomuser.me/api/portraits/men/32.jpg' },
-      { id: '3', avatar: 'https://randomuser.me/api/portraits/men/44.jpg' },
+      { id: '1', name: 'User 1', avatar: 'https://randomuser.me/api/portraits/women/44.jpg' },
+      { id: '2', name: 'User 2', avatar: 'https://randomuser.me/api/portraits/men/32.jpg' },
+      { id: '3', name: 'User 3', avatar: 'https://randomuser.me/api/portraits/men/44.jpg' },
     ],
     documentsCount: 5,
     documents: [
       { id: '1', title: 'Rapport initial du sous-projet.pdf', url: '/documents/rapport-sous-projet.pdf' },
       { id: '2', title: 'Plans techniques du sous-projet.pdf', url: '/documents/plans-sous-projet.pdf' },
-    ],
-    detailedMembers: [
-      { 
-        id: '1', 
-        name: 'John Joester', 
-        role: 'Developer',
-        avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
-      },
-      { 
-        id: '2', 
-        name: 'Akali Jun', 
-        role: 'Designer',
-        avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
-      },
-      { 
-        id: '3', 
-        name: 'Kayn Vamhyr', 
-        role: 'Project Manager',
-        avatar: 'https://randomuser.me/api/portraits/men/44.jpg',
-      },
     ]
   };
 
   const subProjectDetails = subProject || sampleSubProject;
+  
+  // Transform members list to the detailed format required by SubProjectMembersList
+  const detailedMembers = subProjectDetails.members.map(member => ({
+    id: member.id,
+    name: member.name || `Membre ${member.id}`,
+    role: member.role || 'Membre',
+    avatar: member.avatar
+  }));
 
   const printSubProject = () => {
     window.print();
@@ -106,6 +95,38 @@ const SubProjectDetailsPage: React.FC = () => {
 
   const handleBack = () => {
     navigate('/sous-projet');
+  };
+  
+  // Delete functionality
+  const handleDelete = () => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce sous-projet?')) {
+      try {
+        const subProjectsString = localStorage.getItem('subProjects');
+        if (subProjectsString) {
+          const subProjects = JSON.parse(subProjectsString);
+          const updatedSubProjects = subProjects.filter((sp: SubProject) => sp.id !== id);
+          localStorage.setItem('subProjects', JSON.stringify(updatedSubProjects));
+          
+          // Also remove reference from parent project
+          const projectsString = localStorage.getItem('projects');
+          if (projectsString && subProjectDetails.projectId) {
+            const projects = JSON.parse(projectsString);
+            const projectIndex = projects.findIndex((p: any) => p.id === subProjectDetails.projectId);
+            
+            if (projectIndex !== -1 && projects[projectIndex].subProjects) {
+              projects[projectIndex].subProjects = projects[projectIndex].subProjects.filter(
+                (sp: any) => sp.id !== id
+              );
+              localStorage.setItem('projects', JSON.stringify(projects));
+            }
+          }
+          
+          navigate('/sous-projet');
+        }
+      } catch (error) {
+        console.error('Error deleting sub-project:', error);
+      }
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -196,6 +217,12 @@ const SubProjectDetailsPage: React.FC = () => {
 
           <div className="flex justify-end space-x-3">
             <button 
+              onClick={handleDelete}
+              className="px-4 py-2 border border-red-300 text-red-600 rounded-md hover:bg-red-50"
+            >
+              Supprimer
+            </button>
+            <button 
               onClick={() => navigate(`/sous-projet/edit/${subProjectDetails.id}`)}
               className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
             >
@@ -239,35 +266,19 @@ const SubProjectDetailsPage: React.FC = () => {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <h3 className="text-lg font-medium mb-3">Membres du sous-projet</h3>
             <div className="space-y-3 max-h-60 overflow-y-auto">
-              {subProjectDetails.detailedMembers ? (
-                subProjectDetails.detailedMembers.map(member => (
-                  <div key={member.id} className="flex items-center gap-3">
-                    <img 
-                      src={member.avatar} 
-                      alt={member.name} 
-                      className="h-10 w-10 rounded-full"
-                    />
-                    <div>
-                      <div className="text-sm font-medium">{member.name}</div>
-                      <div className="text-xs text-gray-500">{member.role || "Membre"}</div>
-                    </div>
+              {detailedMembers.map(member => (
+                <div key={member.id} className="flex items-center gap-3">
+                  <img 
+                    src={member.avatar} 
+                    alt={member.name} 
+                    className="h-10 w-10 rounded-full"
+                  />
+                  <div>
+                    <div className="text-sm font-medium">{member.name}</div>
+                    <div className="text-xs text-gray-500">{member.role || "Membre"}</div>
                   </div>
-                ))
-              ) : (
-                subProjectDetails.members.map((member, index) => (
-                  <div key={`${member.id}-${index}`} className="flex items-center gap-3">
-                    <img 
-                      src={member.avatar} 
-                      alt={member.name || `Membre ${index + 1}`} 
-                      className="h-10 w-10 rounded-full"
-                    />
-                    <div>
-                      <div className="text-sm font-medium">{member.name || `Membre ${index + 1}`}</div>
-                      <div className="text-xs text-gray-500">Membre</div>
-                    </div>
-                  </div>
-                ))
-              )}
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -276,33 +287,7 @@ const SubProjectDetailsPage: React.FC = () => {
       {/* Members in grid format */}
       <div className="mt-8">
         <h3 className="text-xl font-medium mb-4">Membres du sous-projet</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {subProjectDetails.detailedMembers ? (
-            subProjectDetails.detailedMembers.map(member => (
-              <div key={member.id} className="bg-white rounded-lg border border-gray-200 p-4 flex flex-col items-center">
-                <img 
-                  src={member.avatar} 
-                  alt={member.name} 
-                  className="h-16 w-16 rounded-full mb-2"
-                />
-                <h4 className="font-medium text-center">{member.name}</h4>
-                <p className="text-sm text-gray-500 text-center">{member.role || "Membre"}</p>
-              </div>
-            ))
-          ) : (
-            subProjectDetails.members.map((member, index) => (
-              <div key={`${member.id}-${index}`} className="bg-white rounded-lg border border-gray-200 p-4 flex flex-col items-center">
-                <img 
-                  src={member.avatar} 
-                  alt={member.name || `Membre ${index + 1}`} 
-                  className="h-16 w-16 rounded-full mb-2"
-                />
-                <h4 className="font-medium text-center">{member.name || `Membre ${index + 1}`}</h4>
-                <p className="text-sm text-gray-500 text-center">Membre</p>
-              </div>
-            ))
-          )}
-        </div>
+        <SubProjectMembersList members={detailedMembers} />
       </div>
     </div>
   );

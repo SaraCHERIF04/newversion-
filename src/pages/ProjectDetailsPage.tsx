@@ -5,7 +5,7 @@ import ProjectDetails from '@/components/ProjectDetails';
 import { Project } from '@/components/ProjectCard';
 
 // Extended Project type to include additional properties
-type ExtendedProject = Project & {
+export type ExtendedProject = Project & {
   chef?: string;
   region?: string; 
   budget?: string;

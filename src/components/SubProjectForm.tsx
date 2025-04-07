@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -24,6 +23,7 @@ type ProjectMember = {
   name: string;
   avatar: string;
   selected?: boolean;
+  role?: string;
 };
 
 const SubProjectForm: React.FC<SubProjectFormProps> = ({ subProject, isEdit = false }) => {
@@ -31,7 +31,9 @@ const SubProjectForm: React.FC<SubProjectFormProps> = ({ subProject, isEdit = fa
   const { toast } = useToast();
   const [name, setName] = useState(subProject?.name || '');
   const [description, setDescription] = useState(subProject?.description || '');
-  const [status, setStatus] = useState(subProject?.status || 'En attente');
+  const [status, setStatus] = useState<'En attente' | 'En cours' | 'Terminé'>(
+    (subProject?.status as any) || 'En attente'
+  );
   const [startDate, setStartDate] = useState(subProject?.startDate || '');
   const [endDate, setEndDate] = useState(subProject?.endDate || '');
   const [projectId, setProjectId] = useState(subProject?.projectId || '');
@@ -40,12 +42,16 @@ const SubProjectForm: React.FC<SubProjectFormProps> = ({ subProject, isEdit = fa
   );
   const [availableMembers, setAvailableMembers] = useState<ProjectMember[]>([]);
   const [selectedMembers, setSelectedMembers] = useState<ProjectMember[]>(
-    subProject?.members?.map(member => ({ ...member, selected: true })) || []
+    subProject?.members?.map(member => ({ 
+      ...member, 
+      name: member.name || '',
+      selected: true 
+    })) || []
   );
   const [availableProjects, setAvailableProjects] = useState<Project[]>([]);
   const [searchMember, setSearchMember] = useState('');
+  const [projectMembers, setProjectMembers] = useState<ProjectMember[]>([]);
 
-  // Load available projects from localStorage
   useEffect(() => {
     const savedProjects = localStorage.getItem('projects');
     if (savedProjects) {
@@ -59,22 +65,38 @@ const SubProjectForm: React.FC<SubProjectFormProps> = ({ subProject, isEdit = fa
         console.error('Error loading projects:', error);
       }
     }
+  }, [projectId]);
 
-    // Load sample members if none available
-    const sampleMembers = [
-      { id: '1', name: 'John Joester', avatar: 'https://randomuser.me/api/portraits/men/32.jpg' },
-      { id: '2', name: 'Akali Jun', avatar: 'https://randomuser.me/api/portraits/women/44.jpg' },
-      { id: '3', name: 'Kayn Vamhyr', avatar: 'https://randomuser.me/api/portraits/men/44.jpg' },
-      { id: '4', name: 'Yan Drouide', avatar: 'https://randomuser.me/api/portraits/men/45.jpg' },
-      { id: '5', name: 'Misterblee', avatar: 'https://randomuser.me/api/portraits/men/46.jpg' },
-      { id: '6', name: 'Napoleon', avatar: 'https://randomuser.me/api/portraits/men/47.jpg' },
-    ];
-    
-    // Filter out already selected members
-    const initialSelectedMemberIds = new Set(selectedMembers.map(m => m.id));
-    const filteredMembers = sampleMembers.filter(m => !initialSelectedMemberIds.has(m.id));
-    
-    setAvailableMembers(filteredMembers);
+  useEffect(() => {
+    if (projectId) {
+      const savedProjects = localStorage.getItem('projects');
+      if (savedProjects) {
+        try {
+          const projects = JSON.parse(savedProjects);
+          const selectedProject = projects.find((p: Project) => p.id === projectId);
+          
+          if (selectedProject && selectedProject.members) {
+            const projectMembersList = selectedProject.members.map((member: any) => ({
+              id: member.id,
+              name: member.name,
+              avatar: member.avatar,
+              role: member.role || 'Membre'
+            }));
+            
+            setProjectMembers(projectMembersList);
+            
+            const selectedMemberIds = new Set(selectedMembers.map(m => m.id));
+            const filteredMembers = projectMembersList.filter(
+              m => !selectedMemberIds.has(m.id)
+            );
+            
+            setAvailableMembers(filteredMembers);
+          }
+        } catch (error) {
+          console.error('Error loading project members:', error);
+        }
+      }
+    }
   }, [projectId, selectedMembers]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -94,12 +116,10 @@ const SubProjectForm: React.FC<SubProjectFormProps> = ({ subProject, isEdit = fa
   };
 
   const toggleMemberSelection = (member: ProjectMember) => {
-    // If already selected, remove from selected list
     if (selectedMembers.some(m => m.id === member.id)) {
       setSelectedMembers(selectedMembers.filter(m => m.id !== member.id));
       setAvailableMembers([...availableMembers, member]);
     } else {
-      // If not selected, add to selected list
       setSelectedMembers([...selectedMembers, { ...member, selected: true }]);
       setAvailableMembers(availableMembers.filter(m => m.id !== member.id));
     }
@@ -138,12 +158,11 @@ const SubProjectForm: React.FC<SubProjectFormProps> = ({ subProject, isEdit = fa
       return;
     }
 
-    // Create the new/updated subProject object
     const updatedSubProject: SubProject = {
       id: subProject?.id || `sp-${Date.now()}`,
       name,
       description,
-      status: status as 'En attente' | 'En cours' | 'Terminé',
+      status,
       daysAgo: subProject?.daysAgo || 0,
       projectId,
       startDate,
@@ -151,10 +170,10 @@ const SubProjectForm: React.FC<SubProjectFormProps> = ({ subProject, isEdit = fa
       members: selectedMembers.map(member => ({
         id: member.id,
         avatar: member.avatar,
-        name: member.name
+        name: member.name,
+        role: member.role
       })),
       documentsCount: documents.length,
-      // Add additional fields to use in details page
       documents: documents.map(doc => ({
         id: doc.id,
         title: doc.title,
@@ -162,7 +181,6 @@ const SubProjectForm: React.FC<SubProjectFormProps> = ({ subProject, isEdit = fa
       })),
     };
 
-    // Save to localStorage
     try {
       const subProjectsString = localStorage.getItem('subProjects');
       let subProjects = [];
@@ -171,7 +189,6 @@ const SubProjectForm: React.FC<SubProjectFormProps> = ({ subProject, isEdit = fa
         subProjects = JSON.parse(subProjectsString);
         
         if (isEdit) {
-          // Update existing
           const index = subProjects.findIndex((p: SubProject) => p.id === updatedSubProject.id);
           if (index !== -1) {
             subProjects[index] = updatedSubProject;
@@ -179,7 +196,6 @@ const SubProjectForm: React.FC<SubProjectFormProps> = ({ subProject, isEdit = fa
             subProjects.push(updatedSubProject);
           }
         } else {
-          // Add new
           subProjects.push(updatedSubProject);
         }
       } else {
@@ -187,6 +203,39 @@ const SubProjectForm: React.FC<SubProjectFormProps> = ({ subProject, isEdit = fa
       }
       
       localStorage.setItem('subProjects', JSON.stringify(subProjects));
+      
+      const projectsString = localStorage.getItem('projects');
+      if (projectsString) {
+        const projects = JSON.parse(projectsString);
+        const projectIndex = projects.findIndex((p: Project) => p.id === projectId);
+        
+        if (projectIndex !== -1) {
+          if (!projects[projectIndex].subProjects) {
+            projects[projectIndex].subProjects = [];
+          }
+          
+          const subProjectIndex = projects[projectIndex].subProjects.findIndex(
+            (sp: any) => sp.id === updatedSubProject.id
+          );
+          
+          const subProjectSummary = {
+            id: updatedSubProject.id,
+            name: updatedSubProject.name,
+            description: updatedSubProject.description,
+            daysAgo: updatedSubProject.daysAgo,
+            members: updatedSubProject.members,
+            documentsCount: updatedSubProject.documentsCount
+          };
+          
+          if (subProjectIndex !== -1) {
+            projects[projectIndex].subProjects[subProjectIndex] = subProjectSummary;
+          } else {
+            projects[projectIndex].subProjects.push(subProjectSummary);
+          }
+          
+          localStorage.setItem('projects', JSON.stringify(projects));
+        }
+      }
       
       toast({
         title: isEdit ? "Sous-projet modifié" : "Sous-projet créé",
@@ -216,7 +265,7 @@ const SubProjectForm: React.FC<SubProjectFormProps> = ({ subProject, isEdit = fa
         </button>
       </div>
       
-      <h1 className="text-2xl font-bold mb-8">{isEdit ? 'Modifier' : 'Créer'} /Modifier Sous projet</h1>
+      <h1 className="text-2xl font-bold mb-8">{isEdit ? 'Modifier' : 'Créer'} Sous projet</h1>
       
       <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -263,7 +312,7 @@ const SubProjectForm: React.FC<SubProjectFormProps> = ({ subProject, isEdit = fa
           <select
             id="status"
             value={status}
-            onChange={(e) => setStatus(e.target.value)}
+            onChange={(e) => setStatus(e.target.value as 'En attente' | 'En cours' | 'Terminé')}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="En attente">En attente</option>
@@ -428,7 +477,6 @@ const SubProjectForm: React.FC<SubProjectFormProps> = ({ subProject, isEdit = fa
           </div>
         </div>
         
-        {/* Selected members display */}
         <div className="mb-6">
           <h3 className="text-sm font-medium text-gray-700 mb-3">Membres sélectionnés</h3>
           <div className="flex flex-wrap gap-2">
@@ -465,7 +513,7 @@ const SubProjectForm: React.FC<SubProjectFormProps> = ({ subProject, isEdit = fa
             onClick={() => navigate('/sous-projet')}
             variant="outline"
           >
-            Supprimer
+            Annuler
           </Button>
           <Button type="submit" className="bg-[#192759] hover:bg-blue-700">
             Enregistrer
