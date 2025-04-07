@@ -11,6 +11,10 @@ import ProjectsPage from "./pages/ProjectsPage";
 import ProjectNewPage from "./pages/ProjectNewPage";
 import ProjectEditPage from "./pages/ProjectEditPage";
 import ProjectDetailsPage from "./pages/ProjectDetailsPage";
+import SubProjectsPage from "./pages/SubProjectsPage";
+import SubProjectNewPage from "./pages/SubProjectNewPage";
+import SubProjectEditPage from "./pages/SubProjectEditPage";
+import SubProjectDetailsPage from "./pages/SubProjectDetailsPage";
 import React from "react";
 
 // Create a new query client instance inside the component
@@ -31,7 +35,10 @@ function App() {
               <Route path="project/new" element={<ProjectNewPage />} />
               <Route path="project/edit/:id" element={<ProjectEditPage />} />
               <Route path="project/:id" element={<ProjectDetailsPage />} />
-              <Route path="sous-projet" element={<div>Sous Projet Page</div>} />
+              <Route path="sous-projet" element={<SubProjectsPage />} />
+              <Route path="sous-projet/new" element={<SubProjectNewPage />} />
+              <Route path="sous-projet/edit/:id" element={<SubProjectEditPage />} />
+              <Route path="sous-projet/:id" element={<SubProjectDetailsPage />} />
               <Route path="dashboard" element={<div>Dashboard Page</div>} />
               <Route path="incidents" element={<div>Incidents Page</div>} />
               <Route path="documents" element={<div>Documents Page</div>} />

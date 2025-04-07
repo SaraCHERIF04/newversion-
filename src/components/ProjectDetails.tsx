@@ -73,6 +73,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
     startDate: '20/3/2023',
     endDate: '20/3/2023',
     description: 'Description détaillée du projet ici...',
+    documentsCount: 5,
     documents: [
       { id: '1', title: 'Rapport initial.pdf', url: '/documents/rapport.pdf' },
       { id: '2', title: 'Plans techniques.pdf', url: '/documents/plans.pdf' },
@@ -297,7 +298,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
                     />
                     <div>
                       <div className="text-sm font-medium">{member.name}</div>
-                      <div className="text-xs text-gray-500">{member.role || "Membre"}</div>
+                      <div className="text-xs text-gray-500">{(member as any).role || "Membre"}</div>
                     </div>
                   </div>
                 ))
