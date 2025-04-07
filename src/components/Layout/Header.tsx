@@ -85,30 +85,36 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery }) => {
           {isProfileOpen && (
             <div className="absolute right-0 top-full z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
               <div className="py-1" role="menu" aria-orientation="vertical">
-                <Link
-                  to="/profile"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                <button
+                  onClick={() => {
+                    navigate('/profile');
+                    setIsProfileOpen(false);
+                  }}
+                  className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
                   role="menuitem"
-                  onClick={() => setIsProfileOpen(false)}
                 >
                   Votre profil
-                </Link>
-                <Link
-                  to="/parametres"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                </button>
+                <button
+                  onClick={() => {
+                    navigate('/parametres');
+                    setIsProfileOpen(false);
+                  }}
+                  className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
                   role="menuitem"
-                  onClick={() => setIsProfileOpen(false)}
                 >
                   Paramètres
-                </Link>
-                <Link
-                  to="/"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                </button>
+                <button
+                  onClick={() => {
+                    navigate('/');
+                    setIsProfileOpen(false);
+                  }}
+                  className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
                   role="menuitem"
-                  onClick={() => setIsProfileOpen(false)}
                 >
                   Se déconnecter
-                </Link>
+                </button>
               </div>
             </div>
           )}
