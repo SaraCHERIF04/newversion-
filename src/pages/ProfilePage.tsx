@@ -1,28 +1,60 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
+import { toast } from '@/components/ui/use-toast';
+
+// Status options for the employee
+const STATUS_OPTIONS = [
+  "En poste",
+  "En congé",
+  "Maladie",
+  "Mission",
+  "Formation",
+  "Disponible"
+];
 
 const ProfilePage = () => {
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [showSavedMessage, setShowSavedMessage] = useState(false);
   
   // User profile information
   const [profile, setProfile] = useState({
-    name: 'Alexa Rowles',
+    name: 'Rowles',
     firstName: 'Alexa',
-    email: 'alexarowles@gmail.com',
-    phoneNumber: '',
+    email: 'alexarowles@sonelgaz.dz',
+    phoneNumber: '+213 558 42 65 87',
     profileImage: 'https://randomuser.me/api/portraits/women/44.jpg',
-    matricule: 'aaaaaaaa',
-    gender: '',
-    state: '',
+    matricule: 'SON145872',
+    gender: 'Femme',
+    state: 'En poste',
     role: 'Chef de projet',
-    creationDate: ''
+    creationDate: '2022-05-15'
   });
+
+  // Load profile from localStorage if it exists
+  useEffect(() => {
+    const savedProfile = localStorage.getItem('userProfile');
+    if (savedProfile) {
+      try {
+        const parsedProfile = JSON.parse(savedProfile);
+        setProfile(parsedProfile);
+      } catch (error) {
+        console.error("Error parsing profile:", error);
+      }
+    }
+  }, []);
 
   // Password change fields
   const [currentPassword, setCurrentPassword] = useState('');
@@ -32,9 +64,15 @@ const ProfilePage = () => {
 
   const handleProfileUpdate = (e: React.FormEvent) => {
     e.preventDefault();
-    // Save profile to localStorage or API
+    // Save profile to localStorage
     localStorage.setItem('userProfile', JSON.stringify(profile));
     setIsEditing(false);
+    
+    // Show success message
+    toast({
+      title: "Profil mis à jour",
+      description: "Vos informations ont été enregistrées avec succès.",
+    });
   };
 
   const handlePasswordChange = (e: React.FormEvent) => {
@@ -51,9 +89,15 @@ const ProfilePage = () => {
       return;
     }
     
-    // Save password change
+    // Save password change (in a real app would call an API)
     setPasswordError('');
     setIsChangingPassword(false);
+    
+    // Show success message
+    toast({
+      title: "Mot de passe mis à jour",
+      description: "Votre mot de passe a été changé avec succès.",
+    });
   };
 
   return (
@@ -80,7 +124,7 @@ const ProfilePage = () => {
                   <img
                     src={profile.profileImage}
                     alt="Profile"
-                    className="w-24 h-24 rounded-full mb-2"
+                    className="w-24 h-24 rounded-full mb-2 border-2 border-blue-500"
                   />
                   <p className="text-sm text-gray-600">{profile.email}</p>
                 </div>
@@ -110,6 +154,8 @@ const ProfilePage = () => {
                       id="matricule"
                       value={profile.matricule}
                       onChange={(e) => setProfile({...profile, matricule: e.target.value})}
+                      disabled
+                      className="bg-gray-100"
                     />
                   </div>
 
@@ -124,11 +170,18 @@ const ProfilePage = () => {
 
                   <div>
                     <Label htmlFor="gender" className="mb-2 block">Sexe</Label>
-                    <Input
-                      id="gender"
+                    <Select 
                       value={profile.gender}
-                      onChange={(e) => setProfile({...profile, gender: e.target.value})}
-                    />
+                      onValueChange={(value) => setProfile({...profile, gender: value})}
+                    >
+                      <SelectTrigger id="gender">
+                        <SelectValue placeholder="Sélectionner le sexe" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Homme">Homme</SelectItem>
+                        <SelectItem value="Femme">Femme</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <div>
@@ -143,11 +196,21 @@ const ProfilePage = () => {
 
                   <div>
                     <Label htmlFor="state" className="mb-2 block">État</Label>
-                    <Input
-                      id="state"
-                      value={profile.state}
-                      onChange={(e) => setProfile({...profile, state: e.target.value})}
-                    />
+                    <Select 
+                      value={profile.state} 
+                      onValueChange={(value) => setProfile({...profile, state: value})}
+                    >
+                      <SelectTrigger id="state">
+                        <SelectValue placeholder="Sélectionner l'état" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {STATUS_OPTIONS.map((status) => (
+                          <SelectItem key={status} value={status}>
+                            {status}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <div>
@@ -156,6 +219,8 @@ const ProfilePage = () => {
                       id="role"
                       value={profile.role}
                       onChange={(e) => setProfile({...profile, role: e.target.value})}
+                      disabled
+                      className="bg-gray-100"
                     />
                   </div>
 
@@ -166,6 +231,8 @@ const ProfilePage = () => {
                       value={profile.creationDate}
                       onChange={(e) => setProfile({...profile, creationDate: e.target.value})}
                       type="date"
+                      disabled
+                      className="bg-gray-100"
                     />
                   </div>
                 </div>
@@ -189,7 +256,7 @@ const ProfilePage = () => {
                   <img
                     src={profile.profileImage}
                     alt="Profile"
-                    className="w-24 h-24 rounded-full mb-2"
+                    className="w-24 h-24 rounded-full mb-2 border-2 border-blue-500"
                   />
                   <p className="text-sm text-gray-600">{profile.email}</p>
                 </div>

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import SubProjectCard, { SubProject } from '@/components/SubProjectCard';
@@ -44,7 +43,9 @@ const SubProjectsPage: React.FC = () => {
     if (savedSubProjects) {
       try {
         const parsedSubProjects = JSON.parse(savedSubProjects);
-        setAllSubProjects(parsedSubProjects);
+        // Sort by createdAt or timestamp to ensure newer items are at the top
+        const sortedSubProjects = sortByNewest(parsedSubProjects);
+        setAllSubProjects(sortedSubProjects);
       } catch (error) {
         console.error('Error parsing sub-projects from localStorage:', error);
         setAllSubProjects(generateSampleSubProjects());
@@ -53,6 +54,20 @@ const SubProjectsPage: React.FC = () => {
       setAllSubProjects(generateSampleSubProjects());
     }
   }, []);
+
+  // Helper function to sort items by newest first
+  const sortByNewest = (items: any[]) => {
+    // If items have createdAt or timestamp field, sort by that
+    if (items.length > 0 && (items[0].createdAt || items[0].timestamp)) {
+      return [...items].sort((a, b) => {
+        const dateA = a.createdAt ? new Date(a.createdAt) : new Date(a.timestamp);
+        const dateB = b.createdAt ? new Date(b.createdAt) : new Date(b.timestamp);
+        return dateB.getTime() - dateA.getTime();
+      });
+    }
+    // Otherwise, assume newer items have higher IDs or are at the beginning of the array
+    return items;
+  };
 
   // Filter sub-projects by search term and status
   useEffect(() => {

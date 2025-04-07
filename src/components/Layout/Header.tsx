@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 type HeaderProps = {
   searchQuery: string;
@@ -71,13 +72,14 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery }) => {
             className="flex items-center gap-2"
             onClick={() => setIsProfileOpen(!isProfileOpen)}
           >
-            <span className="text-sm font-medium text-gray-700">Alexa Rowles</span>
-            <span className="text-xs text-gray-500">Chef de projet</span>
-            <img
-              src="https://randomuser.me/api/portraits/women/44.jpg"
-              alt="Profile"
-              className="h-8 w-8 rounded-full"
-            />
+            <div className="flex flex-col items-end">
+              <span className="text-sm font-medium text-gray-700">Alexa Rowles</span>
+              <span className="text-xs text-gray-500">Chef de projet</span>
+            </div>
+            <Avatar className="h-8 w-8">
+              <AvatarImage src="https://randomuser.me/api/portraits/women/44.jpg" alt="Alexa Rowles" />
+              <AvatarFallback>AR</AvatarFallback>
+            </Avatar>
           </button>
 
           {isProfileOpen && (
