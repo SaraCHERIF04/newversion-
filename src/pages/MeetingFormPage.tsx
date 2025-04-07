@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Upload, Plus, X } from 'lucide-react';
@@ -44,7 +43,6 @@ const MeetingFormPage: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
   const [documents, setDocuments] = useState<Array<{id: string, title: string, url: string}>>([]);
   const [status, setStatus] = useState<'annulé' | 'terminé' | 'à venir'>('à venir');
-  const [type, setType] = useState('');
   
   const [projects, setProjects] = useState<Project[]>([]);
   const [availableMembers, setAvailableMembers] = useState<ProjectMember[]>([]);
@@ -80,7 +78,6 @@ const MeetingFormPage: React.FC = () => {
             setSelectedAttendees(meeting.attendees.map((a: any) => a.id));
             setDocuments(meeting.documents || []);
             setStatus(meeting.status || 'à venir');
-            setType(meeting.type || '');
             
             // Separate project members from custom attendees
             const projectMembers = meeting.attendees.filter((a: any) => a.id.startsWith('member-'));
@@ -200,8 +197,7 @@ const MeetingFormPage: React.FC = () => {
       description,
       attendees: allAttendees,
       documents: documentsList,
-      status,
-      type
+      status
     };
     
     // Save meeting to localStorage
@@ -303,16 +299,6 @@ const MeetingFormPage: React.FC = () => {
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-            
-            <div>
-              <Label htmlFor="type" className="mb-2 block">Type de réunion</Label>
-              <Input
-                id="type"
-                value={type}
-                onChange={(e) => setType(e.target.value)}
-                placeholder="Spécifiez le type de réunion"
-              />
             </div>
             
             <div>

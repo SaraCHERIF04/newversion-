@@ -18,7 +18,11 @@ const DocumentsPage = () => {
     if (docsString) {
       try {
         const docs = JSON.parse(docsString);
-        setDocuments(docs);
+        // Sort documents by dateAdded in descending order (newest first)
+        const sortedDocs = [...docs].sort((a, b) => {
+          return new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime();
+        });
+        setDocuments(sortedDocs);
       } catch (error) {
         console.error('Error loading documents:', error);
       }

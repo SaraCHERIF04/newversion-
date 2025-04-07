@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -143,8 +142,8 @@ const DocumentFormPage: React.FC = () => {
           // Update existing document
           documents = documents.map(doc => doc.id === id ? documentData : doc);
         } else {
-          // Add new document
-          documents.push(documentData);
+          // Add new document - add to beginning of array to show newest first
+          documents.unshift(documentData);
         }
       } catch (error) {
         console.error('Error parsing documents:', error);
@@ -309,6 +308,22 @@ const DocumentFormPage: React.FC = () => {
                 onChange={(e) => setTitle(e.target.value)}
                 required
               />
+            </div>
+            
+            <div>
+              <Label htmlFor="type" className="mb-2 block">Type de document</Label>
+              <Select value={type} onValueChange={(value) => setType(value as DocumentType)}>
+                <SelectTrigger id="type">
+                  <SelectValue placeholder="Sélectionnez un type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="word">Word</SelectItem>
+                  <SelectItem value="excel">Excel</SelectItem>
+                  <SelectItem value="pdf">PDF</SelectItem>
+                  <SelectItem value="image">Image</SelectItem>
+                  <SelectItem value="autre">Autre</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             
             <div>
