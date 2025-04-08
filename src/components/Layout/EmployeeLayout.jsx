@@ -1,11 +1,20 @@
 
 import React, { useState } from 'react';
-import { Outlet, useOutletContext } from 'react-router-dom';
+import { Outlet, useOutletContext, useNavigate } from 'react-router-dom';
 import EmployeeSidebar from './EmployeeSidebar';
 import Header from './Header';
 
 const EmployeeLayout = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
+
+  // Verify user is logged in as employee, if not redirect to login
+  React.useEffect(() => {
+    const userRole = localStorage.getItem('userRole');
+    if (userRole !== 'employee') {
+      navigate('/login');
+    }
+  }, [navigate]);
 
   return (
     <div className="flex min-h-screen bg-gray-50">

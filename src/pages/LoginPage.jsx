@@ -33,19 +33,23 @@ const LoginPage = () => {
       if (username.toLowerCase() === 'chef' && password === 'password') {
         // Chef login
         localStorage.setItem('userRole', 'chef');
+        localStorage.setItem('userName', 'Chef Projet');
+        localStorage.setItem('userId', 'chef-001');
         toast({
           title: "Connexion réussie",
           description: "Bienvenue dans votre espace chef de projet"
         });
-        navigate('/');
+        navigate('/project');
       } else if (username.toLowerCase() === 'employee' && password === 'password') {
         // Employee login
         localStorage.setItem('userRole', 'employee');
+        localStorage.setItem('userName', 'Jean Dupont');
+        localStorage.setItem('userId', 'emp-001');
         toast({
           title: "Connexion réussie",
           description: "Bienvenue dans votre espace employé"
         });
-        navigate('/employee');
+        navigate('/employee/projects');
       } else {
         setError('Identifiant ou mot de passe incorrect');
       }

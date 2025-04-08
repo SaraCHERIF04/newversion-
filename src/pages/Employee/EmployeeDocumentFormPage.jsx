@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,6 +20,12 @@ const DOCUMENT_TYPES = [
 
 const EmployeeDocumentFormPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const editId = queryParams.get('edit');
+  const isEdit = Boolean(editId);
+  const userId = localStorage.getItem('userId');
+  const userName = localStorage.getItem('userName');
 
   const [document, setDocument] = useState({
     id: uuidv4(),
@@ -31,7 +36,10 @@ const EmployeeDocumentFormPage = () => {
     projectId: '',
     subProjectId: '',
     fileUrl: '',
-    fileName: ''
+    fileName: '',
+    createdAt: new Date().toISOString(),
+    createdBy: userId,
+    createdByName: userName
   });
 
   const [projects, setProjects] = useState([]);
@@ -61,7 +69,42 @@ const EmployeeDocumentFormPage = () => {
         console.error('Error loading subprojects:', error);
       }
     }
-  }, []);
+
+    // If editing, load document data
+    if (isEdit) {
+      const documentsString = localStorage.getItem('documents');
+      if (documentsString) {
+        try {
+          const documents = JSON.parse(documentsString);
+          const docToEdit = documents.find(doc => doc.id === editId);
+          
+          if (docToEdit) {
+            // Check if this document belongs to the current user
+            if (docToEdit.createdBy !== userId) {
+              toast({
+                title: "Accès refusé",
+                description: "Vous ne pouvez pas modifier ce document car il ne vous appartient pas.",
+                variant: "destructive"
+              });
+              navigate('/employee/documents');
+              return;
+            }
+            
+            setDocument(docToEdit);
+          } else {
+            toast({
+              title: "Document introuvable",
+              description: "Le document que vous essayez de modifier n'existe pas.",
+              variant: "destructive"
+            });
+            navigate('/employee/documents');
+          }
+        } catch (error) {
+          console.error('Error loading document:', error);
+        }
+      }
+    }
+  }, [editId, isEdit, navigate, userId]);
 
   useEffect(() => {
     // Filter subprojects based on selected project
@@ -120,7 +163,7 @@ const EmployeeDocumentFormPage = () => {
       return;
     }
 
-    if (!file) {
+    if (!isEdit && !file) {
       toast({
         title: "Erreur",
         description: "Un fichier est requis",
@@ -131,12 +174,16 @@ const EmployeeDocumentFormPage = () => {
 
     // In a real app, you would upload the file to a server
     // For this demo, we'll simulate a file URL
-    const simulatedFileUrl = `data:application/octet-stream;base64,${document.fileName}`;
+    const simulatedFileUrl = file ? 
+      `data:application/octet-stream;base64,${document.fileName}` : 
+      document.fileUrl;
     
-    const newDocument = {
+    const updatedDocument = {
       ...document,
       fileUrl: simulatedFileUrl,
-      createdAt: new Date().toISOString()
+      createdBy: userId, // Ensure this is always set
+      createdByName: userName,
+      updatedAt: new Date().toISOString()
     };
 
     // Load existing documents
@@ -151,17 +198,27 @@ const EmployeeDocumentFormPage = () => {
       }
     }
 
-    // Add new document at the beginning of the array
-    documents.unshift(newDocument);
-    
-    // Save updated documents
-    localStorage.setItem('documents', JSON.stringify(documents));
-
-    // Show success message
-    toast({
-      title: "Document ajouté",
-      description: "Le document a été ajouté avec succès"
-    });
+    if (isEdit) {
+      // Update existing document
+      const updatedDocuments = documents.map(doc => 
+        doc.id === editId ? updatedDocument : doc
+      );
+      localStorage.setItem('documents', JSON.stringify(updatedDocuments));
+      
+      toast({
+        title: "Document modifié",
+        description: "Le document a été mis à jour avec succès"
+      });
+    } else {
+      // Add new document at the beginning of the array
+      documents.unshift(updatedDocument);
+      localStorage.setItem('documents', JSON.stringify(documents));
+      
+      toast({
+        title: "Document ajouté",
+        description: "Le document a été ajouté avec succès"
+      });
+    }
 
     // Navigate back to documents list
     navigate('/employee/documents');
@@ -169,7 +226,7 @@ const EmployeeDocumentFormPage = () => {
 
   return (
     <div className="max-w-2xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-8">Ajouter un document</h1>
+      <h1 className="text-2xl font-bold mb-8">{isEdit ? 'Modifier' : 'Ajouter'} un document</h1>
       
       <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm p-6 space-y-6">
         <div className="space-y-4">
@@ -242,7 +299,7 @@ const EmployeeDocumentFormPage = () => {
             <Select
               value={document.subProjectId}
               onValueChange={(value) => handleSelectChange('subProjectId', value)}
-              disabled={!document.projectId}
+              disabled={!document.projectId || filteredSubProjects.length === 0}
             >
               <SelectTrigger id="subProjectId" className="mt-1">
                 <SelectValue placeholder={document.projectId ? "Sélectionnez un sous-projet (optionnel)" : "Veuillez d'abord sélectionner un projet"} />
@@ -283,7 +340,7 @@ const EmployeeDocumentFormPage = () => {
             Annuler
           </Button>
           <Button type="submit">
-            Enregistrer
+            {isEdit ? 'Mettre à jour' : 'Enregistrer'}
           </Button>
         </div>
       </form>

@@ -5,11 +5,13 @@ import { Eye, FileEdit, Trash2, Plus } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { toast } from '@/components/ui/use-toast';
 
 const EmployeeDocumentsPage = () => {
   const [documents, setDocuments] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
+  const userId = localStorage.getItem('userId');
   
   useEffect(() => {
     // Load documents from localStorage
@@ -19,7 +21,8 @@ const EmployeeDocumentsPage = () => {
         const docs = JSON.parse(docsString);
         // Sort documents by dateAdded in descending order (newest first)
         const sortedDocs = [...docs].sort((a, b) => {
-          return new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime();
+          return new Date(b.dateAdded || b.createdAt || 0).getTime() - 
+                 new Date(a.dateAdded || a.createdAt || 0).getTime();
         });
         setDocuments(sortedDocs);
       } catch (error) {
@@ -60,6 +63,27 @@ const EmployeeDocumentsPage = () => {
   
   const handleViewDocument = (doc) => {
     navigate(`/employee/documents/${doc.id}`);
+  };
+
+  const handleEditDocument = (doc) => {
+    navigate(`/employee/documents/new?edit=${doc.id}`);
+  };
+
+  const handleDeleteDocument = (doc) => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce document?')) {
+      const updatedDocuments = documents.filter(d => d.id !== doc.id);
+      localStorage.setItem('documents', JSON.stringify(updatedDocuments));
+      setDocuments(updatedDocuments);
+      toast({
+        title: "Document supprimé",
+        description: "Le document a été supprimé avec succès"
+      });
+    }
+  };
+  
+  // Helper function to check if a document was created by the current user
+  const isOwnDocument = (doc) => {
+    return doc.createdBy === userId;
   };
   
   const filteredDocuments = documents.filter(doc => 
@@ -108,13 +132,25 @@ const EmployeeDocumentsPage = () => {
                 <TableRow key={doc.id}>
                   <TableCell>{doc.title}</TableCell>
                   <TableCell>{doc.type}</TableCell>
-                  <TableCell>{doc.dateAdded}</TableCell>
+                  <TableCell>{doc.dateAdded || new Date(doc.createdAt || Date.now()).toISOString().split('T')[0]}</TableCell>
                   <TableCell>{getProjectName(doc.projectId)}</TableCell>
                   <TableCell>{getSubProjectName(doc.subProjectId)}</TableCell>
                   <TableCell className="text-right space-x-2">
                     <Button variant="ghost" size="sm" onClick={() => handleViewDocument(doc)}>
                       <Eye className="h-4 w-4" />
                     </Button>
+                    
+                    {/* Only show edit/delete for documents created by this user */}
+                    {isOwnDocument(doc) && (
+                      <>
+                        <Button variant="ghost" size="sm" onClick={() => handleEditDocument(doc)}>
+                          <FileEdit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => handleDeleteDocument(doc)}>
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </>
+                    )}
                   </TableCell>
                 </TableRow>
               ))

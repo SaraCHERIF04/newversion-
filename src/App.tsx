@@ -4,6 +4,10 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import LoginPage from "./pages/LoginPage";
+
+// Chef Pages
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import MainLayout from "./components/Layout/MainLayout";
@@ -28,8 +32,6 @@ import MarchePage from "./pages/MarchePage";
 import MarcheFormPage from "./pages/MarcheFormPage";
 import MarcheDetailsPage from "./pages/MarcheDetailsPage";
 import ProfilePage from "./pages/ProfilePage";
-import React, { useEffect, useState } from "react";
-import LoginPage from "./pages/LoginPage";
 
 // Employee Pages Imports
 import EmployeeLayout from "./components/Layout/EmployeeLayout";
@@ -45,11 +47,18 @@ import EmployeeMarcheAndMaitreOuvragePage from "./pages/Employee/EmployeeMarcheA
 import EmployeeReunionsPage from "./pages/Employee/EmployeeReunionsPage";
 import EmployeeReunionDetailsPage from "./pages/Employee/EmployeeReunionDetailsPage";
 
-// Route protection components
-const ProtectedRoute = ({ children, userRole, requiredRole }) => {
-  if (userRole !== requiredRole) {
+// Route protection component
+const ProtectedRoute = ({ children, allowedRole }) => {
+  const userRole = localStorage.getItem('userRole');
+  
+  if (!userRole) {
     return <Navigate to="/login" replace />;
   }
+  
+  if (allowedRole && userRole !== allowedRole) {
+    return <Navigate to={userRole === 'chef' ? "/" : "/employee"} replace />;
+  }
+  
   return children;
 };
 
@@ -57,18 +66,17 @@ const ProtectedRoute = ({ children, userRole, requiredRole }) => {
 function App() {
   // Create the client inside the component
   const queryClient = new QueryClient();
-  const [userRole, setUserRole] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
-    // Check user authentication status
-    const role = localStorage.getItem('userRole');
-    setUserRole(role);
-    setIsLoading(false);
+    // Check if we need to redirect based on login status
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
   }, []);
   
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center h-screen">Chargement...</div>;
   }
   
   return (
@@ -81,11 +89,22 @@ function App() {
             {/* Public routes */}
             <Route path="/login" element={<LoginPage />} />
             
+            {/* Default redirect */}
+            <Route path="/" element={
+              <ProtectedRoute>
+                {localStorage.getItem('userRole') === 'chef' ? 
+                  <Navigate to="/project" replace /> : 
+                  <Navigate to="/employee/projects" replace />}
+              </ProtectedRoute>
+            } />
+            
             {/* Admin/Chef Routes */}
             <Route path="/" element={
-              userRole === 'chef' ? <MainLayout /> : <Navigate to="/login" replace />
+              <ProtectedRoute allowedRole="chef">
+                <MainLayout />
+              </ProtectedRoute>
             }>
-              <Route index element={<Index />} />
+              <Route index element={<Navigate to="/project" replace />} />
               <Route path="project" element={<ProjectsPage />} />
               <Route path="project/new" element={<ProjectNewPage />} />
               <Route path="project/edit/:id" element={<ProjectEditPage />} />
@@ -119,7 +138,9 @@ function App() {
             
             {/* Employee Routes */}
             <Route path="/employee" element={
-              userRole === 'employee' ? <EmployeeLayout /> : <Navigate to="/login" replace />
+              <ProtectedRoute allowedRole="employee">
+                <EmployeeLayout />
+              </ProtectedRoute>
             }>
               <Route index element={<EmployeeIndex />} />
               <Route path="projects" element={<EmployeeProjectsPage />} />
