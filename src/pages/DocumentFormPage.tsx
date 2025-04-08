@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -344,6 +345,7 @@ const DocumentFormPage: React.FC = () => {
                   <SelectValue placeholder="sélectionnez un projet" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="none">Aucun</SelectItem>
                   {projects.map((project) => (
                     <SelectItem key={project.id} value={project.id}>
                       {project.name}
@@ -364,6 +366,7 @@ const DocumentFormPage: React.FC = () => {
                   <SelectValue placeholder="sélectionnez un projet" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="none">Aucun</SelectItem>
                   {availableSubProjects.map((subProject) => (
                     <SelectItem key={subProject.id} value={subProject.id}>
                       {subProject.name}

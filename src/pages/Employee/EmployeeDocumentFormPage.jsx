@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
@@ -284,7 +285,7 @@ const EmployeeDocumentFormPage = () => {
                 <SelectValue placeholder="Sélectionnez un projet (optionnel)" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Aucun</SelectItem>
+                <SelectItem value="none">Aucun</SelectItem>
                 {projects.map((project) => (
                   <SelectItem key={project.id} value={project.id}>
                     {project.name}
@@ -305,7 +306,7 @@ const EmployeeDocumentFormPage = () => {
                 <SelectValue placeholder={document.projectId ? "Sélectionnez un sous-projet (optionnel)" : "Veuillez d'abord sélectionner un projet"} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Aucun</SelectItem>
+                <SelectItem value="none">Aucun</SelectItem>
                 {filteredSubProjects.map((subProject) => (
                   <SelectItem key={subProject.id} value={subProject.id}>
                     {subProject.name}

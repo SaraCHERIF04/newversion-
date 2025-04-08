@@ -48,7 +48,12 @@ import EmployeeReunionsPage from "./pages/Employee/EmployeeReunionsPage";
 import EmployeeReunionDetailsPage from "./pages/Employee/EmployeeReunionDetailsPage";
 
 // Route protection component
-const ProtectedRoute = ({ children, allowedRole }) => {
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  allowedRole?: string;
+}
+
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRole }) => {
   const userRole = localStorage.getItem('userRole');
   
   if (!userRole) {
@@ -59,7 +64,7 @@ const ProtectedRoute = ({ children, allowedRole }) => {
     return <Navigate to={userRole === 'chef' ? "/" : "/employee"} replace />;
   }
   
-  return children;
+  return <>{children}</>;
 };
 
 // Create a new query client instance inside the component
