@@ -41,16 +41,16 @@ const ProjectCard = ({ project }) => {
 
       <div className="mb-3 flex items-center justify-between">
         <div className="flex -space-x-2">
-          {project.members.slice(0, 4).map((member) => (
+          {project.members && project.members.slice(0, 4).map((member, index) => (
             <img
-              key={member.id}
+              key={member.id || index}
               src={member.avatar}
-              alt={member.name}
+              alt={member.name || `member-${index}`}
               className="h-6 w-6 rounded-full border border-white"
               title={member.name}
             />
           ))}
-          {project.members.length > 4 && (
+          {project.members && project.members.length > 4 && (
             <div className="flex h-6 w-6 items-center justify-center rounded-full border border-white bg-gray-200 text-xs text-gray-600">
               +{project.members.length - 4}
             </div>
@@ -72,7 +72,7 @@ const ProjectCard = ({ project }) => {
               d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" 
             />
           </svg>
-          {project.documentsCount} documents
+          {project.documentsCount || 0} documents
         </div>
       </div>
 
