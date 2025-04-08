@@ -1,126 +1,231 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/components/ui/use-toast';
 
 const LoginPage = () => {
-  const navigate = useNavigate();
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [role, setRole] = useState('chef');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  // Check if already logged in
+  useEffect(() => {
+    const userRole = localStorage.getItem('userRole');
+    if (userRole === 'chef') {
+      navigate('/project');
+    } else if (userRole === 'employee') {
+      navigate('/employee/projects');
+    }
+  }, [navigate]);
+
+  const handleLogin = (e) => {
     e.preventDefault();
-    setIsLoading(true);
     setError('');
 
     // Simple validation
-    if (!username || !password) {
+    if (!email || !password) {
       setError('Veuillez remplir tous les champs');
-      setIsLoading(false);
       return;
     }
 
-    // Mock login logic - in real app you would authenticate against a server
-    setTimeout(() => {
-      setIsLoading(false);
-      
-      if (username.toLowerCase() === 'chef' && password === 'password') {
-        // Chef login
+    // Hard-coded credentials for demo purposes
+    // In a real app, you would validate against a backend
+    if (role === 'chef') {
+      // Check default chef credentials or stored password
+      const storedPassword = localStorage.getItem('chefPassword');
+      if (email === 'alexarowles@sonelgaz.dz' && (password === 'admin123' || password === storedPassword)) {
         localStorage.setItem('userRole', 'chef');
-        localStorage.setItem('userName', 'Chef Projet');
-        localStorage.setItem('userId', 'chef-001');
-        toast({
-          title: "Connexion réussie",
-          description: "Bienvenue dans votre espace chef de projet"
-        });
         navigate('/project');
-      } else if (username.toLowerCase() === 'employee' && password === 'password') {
-        // Employee login
+      } else {
+        setError('Email ou mot de passe invalide pour le chef');
+      }
+    } else {
+      // Check default employee credentials or stored password
+      const storedPassword = localStorage.getItem('employeePassword');
+      if (email === 'jeandupont@sonelgaz.dz' && (password === 'employee123' || password === storedPassword)) {
         localStorage.setItem('userRole', 'employee');
-        localStorage.setItem('userName', 'Jean Dupont');
-        localStorage.setItem('userId', 'emp-001');
-        toast({
-          title: "Connexion réussie",
-          description: "Bienvenue dans votre espace employé"
-        });
         navigate('/employee/projects');
       } else {
-        setError('Identifiant ou mot de passe incorrect');
+        setError('Email ou mot de passe invalide pour l\'employé');
       }
-    }, 1000);
+    }
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
-      <div className="mb-8 flex flex-col items-center">
-        <img src="/public/lovable-uploads/58530a94-5d90-46f6-a581-d78a21f82b7a.png" alt="Sonelgaz Logo" className="h-16 mb-2" />
-        <h1 className="text-2xl font-bold text-[#192759]">SONELGAZ</h1>
-        <p className="text-gray-600">Système de gestion de projets</p>
+    <div className="flex min-h-screen flex-col justify-center bg-gray-100 py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <img
+          className="mx-auto h-20"
+          src="https://apua-asea.org/wp-content/uploads/2023/01/sonelgaz.png"
+          alt="Sonelgaz Logo"
+        />
+        <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
+          Connexion à votre compte
+        </h2>
       </div>
-      
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Connexion</CardTitle>
-          <CardDescription>
-            Entrez vos identifiants pour accéder à votre compte
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleLogin}>
-            {error && (
-              <div className="bg-red-50 text-red-600 p-3 rounded-md mb-4">
-                {error}
-              </div>
-            )}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="username">Identifiant</Label>
+
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white px-4 py-8 shadow sm:rounded-lg sm:px-10">
+          {error && (
+            <div className="mb-4 rounded-md bg-red-50 p-4 text-sm text-red-700">
+              {error}
+            </div>
+          )}
+
+          <form className="space-y-6" onSubmit={handleLogin}>
+            <div>
+              <Label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                Adresse e-mail
+              </Label>
+              <div className="mt-1">
                 <Input
-                  id="username"
-                  placeholder="Entrez votre identifiant"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Mot de passe</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Entrez votre mot de passe"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="block w-full appearance-none rounded-md border px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
                 />
               </div>
             </div>
-            
-            <div className="mt-6">
-              <Button 
-                type="submit" 
-                className="w-full bg-[#192759]" 
-                disabled={isLoading}
+
+            <div>
+              <Label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                Mot de passe
+              </Label>
+              <div className="mt-1">
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="block w-full appearance-none rounded-md border px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="role" className="block text-sm font-medium text-gray-700">
+                Se connecter en tant que
+              </Label>
+              <div className="mt-1">
+                <div className="flex space-x-4">
+                  <div className="flex items-center">
+                    <input
+                      id="chef"
+                      name="role"
+                      type="radio"
+                      checked={role === 'chef'}
+                      onChange={() => setRole('chef')}
+                      className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <label htmlFor="chef" className="ml-2 block text-sm text-gray-700">
+                      Chef de projet
+                    </label>
+                  </div>
+                  <div className="flex items-center">
+                    <input
+                      id="employee"
+                      name="role"
+                      type="radio"
+                      checked={role === 'employee'}
+                      onChange={() => setRole('employee')}
+                      className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <label htmlFor="employee" className="ml-2 block text-sm text-gray-700">
+                      Employé
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <input
+                  id="remember-me"
+                  name="remember-me"
+                  type="checkbox"
+                  className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
+                  Se souvenir de moi
+                </label>
+              </div>
+
+              <div className="text-sm">
+                <a href="#" className="font-medium text-blue-600 hover:text-blue-500">
+                  Mot de passe oublié?
+                </a>
+              </div>
+            </div>
+
+            <div>
+              <Button
+                type="submit"
+                className="flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
               >
-                {isLoading ? 'Connexion en cours...' : 'Se connecter'}
+                Se connecter
               </Button>
             </div>
           </form>
-        </CardContent>
-        <CardFooter>
-          <div className="w-full text-center text-sm mt-4">
-            <p className="text-gray-500">Utilisez les identifiants ci-dessous pour vous connecter:</p>
-            <div className="mt-2 space-y-1">
-              <p><strong>Chef:</strong> chef / password</p>
-              <p><strong>Employé:</strong> employee / password</p>
+
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="bg-white px-2 text-gray-500">Ou continuer avec</span>
+              </div>
+            </div>
+
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              <div>
+                <Button
+                  type="button"
+                  className="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-offset-0"
+                  variant="outline"
+                >
+                  <span className="sr-only">Sign in with Google</span>
+                  <svg className="h-5 w-5" viewBox="0 0 24 24">
+                    <path
+                      d="M12.545 10.239v3.821h5.445c-0.712 2.315-2.647 3.972-5.445 3.972-3.332 0-6.033-2.701-6.033-6.032s2.701-6.032 6.033-6.032c1.498 0 2.866.554 3.921 1.465l2.981-2.981c-1.758-1.653-4.139-2.673-6.902-2.673-5.468 0-9.894 4.427-9.894 9.895 0 5.468 4.426 9.895 9.894 9.895 5.468 0 9.895-4.427 9.895-9.895 0-0.858-0.125-1.684-0.354-2.465h-9.541z"
+                      fill="#4285F4"
+                    />
+                  </svg>
+                </Button>
+              </div>
+
+              <div>
+                <Button
+                  type="button"
+                  className="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-offset-0"
+                  variant="outline"
+                >
+                  <span className="sr-only">Sign in with Microsoft</span>
+                  <svg className="h-5 w-5" viewBox="0 0 24 24">
+                    <path
+                      d="M11.4 24H0V12.6h11.4V24zM24 24H12.6V12.6H24V24zM11.4 11.4H0V0h11.4v11.4zM24 11.4H12.6V0H24v11.4z"
+                      fill="#F25022"
+                    />
+                  </svg>
+                </Button>
+              </div>
             </div>
           </div>
-        </CardFooter>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };

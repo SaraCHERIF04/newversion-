@@ -43,6 +43,7 @@ import EmployeeDocumentFormPage from "./pages/Employee/EmployeeDocumentFormPage"
 import EmployeeDocumentDetailsPage from "./pages/Employee/EmployeeDocumentDetailsPage";
 import EmployeeProfilePage from "./pages/Employee/EmployeeProfilePage";
 import EmployeeSubProjectsPage from "./pages/Employee/EmployeeSubProjectsPage";
+import EmployeeSubProjectDetailsPage from "./pages/Employee/EmployeeSubProjectDetailsPage"; // Added import
 import EmployeeMarcheAndMaitreOuvragePage from "./pages/Employee/EmployeeMarcheAndMaitreOuvragePage";
 import EmployeeReunionsPage from "./pages/Employee/EmployeeReunionsPage";
 import EmployeeReunionDetailsPage from "./pages/Employee/EmployeeReunionDetailsPage";
@@ -151,6 +152,7 @@ function App() {
               <Route path="projects" element={<EmployeeProjectsPage />} />
               <Route path="projects/:id" element={<EmployeeProjectDetailsPage />} />
               <Route path="sous-projets" element={<EmployeeSubProjectsPage />} />
+              <Route path="sous-projets/:id" element={<EmployeeSubProjectDetailsPage />} />
               <Route path="documents" element={<EmployeeDocumentsPage />} />
               <Route path="documents/new" element={<EmployeeDocumentFormPage />} />
               <Route path="documents/:id" element={<EmployeeDocumentDetailsPage />} />
@@ -159,6 +161,7 @@ function App() {
               <Route path="marche" element={<EmployeeMarcheAndMaitreOuvragePage />} />
               <Route path="maitre-ouvrage" element={<EmployeeMarcheAndMaitreOuvragePage />} />
               <Route path="profile" element={<EmployeeProfilePage />} />
+              <Route path="parametres" element={<div>Paramètres</div>} />
             </Route>
             
             {/* Catch all route */}

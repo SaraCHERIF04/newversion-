@@ -7,11 +7,22 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 type HeaderProps = {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
+  isEmployee?: boolean;
 };
 
-const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery }) => {
+const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, isEmployee = false }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Clear user data from localStorage
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userProfile');
+    localStorage.removeItem('userProfileEmployee');
+    
+    // Redirect to login page
+    navigate('/login');
+  };
 
   return (
     <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-6">
@@ -73,12 +84,21 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery }) => {
             onClick={() => setIsProfileOpen(!isProfileOpen)}
           >
             <div className="flex flex-col items-end">
-              <span className="text-sm font-medium text-gray-700">Alexa Rowles</span>
-              <span className="text-xs text-gray-500">Chef de projet</span>
+              <span className="text-sm font-medium text-gray-700">
+                {isEmployee ? 'Jean Dupont' : 'Alexa Rowles'}
+              </span>
+              <span className="text-xs text-gray-500">
+                {isEmployee ? 'Employé' : 'Chef de projet'}
+              </span>
             </div>
             <Avatar className="h-8 w-8">
-              <AvatarImage src="https://randomuser.me/api/portraits/women/44.jpg" alt="Alexa Rowles" />
-              <AvatarFallback>AR</AvatarFallback>
+              <AvatarImage 
+                src={isEmployee ? 
+                  "https://randomuser.me/api/portraits/men/32.jpg" : 
+                  "https://randomuser.me/api/portraits/women/44.jpg"} 
+                alt={isEmployee ? "Jean Dupont" : "Alexa Rowles"} 
+              />
+              <AvatarFallback>{isEmployee ? "JD" : "AR"}</AvatarFallback>
             </Avatar>
           </button>
 
@@ -87,7 +107,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery }) => {
               <div className="py-1" role="menu" aria-orientation="vertical">
                 <button
                   onClick={() => {
-                    navigate('/profile');
+                    navigate(isEmployee ? '/employee/profile' : '/profile');
                     setIsProfileOpen(false);
                   }}
                   className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
@@ -97,7 +117,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery }) => {
                 </button>
                 <button
                   onClick={() => {
-                    navigate('/parametres');
+                    navigate(isEmployee ? '/employee/parametres' : '/parametres');
                     setIsProfileOpen(false);
                   }}
                   className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
@@ -106,10 +126,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery }) => {
                   Paramètres
                 </button>
                 <button
-                  onClick={() => {
-                    navigate('/');
-                    setIsProfileOpen(false);
-                  }}
+                  onClick={handleLogout}
                   className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
                   role="menuitem"
                 >

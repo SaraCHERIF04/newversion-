@@ -20,7 +20,11 @@ const EmployeeLayout = () => {
     <div className="flex min-h-screen bg-gray-50">
       <EmployeeSidebar />
       <div className="flex-1">
-        <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} isEmployee={true} />
+        <Header 
+          searchQuery={searchQuery} 
+          setSearchQuery={setSearchQuery} 
+          isEmployee={true} 
+        />
         <main className="px-6 py-6">
           <Outlet context={{ searchQuery }} />
         </main>

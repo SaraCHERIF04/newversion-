@@ -27,7 +27,6 @@ const ProfilePage = () => {
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
-  const [showSavedMessage, setShowSavedMessage] = useState(false);
   
   // User profile information
   const [profile, setProfile] = useState({
@@ -90,8 +89,12 @@ const ProfilePage = () => {
     }
     
     // Save password change (in a real app would call an API)
+    localStorage.setItem('chefPassword', newPassword);
     setPasswordError('');
     setIsChangingPassword(false);
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
     
     // Show success message
     toast({

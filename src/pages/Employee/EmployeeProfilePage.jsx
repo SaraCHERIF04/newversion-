@@ -87,8 +87,12 @@ const EmployeeProfilePage = () => {
     }
     
     // Save password change (in a real app would call an API)
+    localStorage.setItem('employeePassword', newPassword);
     setPasswordError('');
     setIsChangingPassword(false);
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
     
     // Show success message
     toast({
