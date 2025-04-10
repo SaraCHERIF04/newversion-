@@ -63,6 +63,8 @@ interface ProjectFormProps {
   onSubmit: (data: any) => void;
   defaultValues?: any;
   isLoading?: boolean;
+  project?: any;
+  isEdit?: boolean;
 }
 
 interface ProjectDocument {
@@ -76,14 +78,18 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
   onSubmit,
   defaultValues,
   isLoading = false,
+  project,
+  isEdit,
 }) => {
   const [users, setUsers] = useState<User[]>([]);
   const [documents, setDocuments] = useState<ProjectDocument[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
+  const formValues = project || defaultValues;
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: defaultValues || {
+    defaultValues: formValues || {
       name: '',
       description: '',
       startDate: new Date(),
@@ -97,7 +103,6 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
   });
 
   useEffect(() => {
-    // Load users from localStorage
     const storedUsers = localStorage.getItem('users');
     if (storedUsers) {
       try {
@@ -108,11 +113,10 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
       }
     }
 
-    // Load documents if editing
-    if (defaultValues?.documents) {
-      setDocuments(defaultValues.documents);
+    if (formValues?.documents) {
+      setDocuments(formValues.documents);
     }
-  }, [defaultValues]);
+  }, [formValues]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {

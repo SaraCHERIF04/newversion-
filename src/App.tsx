@@ -49,13 +49,8 @@ import EmployeeDocumentDetailsPage from "./pages/Employee/EmployeeDocumentDetail
 import EmployeeProfilePage from "./pages/Employee/EmployeeProfilePage";
 import EmployeeSubProjectsPage from "./pages/Employee/EmployeeSubProjectsPage";
 import EmployeeSubProjectDetailsPage from "./pages/Employee/EmployeeSubProjectDetailsPage";
-import EmployeeMarcheAndMaitreOuvragePage from "./pages/Employee/EmployeeMarcheAndMaitreOuvragePage";
-import EmployeeReunionsPage from "./pages/Employee/EmployeeReunionsPage";
-import EmployeeReunionDetailsPage from "./pages/Employee/EmployeeReunionDetailsPage";
-import EmployeeIncidentsPage from "./pages/Employee/EmployeeIncidentsPage";
-import EmployeeIncidentDetailsPage from "./pages/Employee/EmployeeIncidentDetailsPage";
-import EmployeeIncidentFollowUpsPage from "./pages/Employee/EmployeeIncidentFollowUpsPage";
-import EmployeeIncidentFollowUpDetailsPage from "./pages/Employee/EmployeeIncidentFollowUpDetailsPage";
+import EmployeeMarchePage from './pages/Employee/EmployeeMarchePage';
+import EmployeMarcheDetailsPage from './pages/Employee/EmployeMarcheDetailsPage';
 
 // Admin Pages Imports
 import AdminLayout from "./components/Layout/AdminLayout";
@@ -200,8 +195,8 @@ function App() {
               <Route path="documents/:id" element={<EmployeeDocumentDetailsPage />} />
               <Route path="reunions" element={<EmployeeReunionsPage />} />
               <Route path="reunions/:id" element={<EmployeeReunionDetailsPage />} />
-              <Route path="marche" element={<EmployeeMarcheAndMaitreOuvragePage />} />
-              <Route path="maitre-ouvrage" element={<EmployeeMarcheAndMaitreOuvragePage />} />
+              <Route path="marche" element={<EmployeeMarchePage />} />
+              <Route path="marche/:id" element={<EmployeMarcheDetailsPage />} />
               <Route path="profile" element={<EmployeeProfilePage />} />
               
               <Route path="incidents" element={<EmployeeIncidentsPage />} />

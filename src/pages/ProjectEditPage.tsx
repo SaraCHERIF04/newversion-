@@ -65,7 +65,34 @@ const ProjectEditPage: React.FC = () => {
     }
   }, [id, navigate]);
   
-  return project ? <ProjectForm project={project} isEdit={true} /> : null;
+  const handleSubmit = (data: any) => {
+    if (!id) return;
+    
+    // Update project with form data
+    const updatedProject = {
+      ...project,
+      ...data,
+      id: id,
+      updatedAt: new Date().toISOString()
+    };
+    
+    // Save to localStorage
+    try {
+      const projectsString = localStorage.getItem('projects');
+      if (projectsString) {
+        const projects = JSON.parse(projectsString);
+        const updatedProjects = projects.map((p: Project) => 
+          p.id === id ? updatedProject : p
+        );
+        localStorage.setItem('projects', JSON.stringify(updatedProjects));
+      }
+      navigate('/project');
+    } catch (error) {
+      console.error('Error updating project:', error);
+    }
+  };
+  
+  return project ? <ProjectForm onSubmit={handleSubmit} defaultValues={project} /> : null;
 };
 
 export default ProjectEditPage;
