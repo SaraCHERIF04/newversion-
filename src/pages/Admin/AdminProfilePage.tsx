@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Save, X, ArrowLeft } from 'lucide-react';
+import { Save, X, ArrowLeft, Key } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale/fr';
 import { User } from '@/types/User';
@@ -43,6 +43,7 @@ const AdminProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [adminUser, setAdminUser] = useState<User | null>(null);
+  const [showPasswordSection, setShowPasswordSection] = useState(false);
 
   // Initialize form
   const form = useForm<z.infer<typeof profileFormSchema>>({
@@ -129,8 +130,99 @@ const AdminProfilePage: React.FC = () => {
     }, 800);
   };
 
+  const handlePasswordChange = () => {
+    navigate('/admin/profile');
+    // Dans une application réelle, on sauvegarderait les changements de mot de passe
+    toast({
+      title: "Mot de passe modifié",
+      description: "Votre mot de passe a été modifié avec succès",
+    });
+  };
+
   if (!adminUser) {
     return <div className="text-center py-10">Chargement...</div>;
+  }
+
+  if (showPasswordSection) {
+    return (
+      <div className="space-y-6">
+        <Card className="overflow-hidden">
+          <div className="flex justify-between items-center p-6 border-b">
+            <div className="flex items-center">
+              <Button 
+                variant="outline" 
+                size="icon" 
+                onClick={() => setShowPasswordSection(false)}
+                className="mr-4"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              <h2 className="text-xl font-semibold">Changer le mot de passe</h2>
+            </div>
+          </div>
+          
+          <CardContent className="p-6 pt-8">
+            <div className="flex flex-col md:flex-row gap-8">
+              <div className="flex-shrink-0">
+                <div className="h-24 w-24 rounded-full overflow-hidden border-4 border-gray-200 mx-auto">
+                  {adminUser.avatar ? (
+                    <img 
+                      src={adminUser.avatar} 
+                      alt={`${adminUser.name} ${adminUser.prenom}`} 
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="h-full w-full bg-emerald-500 flex items-center justify-center text-white text-2xl font-bold">
+                      {adminUser.name && adminUser.prenom 
+                        ? `${adminUser.name.charAt(0)}${adminUser.prenom.charAt(0)}`
+                        : 'AD'}
+                    </div>
+                  )}
+                </div>
+                <p className="text-center mt-2 text-sm font-medium">{adminUser.email}</p>
+              </div>
+              
+              <div className="flex-grow">
+                <p className="mb-6">
+                  Votre mot de passe doit comporter au moins 8 caractères et inclure une combinaison de chiffres,
+                  de lettres et de caractères spéciaux (!@#$%).
+                </p>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Mot de passe actuel</label>
+                    <input type="password" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3" />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Nouveau mot de passe</label>
+                    <input type="password" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3" />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Répéter le nouveau mot de passe</label>
+                    <input type="password" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3" />
+                  </div>
+                  
+                  <div className="text-sm text-blue-600 hover:underline cursor-pointer">
+                    Mot de passe oublié?
+                  </div>
+                  
+                  <div className="flex justify-end">
+                    <Button 
+                      onClick={handlePasswordChange}
+                      className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
+                    >
+                      Enregistrer
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (
@@ -351,11 +443,21 @@ const AdminProfilePage: React.FC = () => {
                     />
                   </div>
                   
-                  <div className="flex justify-end">
+                  <div className="flex justify-between">
+                    <Button 
+                      type="button" 
+                      variant="outline"
+                      onClick={() => setShowPasswordSection(true)}
+                      className="px-6"
+                    >
+                      <Key className="mr-2 h-4 w-4" />
+                      Changer le mot de passe
+                    </Button>
+                    
                     <Button 
                       type="submit" 
                       disabled={loading}
-                      className="px-6"
+                      className="px-6 bg-blue-600 hover:bg-blue-700"
                     >
                       <Save className="mr-2 h-4 w-4" />
                       Enregistrer

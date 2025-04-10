@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { User as UserType } from '@/types/User';
+import { ArrowLeft } from 'lucide-react';
 
 const AdminUserDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -54,7 +55,17 @@ const AdminUserDetailsPage: React.FC = () => {
     <div className="space-y-6">
       <Card className="overflow-hidden">
         <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-xl font-semibold">Information profil</h2>
+          <div className="flex items-center">
+            <Button 
+              variant="outline" 
+              size="icon" 
+              onClick={() => navigate('/admin/users')}
+              className="mr-4"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <h2 className="text-xl font-semibold">Information profil</h2>
+          </div>
           <Button 
             variant="outline" 
             onClick={() => navigate(`/admin/users/edit/${id}`)}

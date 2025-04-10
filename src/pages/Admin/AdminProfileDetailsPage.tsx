@@ -121,8 +121,8 @@ const AdminProfileDetailsPage: React.FC = () => {
               
               <div className="mt-8">
                 <Button 
-                  variant="outline" 
-                  className="w-full md:w-auto"
+                  variant="primary" 
+                  className="w-full md:w-auto bg-blue-600 hover:bg-blue-700"
                   onClick={() => setShowPasswordSection(!showPasswordSection)}
                 >
                   <Key className="mr-2 h-4 w-4" />
@@ -157,7 +157,7 @@ const AdminProfileDetailsPage: React.FC = () => {
                         Mot de passe oublié?
                       </div>
                       
-                      <Button className="w-full sm:w-auto">
+                      <Button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700">
                         Enregistrer
                       </Button>
                     </div>

@@ -22,7 +22,7 @@ const AdminSidebar: React.FC = () => {
       
       <nav className="p-4 space-y-2">
         <NavLink 
-          to="/admin/profile" 
+          to="/admin/users/new" 
           className={({ isActive }) => 
             `flex items-center space-x-3 p-3 rounded-md transition-colors ${
               isActive 
