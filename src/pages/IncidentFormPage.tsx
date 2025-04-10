@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Upload } from 'lucide-react';
+import { ArrowLeft, Upload, Trash2 } from 'lucide-react';
 import { Incident } from '@/types/Incident';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -25,6 +25,41 @@ const IncidentFormPage = () => {
   });
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [fileNames, setFileNames] = useState<string[]>([]);
+  const [projects, setProjects] = useState<{id: string, name: string}[]>([]);
+  const [subProjects, setSubProjects] = useState<{id: string, name: string}[]>([]);
+
+  // Load project and subproject data
+  useEffect(() => {
+    // Load projects
+    const storedProjects = localStorage.getItem('projects');
+    if (storedProjects) {
+      try {
+        const parsedProjects = JSON.parse(storedProjects);
+        const projectOptions = parsedProjects.map((project: any) => ({
+          id: project.id,
+          name: project.name
+        }));
+        setProjects(projectOptions);
+      } catch (error) {
+        console.error("Error loading projects:", error);
+      }
+    }
+
+    // Load subprojects
+    const storedSubProjects = localStorage.getItem('subProjects');
+    if (storedSubProjects) {
+      try {
+        const parsedSubProjects = JSON.parse(storedSubProjects);
+        const subProjectOptions = parsedSubProjects.map((subProject: any) => ({
+          id: subProject.id,
+          name: subProject.name
+        }));
+        setSubProjects(subProjectOptions);
+      } catch (error) {
+        console.error("Error loading subprojects:", error);
+      }
+    }
+  }, []);
 
   // Load incident data if editing
   useEffect(() => {
@@ -153,9 +188,9 @@ const IncidentFormPage = () => {
                 required
               >
                 <option value="">Sélectionner un projet</option>
-                <option value="Projet A">Projet A</option>
-                <option value="Projet B">Projet B</option>
-                <option value="Projet C">Projet C</option>
+                {projects.map(project => (
+                  <option key={project.id} value={project.name}>{project.name}</option>
+                ))}
               </select>
             </div>
             <div>
@@ -170,9 +205,9 @@ const IncidentFormPage = () => {
                 required
               >
                 <option value="">Sélectionner un sous-projet</option>
-                <option value="Sous-projet 1">Sous-projet 1</option>
-                <option value="Sous-projet 2">Sous-projet 2</option>
-                <option value="Sous-projet 3">Sous-projet 3</option>
+                {subProjects.map(subProject => (
+                  <option key={subProject.id} value={subProject.name}>{subProject.name}</option>
+                ))}
               </select>
             </div>
             <div>
