@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { User } from '@/types/User';
 
 // Mock data for users
-const mockUsers: User[] = [
+const initialMockUsers: User[] = [
   {
     id: '1',
     name: 'Alexis',
@@ -42,6 +42,7 @@ const mockUsers: User[] = [
     email: 'admin@sonelgaz.dz',
     telephone: '0555555555',
     matricule: 'ADM001',
+    gender: 'male',
     role: 'admin',
     status: 'active',
     createdAt: new Date().toISOString(),
@@ -76,9 +77,21 @@ const mockUsers: User[] = [
 const AdminUsersPage: React.FC = () => {
   const { searchQuery } = useSearchQuery();
   const [localSearchQuery, setLocalSearchQuery] = useState('');
-  const [users, setUsers] = useState<User[]>(mockUsers);
-  const [filteredUsers, setFilteredUsers] = useState<User[]>(mockUsers);
+  const [users, setUsers] = useState<User[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const navigate = useNavigate();
+  
+  useEffect(() => {
+    // Initialize localStorage with mock data if it doesn't exist
+    if (!localStorage.getItem('mockUsers')) {
+      localStorage.setItem('mockUsers', JSON.stringify(initialMockUsers));
+    }
+    
+    // Load users from localStorage
+    const storedUsers = JSON.parse(localStorage.getItem('mockUsers') || '[]');
+    setUsers(storedUsers);
+    setFilteredUsers(storedUsers);
+  }, []);
 
   useEffect(() => {
     // Filter users based on search query from context and local search

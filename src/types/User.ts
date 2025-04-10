@@ -10,6 +10,5 @@ export interface User {
   status: 'active' | 'inactive';
   createdAt: string;
   avatar?: string;
-  // Added fields based on the form shown in the images
   prenom?: string;
 }

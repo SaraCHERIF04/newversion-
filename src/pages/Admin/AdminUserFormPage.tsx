@@ -4,18 +4,16 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Save, X } from 'lucide-react';
-import { Switch } from '@/components/ui/switch';
 import { User as UserType } from '@/types/User';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from 'date-fns';
-import fr from 'date-fns/locale/fr';
+import { fr } from 'date-fns/locale/fr'; // Fixed import for fr locale
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { Calendar } from '@/components/ui/calendar';
@@ -64,7 +62,7 @@ const mockUsers: UserType[] = [
   }
 ];
 
-// Form schema with validation
+// Form schema with validation - removed password field
 const formSchema = z.object({
   name: z.string().min(2, { message: "Le nom doit contenir au moins 2 caractères" }),
   prenom: z.string().min(2, { message: "Le prénom doit contenir au moins 2 caractères" }),
@@ -76,8 +74,7 @@ const formSchema = z.object({
   status: z.enum(["active", "inactive"], { message: "Veuillez sélectionner un état" }),
   createdAt: z.date({
     required_error: "Veuillez sélectionner une date",
-  }),
-  password: z.string().optional()
+  })
 });
 
 const AdminUserFormPage: React.FC = () => {
@@ -100,7 +97,6 @@ const AdminUserFormPage: React.FC = () => {
       role: 'employee' as const,
       status: 'active' as const,
       createdAt: new Date(),
-      password: '',
     },
   });
 
@@ -119,8 +115,7 @@ const AdminUserFormPage: React.FC = () => {
           gender: user.gender || 'male',
           role: user.role,
           status: user.status,
-          createdAt: new Date(user.createdAt),
-          password: '' // We don't show the password in edit mode
+          createdAt: new Date(user.createdAt)
         });
       } else {
         // If user not found, redirect back to users list
@@ -139,17 +134,46 @@ const AdminUserFormPage: React.FC = () => {
     
     // Simulate API call
     setTimeout(() => {
+      // Generate a unique ID for the new user
+      const newUserId = isEditMode ? id : String(Date.now());
+      
+      // Generate avatar URL
+      const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(values.name + ' ' + values.prenom)}&background=random`;
+      
+      // Create the new user object
+      const newUser: UserType = {
+        id: newUserId as string,
+        name: values.name,
+        prenom: values.prenom,
+        email: values.email,
+        telephone: values.telephone,
+        matricule: values.matricule,
+        gender: values.gender,
+        role: values.role,
+        status: values.status,
+        createdAt: values.createdAt.toISOString(),
+        avatar: avatarUrl
+      };
+      
+      // Save to localStorage (for persistence between page refreshes)
+      const existingUsers = JSON.parse(localStorage.getItem('mockUsers') || JSON.stringify(mockUsers));
+      
       if (isEditMode) {
-        toast({
-          title: "Utilisateur mis à jour",
-          description: `L'utilisateur ${values.name} ${values.prenom} a été mis à jour avec succès`,
-        });
+        // Update existing user
+        const updatedUsers = existingUsers.map((user: UserType) => 
+          user.id === id ? newUser : user
+        );
+        localStorage.setItem('mockUsers', JSON.stringify(updatedUsers));
       } else {
-        toast({
-          title: "Utilisateur créé",
-          description: `L'utilisateur ${values.name} ${values.prenom} a été créé avec succès`,
-        });
+        // Add new user
+        existingUsers.push(newUser);
+        localStorage.setItem('mockUsers', JSON.stringify(existingUsers));
       }
+      
+      toast({
+        title: isEditMode ? "Utilisateur mis à jour" : "Utilisateur créé",
+        description: `L'utilisateur ${values.name} ${values.prenom} a été ${isEditMode ? 'mis à jour' : 'créé'} avec succès`,
+      });
       
       navigate('/admin/users');
       setLoading(false);
@@ -395,26 +419,6 @@ const AdminUserFormPage: React.FC = () => {
                         </FormItem>
                       )}
                     />
-                    
-                    {!isEditMode && (
-                      <FormField
-                        control={form.control}
-                        name="password"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Mot de passe</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="password"
-                                placeholder="Mot de passe"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    )}
                   </div>
                   
                   <div className="flex justify-end">

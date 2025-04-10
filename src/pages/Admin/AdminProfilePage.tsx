@@ -12,7 +12,8 @@ const AdminProfilePage: React.FC = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [profileData, setProfileData] = useState({
-    name: 'Admin User',
+    name: 'Admin',
+    prenom: 'Sonelgaz',
     email: 'admin@sonelgaz.dz',
     telephone: '0555555555',
     matricule: 'ADM001',
@@ -26,12 +27,14 @@ const AdminProfilePage: React.FC = () => {
   // In a real application, this would fetch the user's profile data from an API
   useEffect(() => {
     const userName = localStorage.getItem('userName');
+    const userPrenom = localStorage.getItem('userPrenom');
     const userEmail = localStorage.getItem('userEmail');
     
     if (userName && userEmail) {
       setProfileData(prev => ({
         ...prev,
         name: userName,
+        prenom: userPrenom || prev.prenom,
         email: userEmail
       }));
     }
@@ -59,6 +62,7 @@ const AdminProfilePage: React.FC = () => {
     // Simulate API call
     setTimeout(() => {
       localStorage.setItem('userName', profileData.name);
+      localStorage.setItem('userPrenom', profileData.prenom);
       localStorage.setItem('userEmail', profileData.email);
       
       toast({
@@ -119,13 +123,13 @@ const AdminProfilePage: React.FC = () => {
             <div className="flex items-center space-x-4 mb-6">
               <div className="h-16 w-16 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
                 <img 
-                  src={`https://ui-avatars.com/api/?name=${encodeURIComponent(profileData.name)}&background=random`} 
+                  src={`https://ui-avatars.com/api/?name=${encodeURIComponent(profileData.name + ' ' + profileData.prenom)}&background=random`} 
                   alt={profileData.name} 
                   className="h-full w-full object-cover"
                 />
               </div>
               <div>
-                <h3 className="font-semibold">{profileData.name}</h3>
+                <h3 className="font-semibold">{profileData.name} {profileData.prenom}</h3>
                 <p className="text-sm text-gray-500">{profileData.email}</p>
               </div>
             </div>
@@ -139,6 +143,17 @@ const AdminProfilePage: React.FC = () => {
                   value={profileData.name}
                   onChange={handleInputChange}
                   placeholder="Votre nom"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="prenom">Prénom</Label>
+                <Input
+                  id="prenom"
+                  name="prenom"
+                  value={profileData.prenom}
+                  onChange={handleInputChange}
+                  placeholder="Votre prénom"
                 />
               </div>
               
