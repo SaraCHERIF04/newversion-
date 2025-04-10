@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Save, X } from 'lucide-react';
+import { Save, X, ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale/fr';
 import { User } from '@/types/User';
@@ -137,7 +137,17 @@ const AdminProfilePage: React.FC = () => {
     <div className="space-y-6">
       <Card className="overflow-hidden">
         <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-xl font-semibold">Modifier profil</h2>
+          <div className="flex items-center">
+            <Button 
+              variant="outline" 
+              size="icon" 
+              onClick={() => navigate('/admin/profile')}
+              className="mr-4"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <h2 className="text-xl font-semibold">Modifier profil</h2>
+          </div>
           <Button 
             variant="outline" 
             onClick={() => navigate('/admin/profile')}
@@ -214,11 +224,9 @@ const AdminProfilePage: React.FC = () => {
                         <FormItem>
                           <FormLabel>Numéro de téléphone</FormLabel>
                           <FormControl>
-                            <Input 
+                            <PhoneInput 
                               value={field.value} 
-                              readOnly
-                              disabled
-                              className="bg-gray-100"
+                              onChange={field.onChange}
                             />
                           </FormControl>
                           <FormMessage />
@@ -260,9 +268,8 @@ const AdminProfilePage: React.FC = () => {
                           <FormControl>
                             <Input 
                               value={field.value}
-                              readOnly
-                              disabled
-                              className="bg-gray-100"
+                              placeholder="Email"
+                              {...field}
                             />
                           </FormControl>
                           <FormMessage />

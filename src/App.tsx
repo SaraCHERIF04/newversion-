@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -52,6 +51,7 @@ import EmployeeReunionDetailsPage from "./pages/Employee/EmployeeReunionDetailsP
 import AdminLayout from "./components/Layout/AdminLayout";
 import AdminUsersPage from "./pages/Admin/AdminUsersPage";
 import AdminProfilePage from "./pages/Admin/AdminProfilePage";
+import AdminProfileDetailsPage from "./pages/Admin/AdminProfileDetailsPage";
 import AdminUserFormPage from "./pages/Admin/AdminUserFormPage";
 import AdminUserDetailsPage from "./pages/Admin/AdminUserDetailsPage";
 
@@ -81,12 +81,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRole }
 
 // Create a new query client instance inside the component
 function App() {
-  // Create the client inside the component
   const queryClient = new QueryClient();
   const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
-    // Check if we need to redirect based on login status
     setTimeout(() => {
       setIsLoading(false);
     }, 500);
@@ -103,10 +101,8 @@ function App() {
         <Sonner />
         <BrowserRouter>
           <Routes>
-            {/* Public routes */}
             <Route path="/login" element={<LoginPage />} />
             
-            {/* Default redirect */}
             <Route path="/" element={
               <ProtectedRoute>
                 {localStorage.getItem('userRole') === 'chef' ? 
@@ -117,7 +113,6 @@ function App() {
               </ProtectedRoute>
             } />
             
-            {/* Admin Routes */}
             <Route path="/admin" element={
               <ProtectedRoute allowedRole="admin">
                 <AdminLayout />
@@ -128,12 +123,12 @@ function App() {
               <Route path="users/new" element={<AdminUserFormPage />} />
               <Route path="users/edit/:id" element={<AdminUserFormPage />} />
               <Route path="users/:id" element={<AdminUserDetailsPage />} />
-              <Route path="profile" element={<AdminProfilePage />} />
+              <Route path="profile" element={<AdminProfileDetailsPage />} />
+              <Route path="profile/edit" element={<AdminProfilePage />} />
               <Route path="parametres" element={<div>Paramètres Page</div>} />
               <Route path="about" element={<div>About Us Page</div>} />
             </Route>
             
-            {/* Admin/Chef Routes */}
             <Route path="/" element={
               <ProtectedRoute allowedRole="chef">
                 <MainLayout />
@@ -171,7 +166,6 @@ function App() {
               <Route path="about" element={<div>About Us Page</div>} />
             </Route>
             
-            {/* Employee Routes */}
             <Route path="/employee" element={
               <ProtectedRoute allowedRole="employee">
                 <EmployeeLayout />
@@ -193,8 +187,7 @@ function App() {
               <Route path="parametres" element={<div>Paramètres</div>} />
             </Route>
             
-            {/* Catch all route */}
-            <Route path="*" element={<NotFound />} />
+            <Route path="*" element={<div>Page not found</div>} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>

@@ -2,11 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Plus, Search, UserCog, UserPlus } from 'lucide-react';
+import { Plus, Search, UserCog, UserPlus, ArrowLeft } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useSearchQuery } from '@/components/Layout/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { User } from '@/types/User';
+import { STATUS_OPTIONS } from '@/components/Admin/UserForm/UserFormSchema';
 
 // Mock data for users
 const initialMockUsers: User[] = [
@@ -19,7 +20,7 @@ const initialMockUsers: User[] = [
     matricule: 'EMP001',
     gender: 'male',
     role: 'chef',
-    status: 'active',
+    status: 'En poste',
     createdAt: new Date().toISOString(),
     avatar: `https://ui-avatars.com/api/?name=Alexis+Rowles&background=random`
   },
@@ -31,7 +32,7 @@ const initialMockUsers: User[] = [
     telephone: '0777777777',
     matricule: 'EMP002',
     role: 'employee',
-    status: 'active',
+    status: 'En poste',
     createdAt: new Date().toISOString(),
     avatar: `https://ui-avatars.com/api/?name=Jean+Dupont&background=random`
   },
@@ -44,7 +45,7 @@ const initialMockUsers: User[] = [
     matricule: 'ADM001',
     gender: 'male',
     role: 'admin',
-    status: 'active',
+    status: 'En poste',
     createdAt: new Date().toISOString(),
     avatar: `https://ui-avatars.com/api/?name=Admin+Sonelgaz&background=random`
   },
@@ -56,7 +57,7 @@ const initialMockUsers: User[] = [
     telephone: '0666666668',
     matricule: 'EMP003',
     role: 'employee',
-    status: 'active',
+    status: 'En poste',
     createdAt: new Date().toISOString(),
     avatar: `https://ui-avatars.com/api/?name=Marie+Lambert&background=random`
   },
@@ -68,7 +69,7 @@ const initialMockUsers: User[] = [
     telephone: '0666666669',
     matricule: 'EMP004',
     role: 'chef',
-    status: 'inactive',
+    status: 'En congé',
     createdAt: new Date().toISOString(),
     avatar: `https://ui-avatars.com/api/?name=Ahmed+Kader&background=random`
   }
@@ -125,11 +126,30 @@ const AdminUsersPage: React.FC = () => {
     }
   };
 
+  // Function to get availability color
+  const getStatusColorClass = (status: string) => {
+    if (status === 'En poste' || status === 'Disponible') return 'bg-green-100 text-green-800';
+    if (status === 'En congé') return 'bg-yellow-100 text-yellow-800';
+    if (status === 'Maladie') return 'bg-red-100 text-red-800';
+    if (status === 'Mission' || status === 'Formation') return 'bg-blue-100 text-blue-800';
+    return 'bg-gray-100 text-gray-800';
+  };
+
   return (
     <div className="space-y-6">
       <Card className="overflow-hidden">
         <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-xl font-semibold">Listes des utilisateurs</h2>
+          <div className="flex items-center">
+            <Button 
+              variant="outline" 
+              size="icon" 
+              onClick={() => navigate('/admin')}
+              className="mr-4"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <h2 className="text-xl font-semibold">Listes des utilisateurs</h2>
+          </div>
           <Button 
             onClick={() => navigate('/admin/users/new')}
             className="ml-auto"
@@ -179,8 +199,8 @@ const AdminUsersPage: React.FC = () => {
                          user.role === 'admin' ? 'Administrateur' : 'Employé'}
                       </span>
                       
-                      <span className={`px-2 py-1 rounded-full text-xs ${user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                        {user.status === 'active' ? 'Actif' : 'Inactif'}
+                      <span className={`px-2 py-1 rounded-full text-xs ${getStatusColorClass(user.status)}`}>
+                        {user.status}
                       </span>
                     </div>
                   </div>
