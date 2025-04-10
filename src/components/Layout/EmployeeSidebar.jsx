@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { 
   Briefcase, 
   FileText, 
@@ -39,7 +39,7 @@ const EmployeeSidebar = () => {
   };
 
   return (
-    <aside className="fixed h-full w-64 bg-white shadow-lg border-r border-gray-200">
+    <aside className="fixed h-full w-64 bg-white shadow-lg border-r border-gray-200 z-10">
       <div className="flex flex-col h-full">
         <div className="p-5 border-b border-gray-200">
           <h1 className="text-xl font-bold text-gray-800">GIP</h1>
@@ -49,19 +49,19 @@ const EmployeeSidebar = () => {
           <ul className="space-y-1 px-2">
             {menuItems.map((item) => (
               <li key={item.path}>
-                <button
+                <Link
+                  to={item.path}
                   className={`w-full flex items-center text-left px-4 py-3 rounded-md transition-colors ${
                     isActive(item.path)
                       ? 'bg-blue-50 text-blue-700 font-medium'
                       : 'text-gray-700 hover:bg-gray-100'
                   }`}
-                  onClick={() => navigate(item.path)}
                 >
                   <span className={`${isActive(item.path) ? 'text-blue-600' : 'text-gray-500'}`}>
                     {item.icon}
                   </span>
                   <span className="ml-3">{item.name}</span>
-                </button>
+                </Link>
               </li>
             ))}
           </ul>
