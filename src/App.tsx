@@ -56,6 +56,8 @@ import EmployeeIncidentsPage from './pages/Employee/EmployeeIncidentsPage';
 import EmployeeIncidentDetailsPage from './pages/Employee/EmployeeIncidentDetailsPage';
 import EmployeeIncidentFollowUpsPage from './pages/Employee/EmployeeIncidentFollowUpsPage';
 import EmployeeIncidentFollowUpDetailsPage from './pages/Employee/EmployeeIncidentFollowUpDetailsPage';
+import EmployeeReunionsPage from './pages/Employee/EmployeeReunionsPage';
+import EmployeeReunionDetailsPage from './pages/Employee/EmployeeReunionDetailsPage';
 
 // Admin Pages Imports
 import AdminLayout from "./components/Layout/AdminLayout";
@@ -198,9 +200,8 @@ function App() {
               <Route path="documents" element={<EmployeeDocumentsPage />} />
               <Route path="documents/new" element={<EmployeeDocumentFormPage />} />
               <Route path="documents/:id" element={<EmployeeDocumentDetailsPage />} />
-              {/* Remove or comment out reunions routes for now */}
-              {/* <Route path="reunions" element={<EmployeeReunionsPage />} /> */}
-              {/* <Route path="reunions/:id" element={<EmployeeReunionDetailsPage />} /> */}
+              <Route path="reunions" element={<EmployeeReunionsPage />} />
+              <Route path="reunions/:id" element={<EmployeeReunionDetailsPage />} />
               <Route path="marche" element={<EmployeeMarchePage />} />
               <Route path="marche/:id" element={<EmployeMarcheDetailsPage />} />
               <Route path="profile" element={<EmployeeProfilePage />} />
@@ -213,7 +214,7 @@ function App() {
               <Route path="parametres" element={<div>Paramètres</div>} />
             </Route>
             
-            <Route path="*" element={<div>Page not found</div>} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
