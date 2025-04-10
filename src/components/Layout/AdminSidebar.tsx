@@ -4,8 +4,6 @@ import { NavLink } from 'react-router-dom';
 import { Users, User, Info, Settings } from 'lucide-react';
 
 const AdminSidebar: React.FC = () => {
-  const adminName = localStorage.getItem('userName') || 'Admin';
-
   return (
     <aside className="w-64 bg-white border-r shadow-sm">
       <div className="p-4 border-b">
@@ -23,21 +21,19 @@ const AdminSidebar: React.FC = () => {
       </div>
       
       <nav className="p-4 space-y-2">
-        <div className="pb-4 mb-4 border-b">
-          <NavLink 
-            to="/admin/profile" 
-            className={({ isActive }) => 
-              `flex items-center space-x-3 p-3 rounded-md transition-colors ${
-                isActive 
-                  ? 'bg-blue-100 text-blue-800' 
-                  : 'hover:bg-gray-100'
-              }`
-            }
-          >
-            <User size={20} className="text-blue-800" />
-            <span>Gérer Compte</span>
-          </NavLink>
-        </div>
+        <NavLink 
+          to="/admin/profile" 
+          className={({ isActive }) => 
+            `flex items-center space-x-3 p-3 rounded-md transition-colors ${
+              isActive 
+                ? 'bg-blue-100 text-blue-800' 
+                : 'hover:bg-gray-100'
+            }`
+          }
+        >
+          <User size={20} className="text-blue-800" />
+          <span>Gérer Compte</span>
+        </NavLink>
         
         <NavLink 
           to="/admin/users" 

@@ -1,25 +1,32 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Save, User } from 'lucide-react';
+import { Save, X } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { User as UserType } from '@/types/User';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from 'date-fns';
+import fr from 'date-fns/locale/fr';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
+import { Calendar } from '@/components/ui/calendar';
+import { CalendarIcon } from 'lucide-react';
 
 // Mock users (same data as in AdminUsersPage)
 const mockUsers: UserType[] = [
   {
     id: '1',
-    name: 'Alexis Rowles',
+    name: 'Alexis',
+    prenom: 'Rowles',
     email: 'alexarowles@sonelgaz.dz',
     telephone: '0666666666',
     matricule: 'EMP001',
@@ -31,7 +38,8 @@ const mockUsers: UserType[] = [
   },
   {
     id: '2',
-    name: 'Jean Dupont',
+    name: 'Jean',
+    prenom: 'Dupont',
     email: 'jeandupont@sonelgaz.dz',
     telephone: '0777777777',
     matricule: 'EMP002',
@@ -43,7 +51,8 @@ const mockUsers: UserType[] = [
   },
   {
     id: '3',
-    name: 'Admin Sonelgaz',
+    name: 'Admin',
+    prenom: 'Sonelgaz',
     email: 'admin@sonelgaz.dz',
     telephone: '0555555555',
     matricule: 'ADM001',
@@ -57,13 +66,17 @@ const mockUsers: UserType[] = [
 
 // Form schema with validation
 const formSchema = z.object({
-  name: z.string().min(3, { message: "Le nom doit contenir au moins 3 caractères" }),
+  name: z.string().min(2, { message: "Le nom doit contenir au moins 2 caractères" }),
+  prenom: z.string().min(2, { message: "Le prénom doit contenir au moins 2 caractères" }),
   email: z.string().email({ message: "Format d'email invalide" }),
   telephone: z.string().regex(/^0\d{9}$/, { message: "Format de téléphone invalide (10 chiffres commençant par 0)" }),
   matricule: z.string().min(3, { message: "Le matricule doit contenir au moins 3 caractères" }),
   gender: z.enum(["male", "female"], { message: "Veuillez sélectionner un genre" }),
   role: z.enum(["admin", "chef", "employee"], { message: "Veuillez sélectionner un rôle" }),
-  status: z.boolean(),
+  status: z.enum(["active", "inactive"], { message: "Veuillez sélectionner un état" }),
+  createdAt: z.date({
+    required_error: "Veuillez sélectionner une date",
+  }),
   password: z.string().optional()
 });
 
@@ -79,12 +92,14 @@ const AdminUserFormPage: React.FC = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
+      prenom: '',
       email: '',
       telephone: '',
       matricule: '',
       gender: 'male' as const,
       role: 'employee' as const,
-      status: true,
+      status: 'active' as const,
+      createdAt: new Date(),
       password: '',
     },
   });
@@ -97,12 +112,14 @@ const AdminUserFormPage: React.FC = () => {
       if (user) {
         form.reset({
           name: user.name,
+          prenom: user.prenom || '',
           email: user.email,
           telephone: user.telephone || '',
           matricule: user.matricule || '',
           gender: user.gender || 'male',
           role: user.role,
-          status: user.status === 'active',
+          status: user.status,
+          createdAt: new Date(user.createdAt),
           password: '' // We don't show the password in edit mode
         });
       } else {
@@ -125,12 +142,12 @@ const AdminUserFormPage: React.FC = () => {
       if (isEditMode) {
         toast({
           title: "Utilisateur mis à jour",
-          description: `L'utilisateur ${values.name} a été mis à jour avec succès`,
+          description: `L'utilisateur ${values.name} ${values.prenom} a été mis à jour avec succès`,
         });
       } else {
         toast({
           title: "Utilisateur créé",
-          description: `L'utilisateur ${values.name} a été créé avec succès`,
+          description: `L'utilisateur ${values.name} ${values.prenom} a été créé avec succès`,
         });
       }
       
@@ -141,227 +158,279 @@ const AdminUserFormPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center space-x-2">
-        <Button 
-          variant="outline" 
-          size="icon"
-          onClick={() => navigate('/admin/users')}
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <h1 className="text-2xl font-bold">
-          {isEditMode ? 'Modifier un compte' : 'Ajouter un compte'}
-        </h1>
-      </div>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <User className="h-5 w-5" />
-            <span>Information utilisateur</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
-                <div className="flex-1 space-y-2">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Nom <span className="text-red-500">*</span></FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Nom complet"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                
-                <div className="flex-1 space-y-2">
-                  <FormField
-                    control={form.control}
-                    name="matricule"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Matricule <span className="text-red-500">*</span></FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Numéro de matricule"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+      <Card className="overflow-hidden">
+        <div className="flex justify-between items-center p-6 border-b">
+          <h2 className="text-xl font-semibold">{isEditMode ? 'Modifier compte' : 'Ajouter compte'}</h2>
+          <Button 
+            variant="outline" 
+            onClick={() => navigate('/admin/users')}
+            className="ml-auto"
+          >
+            <X className="h-4 w-4 mr-2" />
+            Annuler
+          </Button>
+        </div>
+        
+        <CardContent className="p-6 pt-8">
+          <div className="flex flex-col md:flex-row gap-8 mb-8">
+            <div className="flex-shrink-0">
+              <div className="h-24 w-24 rounded-full overflow-hidden border-4 border-gray-200 mx-auto">
+                <img 
+                  src={isEditMode && id 
+                    ? mockUsers.find(u => u.id === id)?.avatar 
+                    : "https://ui-avatars.com/api/?name=New+User&background=random"} 
+                  alt="User Avatar" 
+                  className="h-full w-full object-cover"
+                />
               </div>
-              
-              <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
-                <div className="flex-1 space-y-2">
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Adresse Email <span className="text-red-500">*</span></FormLabel>
-                        <FormControl>
-                          <Input
-                            type="email"
-                            placeholder="Email"
-                            {...field}
-                            disabled={isEditMode}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                
-                <div className="flex-1 space-y-2">
-                  <FormField
-                    control={form.control}
-                    name="telephone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Téléphone <span className="text-red-500">*</span></FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Numéro de téléphone"
-                            type="tel"
-                            {...field}
-                            disabled={isEditMode}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-              
-              <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
-                <div className="flex-1 space-y-2">
-                  <FormField
-                    control={form.control}
-                    name="gender"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Genre <span className="text-red-500">*</span></FormLabel>
-                        <Select 
-                          onValueChange={field.onChange} 
-                          defaultValue={field.value}
-                        >
+            </div>
+            
+            <div className="flex-grow">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Nom</FormLabel>
                           <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Sélectionner un genre" />
-                            </SelectTrigger>
+                            <Input placeholder="Nom" {...field} />
                           </FormControl>
-                          <SelectContent>
-                            <SelectItem value="male">Homme</SelectItem>
-                            <SelectItem value="female">Femme</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                
-                <div className="flex-1 space-y-2">
-                  <FormField
-                    control={form.control}
-                    name="role"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Rôle <span className="text-red-500">*</span></FormLabel>
-                        <Select 
-                          onValueChange={field.onChange} 
-                          defaultValue={field.value}
-                        >
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="prenom"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Prénom</FormLabel>
                           <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Sélectionner un rôle" />
-                            </SelectTrigger>
+                            <Input placeholder="Prénom" {...field} />
                           </FormControl>
-                          <SelectContent>
-                            <SelectItem value="admin">Administrateur</SelectItem>
-                            <SelectItem value="chef">Chef de projet</SelectItem>
-                            <SelectItem value="employee">Employé</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-              
-              <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
-                <div className="flex-1 space-y-2">
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          {isEditMode ? 'Nouveau mot de passe' : 'Mot de passe'} 
-                          {!isEditMode && <span className="text-red-500">*</span>}
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="password"
-                            placeholder={isEditMode ? "Laisser vide pour ne pas changer" : "Mot de passe"}
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                
-                <div className="flex-1 space-y-2">
-                  <FormField
-                    control={form.control}
-                    name="status"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>État</FormLabel>
-                        <div className="flex items-center space-x-2 pt-2">
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="matricule"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Matricule</FormLabel>
                           <FormControl>
-                            <Switch
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
+                            <Input 
+                              placeholder="Matricule" 
+                              {...field} 
                             />
                           </FormControl>
-                          <Label className="cursor-pointer">
-                            {field.value ? 'Actif' : 'Inactif'}
-                          </Label>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="telephone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Numéro de téléphone</FormLabel>
+                          <FormControl>
+                            <div className="flex">
+                              <span className="flex items-center px-3 bg-gray-50 border border-r-0 border-gray-300 rounded-l-md">
+                                +213
+                              </span>
+                              <Input 
+                                type="tel" 
+                                placeholder="Téléphone" 
+                                className="rounded-l-none" 
+                                {...field} 
+                                disabled={isEditMode}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="gender"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Sexe</FormLabel>
+                          <Select 
+                            onValueChange={field.onChange} 
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Sélectionner le sexe" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="male">Homme</SelectItem>
+                              <SelectItem value="female">Femme</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Adresse Email</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="email" 
+                              placeholder="Email" 
+                              {...field} 
+                              disabled={isEditMode}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="status"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>État</FormLabel>
+                          <Select 
+                            onValueChange={field.onChange} 
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Sélectionner l'état" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="active">Actif</SelectItem>
+                              <SelectItem value="inactive">Inactif</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="role"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Rôle</FormLabel>
+                          <Select 
+                            onValueChange={field.onChange} 
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Sélectionner le rôle" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="admin">Administrateur</SelectItem>
+                              <SelectItem value="chef">Chef de projet</SelectItem>
+                              <SelectItem value="employee">Employé</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="createdAt"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>Date création</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant={"outline"}
+                                  className={cn(
+                                    "w-full pl-3 text-left font-normal",
+                                    !field.value && "text-muted-foreground"
+                                  )}
+                                >
+                                  {field.value ? (
+                                    format(field.value, "P", { locale: fr })
+                                  ) : (
+                                    <span>Choisir une date</span>
+                                  )}
+                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={field.value}
+                                onSelect={field.onChange}
+                                disabled={(date) =>
+                                  date > new Date() || date < new Date("1900-01-01")
+                                }
+                                initialFocus
+                              />
+                            </PopoverContent>
+                          </Popover>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    {!isEditMode && (
+                      <FormField
+                        control={form.control}
+                        name="password"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Mot de passe</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="password"
+                                placeholder="Mot de passe"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     )}
-                  />
-                </div>
-              </div>
-              
-              <div className="pt-4 flex justify-end">
-                <Button type="submit" disabled={loading}>
-                  <Save className="mr-2 h-4 w-4" />
-                  {isEditMode ? 'Mettre à jour' : 'Enregistrer'}
-                </Button>
-              </div>
-            </form>
-          </Form>
+                  </div>
+                  
+                  <div className="flex justify-end">
+                    <Button 
+                      type="submit" 
+                      disabled={loading}
+                      className="px-6"
+                    >
+                      <Save className="mr-2 h-4 w-4" />
+                      {isEditMode ? 'Enregistrer' : 'Enregistrer'}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>
