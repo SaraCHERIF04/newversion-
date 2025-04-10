@@ -2,9 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Save, X } from 'lucide-react';
 import { User as UserType } from '@/types/User';
 import { z } from "zod";
 import { useForm } from "react-hook-form";

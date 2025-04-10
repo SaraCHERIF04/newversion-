@@ -83,18 +83,12 @@ export const UserFormFields: React.FC<UserFormFieldsProps> = ({
               <FormItem>
                 <FormLabel>Numéro de téléphone</FormLabel>
                 <FormControl>
-                  <div className="flex">
-                    <span className="flex items-center px-3 bg-gray-50 border border-r-0 border-gray-300 rounded-l-md">
-                      +213
-                    </span>
-                    <Input 
-                      type="tel" 
-                      placeholder="Téléphone" 
-                      className="rounded-l-none" 
-                      {...field} 
-                      disabled={isEditMode}
-                    />
-                  </div>
+                  <Input 
+                    type="tel" 
+                    placeholder="Téléphone" 
+                    {...field} 
+                    disabled={isEditMode}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -247,7 +241,7 @@ export const UserFormFields: React.FC<UserFormFieldsProps> = ({
             className="px-6"
           >
             <Save className="mr-2 h-4 w-4" />
-            {isEditMode ? 'Enregistrer' : 'Enregistrer'}
+            Enregistrer
           </Button>
         </div>
       </form>
