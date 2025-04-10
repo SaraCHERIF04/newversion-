@@ -16,6 +16,16 @@ import { UserFormSchema } from './UserFormSchema';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
+// Status options for the employee
+const STATUS_OPTIONS = [
+  "En poste",
+  "En congé",
+  "Maladie",
+  "Mission",
+  "Formation",
+  "Disponible"
+];
+
 interface UserFormFieldsProps {
   form: UseFormReturn<z.infer<typeof UserFormSchema>>;
   onSubmit: (values: z.infer<typeof UserFormSchema>) => void;
@@ -184,8 +194,11 @@ export const UserFormFields: React.FC<UserFormFieldsProps> = ({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="active">Actif</SelectItem>
-                    <SelectItem value="inactive">Inactif</SelectItem>
+                    {STATUS_OPTIONS.map((status) => (
+                      <SelectItem key={status} value={status}>
+                        {status}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -225,38 +238,14 @@ export const UserFormFields: React.FC<UserFormFieldsProps> = ({
             render={({ field }) => (
               <FormItem className="flex flex-col">
                 <FormLabel>Date création</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {field.value ? (
-                          format(field.value, "P", { locale: fr })
-                        ) : (
-                          <span>Choisir une date</span>
-                        )}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      disabled={(date) =>
-                        date > new Date() || date < new Date("1900-01-01")
-                      }
-                      initialFocus
-                      className={cn("p-3 pointer-events-auto")}
-                    />
-                  </PopoverContent>
-                </Popover>
+                <FormControl>
+                  <Input
+                    value={field.value ? format(field.value, "P", { locale: fr }) : ""}
+                    readOnly
+                    disabled
+                    className="bg-gray-100"
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}

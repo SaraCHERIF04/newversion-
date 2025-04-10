@@ -114,7 +114,7 @@ const AdminUserDetailsPage: React.FC = () => {
                 <div>
                   <label className="block text-sm font-medium text-gray-700">État</label>
                   <div className="mt-1 p-3 bg-gray-50 rounded-md">
-                    {userData.status === 'active' ? 'Actif' : 'Inactif'}
+                    {userData.status}
                   </div>
                 </div>
                 

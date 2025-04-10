@@ -29,7 +29,7 @@ export const UserForm: React.FC = () => {
       matricule: '',
       gender: 'male' as const,
       role: 'employee' as const,
-      status: 'active' as const,
+      status: 'En poste',
       createdAt: new Date(),
     },
   });
@@ -51,7 +51,7 @@ export const UserForm: React.FC = () => {
           matricule: user.matricule || '',
           gender: user.gender || 'male',
           role: user.role,
-          status: user.status,
+          status: user.status || 'En poste',
           createdAt: new Date(user.createdAt)
         });
       } else {

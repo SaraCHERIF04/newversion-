@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -13,6 +13,62 @@ type HeaderProps = {
 const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, isEmployee = false }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const navigate = useNavigate();
+  const [userProfile, setUserProfile] = useState({
+    name: '',
+    firstName: '',
+    role: '',
+    profileImage: ''
+  });
+
+  useEffect(() => {
+    const userRole = localStorage.getItem('userRole') || '';
+    
+    // Set default profile info based on role
+    let profileInfo = {
+      name: 'Rowles',
+      firstName: 'Alexa',
+      role: 'Chef de projet',
+      profileImage: 'https://randomuser.me/api/portraits/women/44.jpg'
+    };
+
+    // Override with role-specific info
+    if (isEmployee) {
+      profileInfo = {
+        name: 'Dupont',
+        firstName: 'Jean',
+        role: 'Employé',
+        profileImage: 'https://randomuser.me/api/portraits/men/32.jpg'
+      };
+    } else if (userRole === 'admin') {
+      profileInfo = {
+        name: 'Booles',
+        firstName: 'Alexa',
+        role: 'Administrateur',
+        profileImage: 'https://randomuser.me/api/portraits/women/43.jpg'
+      };
+    }
+
+    // Check for saved profile
+    const savedProfile = isEmployee ? 
+      localStorage.getItem('userProfileEmployee') : 
+      localStorage.getItem('userProfile');
+    
+    if (savedProfile) {
+      try {
+        const parsedProfile = JSON.parse(savedProfile);
+        profileInfo = {
+          name: parsedProfile.name || profileInfo.name,
+          firstName: parsedProfile.firstName || profileInfo.firstName,
+          role: parsedProfile.role || profileInfo.role,
+          profileImage: parsedProfile.profileImage || profileInfo.profileImage,
+        };
+      } catch (error) {
+        console.error("Error parsing profile:", error);
+      }
+    }
+
+    setUserProfile(profileInfo);
+  }, [isEmployee]);
 
   const handleLogout = () => {
     // Clear user data from localStorage
@@ -85,20 +141,20 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, isEmployee
           >
             <div className="flex flex-col items-end">
               <span className="text-sm font-medium text-gray-700">
-                {isEmployee ? 'Jean Dupont' : 'Alexa Rowles'}
+                {userProfile.firstName} {userProfile.name}
               </span>
               <span className="text-xs text-gray-500">
-                {isEmployee ? 'Employé' : 'Chef de projet'}
+                {userProfile.role}
               </span>
             </div>
             <Avatar className="h-8 w-8">
               <AvatarImage 
-                src={isEmployee ? 
-                  "https://randomuser.me/api/portraits/men/32.jpg" : 
-                  "https://randomuser.me/api/portraits/women/44.jpg"} 
-                alt={isEmployee ? "Jean Dupont" : "Alexa Rowles"} 
+                src={userProfile.profileImage} 
+                alt={`${userProfile.firstName} ${userProfile.name}`} 
               />
-              <AvatarFallback>{isEmployee ? "JD" : "AR"}</AvatarFallback>
+              <AvatarFallback>
+                {userProfile.firstName?.charAt(0)}{userProfile.name?.charAt(0)}
+              </AvatarFallback>
             </Avatar>
           </button>
 
@@ -107,7 +163,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, isEmployee
               <div className="py-1" role="menu" aria-orientation="vertical">
                 <button
                   onClick={() => {
-                    navigate(isEmployee ? '/employee/profile' : '/profile');
+                    navigate(isEmployee ? '/employee/profile' : localStorage.getItem('userRole') === 'admin' ? '/admin/profile' : '/profile');
                     setIsProfileOpen(false);
                   }}
                   className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
@@ -117,7 +173,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, isEmployee
                 </button>
                 <button
                   onClick={() => {
-                    navigate(isEmployee ? '/employee/parametres' : '/parametres');
+                    navigate(isEmployee ? '/employee/parametres' : localStorage.getItem('userRole') === 'admin' ? '/admin/parametres' : '/parametres');
                     setIsProfileOpen(false);
                   }}
                   className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
