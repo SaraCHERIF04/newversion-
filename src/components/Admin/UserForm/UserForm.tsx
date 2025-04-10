@@ -128,16 +128,10 @@ export const UserForm: React.FC = () => {
         <CardContent className="p-6 pt-8">
           <div className="flex flex-col md:flex-row gap-8 mb-8">
             <div className="flex-shrink-0">
-              <div className="h-24 w-24 rounded-full overflow-hidden border-4 border-gray-200 mx-auto">
-                <img 
-                  src={isEditMode && id 
-                    ? `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                        form.getValues("name") + ' ' + form.getValues("prenom")
-                      )}&background=random` 
-                    : "https://ui-avatars.com/api/?name=New+User&background=random"} 
-                  alt="User Avatar" 
-                  className="h-full w-full object-cover"
-                />
+              <div className="h-24 w-24 rounded-full overflow-hidden border-4 border-gray-200 mx-auto bg-emerald-500 flex items-center justify-center text-white text-2xl font-bold">
+                {isEditMode && form.getValues("name") && form.getValues("prenom") 
+                  ? `${form.getValues("name").charAt(0)}${form.getValues("prenom").charAt(0)}`
+                  : 'NU'}
               </div>
             </div>
             
@@ -146,7 +140,8 @@ export const UserForm: React.FC = () => {
                 form={form} 
                 onSubmit={onSubmit} 
                 isEditMode={isEditMode}
-                loading={loading} 
+                loading={loading}
+                userId={id}
               />
             </div>
           </div>

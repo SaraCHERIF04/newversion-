@@ -2,7 +2,7 @@
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
-import { CalendarIcon, Save } from 'lucide-react';
+import { CalendarIcon, Save, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale/fr';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
@@ -13,20 +13,49 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { UserFormSchema } from './UserFormSchema';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 interface UserFormFieldsProps {
   form: UseFormReturn<z.infer<typeof UserFormSchema>>;
   onSubmit: (values: z.infer<typeof UserFormSchema>) => void;
   isEditMode: boolean;
   loading: boolean;
+  userId?: string;
 }
 
 export const UserFormFields: React.FC<UserFormFieldsProps> = ({ 
   form, 
   onSubmit, 
   isEditMode,
-  loading 
+  loading,
+  userId
 }) => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  
+  const handleDelete = () => {
+    if (!userId || !isEditMode) return;
+    
+    // Get stored users
+    const storedUsers = JSON.parse(localStorage.getItem('mockUsers') || '[]');
+    
+    // Filter out the user to delete
+    const updatedUsers = storedUsers.filter((user: any) => user.id !== userId);
+    
+    // Update localStorage
+    localStorage.setItem('mockUsers', JSON.stringify(updatedUsers));
+    
+    // Show toast notification
+    toast({
+      title: "Utilisateur supprimé",
+      description: "L'utilisateur a été supprimé avec succès",
+    });
+    
+    // Navigate back to users list
+    navigate('/admin/users');
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -234,7 +263,18 @@ export const UserFormFields: React.FC<UserFormFieldsProps> = ({
           />
         </div>
         
-        <div className="flex justify-end">
+        <div className="flex justify-end space-x-4">
+          {isEditMode && (
+            <Button 
+              type="button" 
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={loading}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Supprimer
+            </Button>
+          )}
           <Button 
             type="submit" 
             disabled={loading}
