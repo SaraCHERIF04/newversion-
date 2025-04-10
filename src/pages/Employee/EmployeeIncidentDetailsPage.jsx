@@ -3,15 +3,16 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, FileText, MessageSquare } from 'lucide-react';
+import { ArrowLeft, ChevronRight, FileText } from 'lucide-react';
 
 const EmployeeIncidentDetailsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [incident, setIncident] = useState(null);
+  const [followUpsCount, setFollowUpsCount] = useState(0);
 
   useEffect(() => {
-    // Load incident data from localStorage
+    // Load incident data
     const storedIncidents = localStorage.getItem('incidents');
     if (storedIncidents && id) {
       try {
@@ -22,6 +23,18 @@ const EmployeeIncidentDetailsPage = () => {
         }
       } catch (error) {
         console.error("Error loading incident:", error);
+      }
+    }
+
+    // Count follow-ups
+    const storedFollowUps = localStorage.getItem('incidentFollowUps');
+    if (storedFollowUps && id) {
+      try {
+        const followUps = JSON.parse(storedFollowUps);
+        const count = followUps.filter(fu => fu.incidentId === id).length;
+        setFollowUpsCount(count);
+      } catch (error) {
+        console.error("Error counting follow-ups:", error);
       }
     }
   }, [id]);
@@ -49,54 +62,47 @@ const EmployeeIncidentDetailsPage = () => {
         <h1 className="text-2xl font-bold">Détails de l'incident</h1>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="col-span-1">
+      <div className="grid grid-cols-1 gap-6">
+        <Card>
           <CardHeader>
-            <CardTitle>Information de base</CardTitle>
+            <CardTitle>Information de l'incident</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div>
-              <h3 className="text-sm font-medium text-gray-500">Type</h3>
-              <p className="mt-1 font-medium">{incident.type}</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Type d'incident</h3>
+                <p className="mt-1 font-medium">{incident.type}</p>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Signalé par</h3>
+                <p className="mt-1">{incident.signaledBy}</p>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Date</h3>
+                <p className="mt-1">{incident.date}</p>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Heure</h3>
+                <p className="mt-1">{incident.time}</p>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Lieu</h3>
+                <p className="mt-1">{incident.location}</p>
+              </div>
+              {incident.projectId && (
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500">Projet associé</h3>
+                  <p className="mt-1">{incident.projectName || incident.projectId}</p>
+                </div>
+              )}
+              {incident.subProjectId && (
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500">Sous-projet associé</h3>
+                  <p className="mt-1">{incident.subProjectName || incident.subProjectId}</p>
+                </div>
+              )}
             </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-500">Signalé par</h3>
-              <p className="mt-1">{incident.signaledBy}</p>
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-500">Date et heure</h3>
-              <p className="mt-1">{incident.date} à {incident.time}</p>
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-500">Lieu</h3>
-              <p className="mt-1">{incident.location}</p>
-            </div>
-            <div className="pt-2">
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => navigate(`/employee/incidents/suivis/${id}`)}
-              >
-                <MessageSquare className="h-4 w-4 mr-2" />
-                Voir les suivis
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="col-span-1 lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Détails de l'incident</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <h3 className="text-sm font-medium text-gray-500">Projet</h3>
-              <p className="mt-1">{incident.projectName}</p>
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-500">Sous-projet</h3>
-              <p className="mt-1">{incident.subProjectName}</p>
-            </div>
+            
             <div>
               <h3 className="text-sm font-medium text-gray-500">Description</h3>
               <p className="mt-1 whitespace-pre-wrap">{incident.description}</p>
@@ -115,6 +121,17 @@ const EmployeeIncidentDetailsPage = () => {
                 </ul>
               </div>
             )}
+            
+            <div className="pt-4">
+              <Button
+                onClick={() => navigate(`/employee/incidents/suivis/${id}`)}
+                variant="outline"
+                className="w-full"
+              >
+                Voir les suivis ({followUpsCount})
+                <ChevronRight className="h-4 w-4 ml-2" />
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>

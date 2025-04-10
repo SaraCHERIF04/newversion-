@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -51,6 +52,10 @@ import EmployeeSubProjectsPage from "./pages/Employee/EmployeeSubProjectsPage";
 import EmployeeSubProjectDetailsPage from "./pages/Employee/EmployeeSubProjectDetailsPage";
 import EmployeeMarchePage from './pages/Employee/EmployeeMarchePage';
 import EmployeMarcheDetailsPage from './pages/Employee/EmployeMarcheDetailsPage';
+import EmployeeIncidentsPage from './pages/Employee/EmployeeIncidentsPage';
+import EmployeeIncidentDetailsPage from './pages/Employee/EmployeeIncidentDetailsPage';
+import EmployeeIncidentFollowUpsPage from './pages/Employee/EmployeeIncidentFollowUpsPage';
+import EmployeeIncidentFollowUpDetailsPage from './pages/Employee/EmployeeIncidentFollowUpDetailsPage';
 
 // Admin Pages Imports
 import AdminLayout from "./components/Layout/AdminLayout";
@@ -193,8 +198,9 @@ function App() {
               <Route path="documents" element={<EmployeeDocumentsPage />} />
               <Route path="documents/new" element={<EmployeeDocumentFormPage />} />
               <Route path="documents/:id" element={<EmployeeDocumentDetailsPage />} />
-              <Route path="reunions" element={<EmployeeReunionsPage />} />
-              <Route path="reunions/:id" element={<EmployeeReunionDetailsPage />} />
+              {/* Remove or comment out reunions routes for now */}
+              {/* <Route path="reunions" element={<EmployeeReunionsPage />} /> */}
+              {/* <Route path="reunions/:id" element={<EmployeeReunionDetailsPage />} /> */}
               <Route path="marche" element={<EmployeeMarchePage />} />
               <Route path="marche/:id" element={<EmployeMarcheDetailsPage />} />
               <Route path="profile" element={<EmployeeProfilePage />} />

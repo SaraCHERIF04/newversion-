@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -139,10 +140,11 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
     setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const downloadFile = (document: ProjectDocument) => {
+  const downloadFile = (documentData: ProjectDocument) => {
+    // Use the global document object instead
     const link = document.createElement('a');
-    link.href = document.filePath;
-    link.download = document.name;
+    link.href = documentData.filePath;
+    link.download = documentData.name;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
