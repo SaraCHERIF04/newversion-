@@ -26,7 +26,8 @@ const IncidentFormPage = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [fileNames, setFileNames] = useState<string[]>([]);
   const [projects, setProjects] = useState<{id: string, name: string}[]>([]);
-  const [subProjects, setSubProjects] = useState<{id: string, name: string}[]>([]);
+  const [subProjects, setSubProjects] = useState<{id: string, name: string, projectId: string}[]>([]);
+  const [filteredSubProjects, setFilteredSubProjects] = useState<{id: string, name: string, projectId: string}[]>([]);
 
   // Load project and subproject data
   useEffect(() => {
@@ -52,7 +53,8 @@ const IncidentFormPage = () => {
         const parsedSubProjects = JSON.parse(storedSubProjects);
         const subProjectOptions = parsedSubProjects.map((subProject: any) => ({
           id: subProject.id,
-          name: subProject.name
+          name: subProject.name,
+          projectId: subProject.projectId
         }));
         setSubProjects(subProjectOptions);
       } catch (error) {
@@ -76,13 +78,40 @@ const IncidentFormPage = () => {
             if (foundIncident.documents && foundIncident.documents.length) {
               setFileNames(foundIncident.documents.map((doc: any) => doc.name || 'Document'));
             }
+            
+            // Filter subprojects when editing an incident
+            if (foundIncident.projectName) {
+              const projectId = projects.find(p => p.name === foundIncident.projectName)?.id;
+              if (projectId) {
+                setFilteredSubProjects(subProjects.filter(sp => sp.projectId === projectId));
+              }
+            }
           }
         } catch (error) {
           console.error("Error loading incident:", error);
         }
       }
     }
-  }, [id, isEditing]);
+  }, [id, isEditing, projects, subProjects]);
+
+  // Filter subprojects when project changes
+  useEffect(() => {
+    if (incident.projectName) {
+      const selectedProject = projects.find(p => p.name === incident.projectName);
+      if (selectedProject) {
+        const filtered = subProjects.filter(sp => sp.projectId === selectedProject.id);
+        setFilteredSubProjects(filtered);
+        
+        // Reset subproject selection if current selection is not in filtered list
+        const isCurrentSubProjectValid = filtered.some(sp => sp.name === incident.subProjectName);
+        if (!isCurrentSubProjectValid) {
+          setIncident(prev => ({ ...prev, subProjectName: '' }));
+        }
+      }
+    } else {
+      setFilteredSubProjects([]);
+    }
+  }, [incident.projectName, projects, subProjects]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -205,7 +234,7 @@ const IncidentFormPage = () => {
                 required
               >
                 <option value="">Sélectionner un sous-projet</option>
-                {subProjects.map(subProject => (
+                {filteredSubProjects.map(subProject => (
                   <option key={subProject.id} value={subProject.name}>{subProject.name}</option>
                 ))}
               </select>

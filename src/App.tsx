@@ -52,6 +52,10 @@ import EmployeeSubProjectDetailsPage from "./pages/Employee/EmployeeSubProjectDe
 import EmployeeMarcheAndMaitreOuvragePage from "./pages/Employee/EmployeeMarcheAndMaitreOuvragePage";
 import EmployeeReunionsPage from "./pages/Employee/EmployeeReunionsPage";
 import EmployeeReunionDetailsPage from "./pages/Employee/EmployeeReunionDetailsPage";
+import EmployeeIncidentsPage from "./pages/Employee/EmployeeIncidentsPage";
+import EmployeeIncidentDetailsPage from "./pages/Employee/EmployeeIncidentDetailsPage";
+import EmployeeIncidentFollowUpsPage from "./pages/Employee/EmployeeIncidentFollowUpsPage";
+import EmployeeIncidentFollowUpDetailsPage from "./pages/Employee/EmployeeIncidentFollowUpDetailsPage";
 
 // Admin Pages Imports
 import AdminLayout from "./components/Layout/AdminLayout";
@@ -199,6 +203,12 @@ function App() {
               <Route path="marche" element={<EmployeeMarcheAndMaitreOuvragePage />} />
               <Route path="maitre-ouvrage" element={<EmployeeMarcheAndMaitreOuvragePage />} />
               <Route path="profile" element={<EmployeeProfilePage />} />
+              
+              <Route path="incidents" element={<EmployeeIncidentsPage />} />
+              <Route path="incidents/:id" element={<EmployeeIncidentDetailsPage />} />
+              <Route path="incidents/suivis/:id" element={<EmployeeIncidentFollowUpsPage />} />
+              <Route path="incidents/suivis/:incidentId/:followUpId" element={<EmployeeIncidentFollowUpDetailsPage />} />
+              
               <Route path="parametres" element={<div>Paramètres</div>} />
             </Route>
             
