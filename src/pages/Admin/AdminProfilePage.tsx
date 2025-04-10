@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { User, Mail, Key, Save } from 'lucide-react';
+import { User, Mail, Key, Save, Phone, Calendar, CreditCard } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const AdminProfilePage: React.FC = () => {
   const { toast } = useToast();
@@ -13,6 +14,10 @@ const AdminProfilePage: React.FC = () => {
   const [profileData, setProfileData] = useState({
     name: 'Admin User',
     email: 'admin@sonelgaz.dz',
+    telephone: '0555555555',
+    matricule: 'ADM001',
+    gender: 'male',
+    createdAt: new Date().toISOString(),
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
@@ -34,6 +39,13 @@ const AdminProfilePage: React.FC = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    setProfileData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
     setProfileData(prev => ({
       ...prev,
       [name]: value
@@ -139,6 +151,57 @@ const AdminProfilePage: React.FC = () => {
                   value={profileData.email}
                   onChange={handleInputChange}
                   placeholder="Votre email"
+                  disabled
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="telephone">Téléphone</Label>
+                <Input
+                  id="telephone"
+                  name="telephone"
+                  type="tel"
+                  value={profileData.telephone}
+                  onChange={handleInputChange}
+                  placeholder="Votre téléphone"
+                  disabled
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="matricule">Matricule</Label>
+                <Input
+                  id="matricule"
+                  name="matricule"
+                  value={profileData.matricule}
+                  onChange={handleInputChange}
+                  placeholder="Votre matricule"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="gender">Genre</Label>
+                <Select 
+                  value={profileData.gender} 
+                  onValueChange={(value) => handleSelectChange('gender', value)}
+                >
+                  <SelectTrigger id="gender">
+                    <SelectValue placeholder="Sélectionner un genre" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">Homme</SelectItem>
+                    <SelectItem value="female">Femme</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="createdAt">Date de création</Label>
+                <Input
+                  id="createdAt"
+                  name="createdAt"
+                  value={new Date(profileData.createdAt).toLocaleDateString()}
+                  disabled
                 />
               </div>
             </div>

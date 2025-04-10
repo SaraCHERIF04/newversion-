@@ -4,6 +4,8 @@ export interface User {
   name: string;
   email: string;
   telephone?: string;
+  matricule?: string;
+  gender?: 'male' | 'female';
   role: 'admin' | 'chef' | 'employee';
   status: 'active' | 'inactive';
   createdAt: string;

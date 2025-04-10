@@ -1,26 +1,9 @@
 
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Users, User, Info, Settings, LogOut } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
+import { Users, User, Info, Settings } from 'lucide-react';
 
 const AdminSidebar: React.FC = () => {
-  const { toast } = useToast();
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('userId');
-    
-    toast({
-      title: "Déconnexion réussie",
-      description: "Vous avez été déconnecté avec succès",
-    });
-    
-    navigate('/login');
-  };
-
   const adminName = localStorage.getItem('userName') || 'Admin';
 
   return (
@@ -97,14 +80,6 @@ const AdminSidebar: React.FC = () => {
           <Settings size={20} className="text-blue-800" />
           <span>Paramètres</span>
         </NavLink>
-        
-        <button 
-          onClick={handleLogout}
-          className="flex items-center space-x-3 p-3 rounded-md transition-colors hover:bg-red-100 text-red-600 w-full text-left"
-        >
-          <LogOut size={20} />
-          <span>Se déconnecter</span>
-        </button>
       </nav>
     </aside>
   );

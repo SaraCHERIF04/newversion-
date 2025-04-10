@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -15,6 +14,8 @@ const mockUsers: User[] = [
     name: 'Alexis Rowles',
     email: 'alexarowles@sonelgaz.dz',
     telephone: '0666666666',
+    matricule: 'EMP001',
+    gender: 'male',
     role: 'chef',
     status: 'active',
     createdAt: new Date().toISOString(),
@@ -100,13 +101,14 @@ const AdminUsersPage: React.FC = () => {
 
   useEffect(() => {
     // Filter users based on search query from context and local search
-    const query = (searchQuery?.searchQuery || localSearchQuery).toLowerCase();
+    const query = (searchQuery || localSearchQuery).toLowerCase();
     if (query) {
       const filtered = users.filter(
         user => 
           user.name.toLowerCase().includes(query) || 
           user.email.toLowerCase().includes(query) ||
-          (user.telephone && user.telephone.includes(query))
+          (user.telephone && user.telephone.includes(query)) ||
+          (user.matricule && user.matricule.toLowerCase().includes(query))
       );
       setFilteredUsers(filtered);
     } else {
