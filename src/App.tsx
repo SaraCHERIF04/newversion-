@@ -43,10 +43,17 @@ import EmployeeDocumentFormPage from "./pages/Employee/EmployeeDocumentFormPage"
 import EmployeeDocumentDetailsPage from "./pages/Employee/EmployeeDocumentDetailsPage";
 import EmployeeProfilePage from "./pages/Employee/EmployeeProfilePage";
 import EmployeeSubProjectsPage from "./pages/Employee/EmployeeSubProjectsPage";
-import EmployeeSubProjectDetailsPage from "./pages/Employee/EmployeeSubProjectDetailsPage"; // Added import
+import EmployeeSubProjectDetailsPage from "./pages/Employee/EmployeeSubProjectDetailsPage";
 import EmployeeMarcheAndMaitreOuvragePage from "./pages/Employee/EmployeeMarcheAndMaitreOuvragePage";
 import EmployeeReunionsPage from "./pages/Employee/EmployeeReunionsPage";
 import EmployeeReunionDetailsPage from "./pages/Employee/EmployeeReunionDetailsPage";
+
+// Admin Pages Imports
+import AdminLayout from "./components/Layout/AdminLayout";
+import AdminUsersPage from "./pages/Admin/AdminUsersPage";
+import AdminProfilePage from "./pages/Admin/AdminProfilePage";
+import AdminUserFormPage from "./pages/Admin/AdminUserFormPage";
+import AdminUserDetailsPage from "./pages/Admin/AdminUserDetailsPage";
 
 // Route protection component
 interface ProtectedRouteProps {
@@ -62,7 +69,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRole }
   }
   
   if (allowedRole && userRole !== allowedRole) {
-    return <Navigate to={userRole === 'chef' ? "/" : "/employee"} replace />;
+    return <Navigate to={
+      userRole === 'chef' ? "/" : 
+      userRole === 'employee' ? "/employee" :
+      userRole === 'admin' ? "/admin" : "/login"
+    } replace />;
   }
   
   return <>{children}</>;
@@ -100,9 +111,27 @@ function App() {
               <ProtectedRoute>
                 {localStorage.getItem('userRole') === 'chef' ? 
                   <Navigate to="/project" replace /> : 
-                  <Navigate to="/employee/projects" replace />}
+                  localStorage.getItem('userRole') === 'employee' ?
+                  <Navigate to="/employee/projects" replace /> :
+                  <Navigate to="/admin/users" replace />}
               </ProtectedRoute>
             } />
+            
+            {/* Admin Routes */}
+            <Route path="/admin" element={
+              <ProtectedRoute allowedRole="admin">
+                <AdminLayout />
+              </ProtectedRoute>
+            }>
+              <Route index element={<Navigate to="/admin/users" replace />} />
+              <Route path="users" element={<AdminUsersPage />} />
+              <Route path="users/new" element={<AdminUserFormPage />} />
+              <Route path="users/edit/:id" element={<AdminUserFormPage />} />
+              <Route path="users/:id" element={<AdminUserDetailsPage />} />
+              <Route path="profile" element={<AdminProfilePage />} />
+              <Route path="parametres" element={<div>Paramètres Page</div>} />
+              <Route path="about" element={<div>About Us Page</div>} />
+            </Route>
             
             {/* Admin/Chef Routes */}
             <Route path="/" element={
