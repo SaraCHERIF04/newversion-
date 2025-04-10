@@ -31,6 +31,12 @@ import MarchePage from "./pages/MarchePage";
 import MarcheFormPage from "./pages/MarcheFormPage";
 import MarcheDetailsPage from "./pages/MarcheDetailsPage";
 import ProfilePage from "./pages/ProfilePage";
+import IncidentsPage from "./pages/IncidentsPage";
+import IncidentFormPage from "./pages/IncidentFormPage";
+import IncidentDetailsPage from "./pages/IncidentDetailsPage";
+import IncidentFollowUpsPage from "./pages/IncidentFollowUpsPage";
+import IncidentFollowUpFormPage from "./pages/IncidentFollowUpFormPage";
+import IncidentFollowUpDetailsPage from "./pages/IncidentFollowUpDetailsPage";
 
 // Employee Pages Imports
 import EmployeeLayout from "./components/Layout/EmployeeLayout";
@@ -160,8 +166,17 @@ function App() {
               <Route path="marche/edit/:id" element={<MarcheFormPage />} />
               <Route path="marche/:id" element={<MarcheDetailsPage />} />
               <Route path="profile" element={<ProfilePage />} />
+              
+              <Route path="incidents" element={<IncidentsPage />} />
+              <Route path="incidents/new" element={<IncidentFormPage />} />
+              <Route path="incidents/edit/:id" element={<IncidentFormPage />} />
+              <Route path="incidents/:id" element={<IncidentDetailsPage />} />
+              <Route path="incidents/suivis/:id" element={<IncidentFollowUpsPage />} />
+              <Route path="incidents/suivis/new/:incidentId" element={<IncidentFollowUpFormPage />} />
+              <Route path="incidents/suivis/edit/:incidentId/:followUpId" element={<IncidentFollowUpFormPage />} />
+              <Route path="incidents/suivis/:incidentId/:followUpId" element={<IncidentFollowUpDetailsPage />} />
+              
               <Route path="dashboard" element={<div>Dashboard Page</div>} />
-              <Route path="incidents" element={<div>Incidents Page</div>} />
               <Route path="parametres" element={<div>Paramètres Page</div>} />
               <Route path="about" element={<div>About Us Page</div>} />
             </Route>
