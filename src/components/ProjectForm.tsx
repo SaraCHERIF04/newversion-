@@ -152,7 +152,26 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
       a.download = document.title;
       document.body.appendChild(a);
       a.click();
+      URL.revokeObjectURL(url);
+    }
+  };
+
+  // Fix: Correctly handle document operations without using document object
+  const handleDownloadFile = (doc: ProjectDocument) => {
+    if (doc.url) {
+      const a = document.createElement('a');
+      a.href = doc.url;
+      a.download = doc.title;
+      document.body.appendChild(a);
+      a.click();
       document.body.removeChild(a);
+    } else if (doc.file) {
+      const url = URL.createObjectURL(doc.file);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = doc.title;
+      document.body.appendChild(a);
+      a.click();
       URL.revokeObjectURL(url);
     }
   };
@@ -471,7 +490,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
                         <div className="flex gap-2">
                           <button 
                             type="button" 
-                            onClick={() => handleFileDownload(doc)}
+                            onClick={() => handleDownloadFile(doc)}
                             className="text-blue-600 hover:text-blue-800"
                           >
                             Télécharger
@@ -519,7 +538,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
                     d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3-3m0 0l3 3m-3-3v12"
                   />
                 </svg>
-                Télécharger document
+                Télécharger documents
               </button>
             </div>
           </div>
