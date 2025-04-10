@@ -7,7 +7,7 @@ export interface User {
   matricule?: string;
   gender?: 'male' | 'female';
   role: 'admin' | 'chef' | 'employee';
-  status: string;
+  status: 'En poste' | 'En congé' | 'Maladie' | 'Mission' | 'Formation' | 'Disponible';
   createdAt: string;
   avatar?: string;
   prenom?: string;

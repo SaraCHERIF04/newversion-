@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { CalendarIcon, Save, X } from 'lucide-react';
+import { Save, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale/fr';
 import { User } from '@/types/User';
@@ -16,23 +16,23 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import { cn } from '@/lib/utils';
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from '@/hooks/use-toast';
+import { STATUS_OPTIONS } from '@/components/Admin/UserForm/UserFormSchema';
 
 const profileFormSchema = z.object({
   name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
   prenom: z.string().min(2, "Le prénom doit contenir au moins 2 caractères"),
   email: z.string().email("Email invalide"),
-  telephone: z.string().min(8, "Le numéro de téléphone doit contenir au moins 8 caractères"),
+  telephone: z.string().regex(/^\+213\s\d{9}$/, "Format de téléphone invalide (+213 suivi de 9 chiffres)"),
   matricule: z.string().min(1, "Le matricule est requis"),
   gender: z.enum(["male", "female"]),
   role: z.enum(["admin", "chef", "employee"]),
-  status: z.enum(["active", "inactive"]),
+  status: z.string().refine(val => STATUS_OPTIONS.includes(val), {
+    message: "Veuillez sélectionner un état valide"
+  }),
   createdAt: z.date(),
 });
 
@@ -52,7 +52,7 @@ const AdminProfilePage: React.FC = () => {
       matricule: '',
       gender: 'male' as const,
       role: 'admin' as const,
-      status: 'active' as const,
+      status: 'En poste',
       createdAt: new Date(),
     },
   });
@@ -133,7 +133,7 @@ const AdminProfilePage: React.FC = () => {
     <div className="space-y-6">
       <Card className="overflow-hidden">
         <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-xl font-semibold">Ajouter compte</h2>
+          <h2 className="text-xl font-semibold">Gérer compte</h2>
           <Button 
             variant="outline" 
             onClick={() => window.history.back()}
@@ -212,7 +212,7 @@ const AdminProfilePage: React.FC = () => {
                           <FormControl>
                             <Input 
                               type="tel" 
-                              placeholder="Téléphone" 
+                              placeholder="+213 xxxxxxxxx" 
                               {...field} 
                             />
                           </FormControl>
@@ -280,8 +280,11 @@ const AdminProfilePage: React.FC = () => {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="active">Actif</SelectItem>
-                              <SelectItem value="inactive">Inactif</SelectItem>
+                              {STATUS_OPTIONS.map((status) => (
+                                <SelectItem key={status} value={status}>
+                                  {status}
+                                </SelectItem>
+                              ))}
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -321,38 +324,14 @@ const AdminProfilePage: React.FC = () => {
                       render={({ field }) => (
                         <FormItem className="flex flex-col">
                           <FormLabel>Date création</FormLabel>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <FormControl>
-                                <Button
-                                  variant={"outline"}
-                                  className={cn(
-                                    "w-full pl-3 text-left font-normal",
-                                    !field.value && "text-muted-foreground"
-                                  )}
-                                >
-                                  {field.value ? (
-                                    format(field.value, "P", { locale: fr })
-                                  ) : (
-                                    <span>Choisir une date</span>
-                                  )}
-                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                </Button>
-                              </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                              <Calendar
-                                mode="single"
-                                selected={field.value}
-                                onSelect={field.onChange}
-                                disabled={(date) =>
-                                  date > new Date() || date < new Date("1900-01-01")
-                                }
-                                initialFocus
-                                className={cn("p-3 pointer-events-auto")}
-                              />
-                            </PopoverContent>
-                          </Popover>
+                          <FormControl>
+                            <Input
+                              value={field.value ? format(field.value, "P", { locale: fr }) : ""}
+                              readOnly
+                              disabled
+                              className="bg-gray-100"
+                            />
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}

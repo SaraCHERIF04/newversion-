@@ -2,29 +2,16 @@
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
-import { CalendarIcon, Save, Trash2 } from 'lucide-react';
+import { Save, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale/fr';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import { cn } from '@/lib/utils';
-import { UserFormSchema } from './UserFormSchema';
+import { UserFormSchema, STATUS_OPTIONS } from './UserFormSchema';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-
-// Status options for the employee
-const STATUS_OPTIONS = [
-  "En poste",
-  "En congé",
-  "Maladie",
-  "Mission",
-  "Formation",
-  "Disponible"
-];
 
 interface UserFormFieldsProps {
   form: UseFormReturn<z.infer<typeof UserFormSchema>>;
@@ -124,9 +111,8 @@ export const UserFormFields: React.FC<UserFormFieldsProps> = ({
                 <FormControl>
                   <Input 
                     type="tel" 
-                    placeholder="Téléphone" 
+                    placeholder="+213 xxxxxxxxx" 
                     {...field} 
-                    disabled={isEditMode}
                   />
                 </FormControl>
                 <FormMessage />
@@ -170,7 +156,6 @@ export const UserFormFields: React.FC<UserFormFieldsProps> = ({
                     type="email" 
                     placeholder="Email" 
                     {...field} 
-                    disabled={isEditMode}
                   />
                 </FormControl>
                 <FormMessage />

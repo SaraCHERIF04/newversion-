@@ -11,20 +11,12 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { toast } from '@/components/ui/use-toast';
-
-// Status options for the employee
-const STATUS_OPTIONS = [
-  "En poste",
-  "En congé",
-  "Maladie",
-  "Mission",
-  "Formation",
-  "Disponible"
-];
+import { useToast } from '@/hooks/use-toast';
+import { STATUS_OPTIONS } from '@/components/Admin/UserForm/UserFormSchema';
 
 const ProfilePage = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   
@@ -33,7 +25,7 @@ const ProfilePage = () => {
     name: 'Rowles',
     firstName: 'Alexa',
     email: 'alexarowles@sonelgaz.dz',
-    phoneNumber: '+213 558 42 65 87',
+    phoneNumber: '+213 558426587',
     profileImage: 'https://randomuser.me/api/portraits/women/44.jpg',
     matricule: 'SON145872',
     gender: 'Femme',
@@ -157,8 +149,6 @@ const ProfilePage = () => {
                       id="matricule"
                       value={profile.matricule}
                       onChange={(e) => setProfile({...profile, matricule: e.target.value})}
-                      disabled
-                      className="bg-gray-100"
                     />
                   </div>
 
@@ -168,6 +158,7 @@ const ProfilePage = () => {
                       id="phoneNumber"
                       value={profile.phoneNumber}
                       onChange={(e) => setProfile({...profile, phoneNumber: e.target.value})}
+                      placeholder="+213 xxxxxxxxx"
                     />
                   </div>
 
