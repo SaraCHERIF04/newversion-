@@ -10,7 +10,8 @@ import {
   Building2, 
   DollarSign, 
   AlertTriangle, 
-  LogOut 
+  LogOut,
+  LayoutDashboard
 } from 'lucide-react';
 
 const EmployeeSidebar = () => {
@@ -22,6 +23,7 @@ const EmployeeSidebar = () => {
   };
 
   const menuItems = [
+    { name: 'Dashboard', path: '/employee', icon: <LayoutDashboard className="w-5 h-5" /> },
     { name: 'Projets', path: '/employee/projects', icon: <Briefcase className="w-5 h-5" /> },
     { name: 'Sous-Projets', path: '/employee/sous-projets', icon: <Package className="w-5 h-5" /> },
     { name: 'Documents', path: '/employee/documents', icon: <FileText className="w-5 h-5" /> },
@@ -39,10 +41,15 @@ const EmployeeSidebar = () => {
   };
 
   return (
-    <aside className="fixed h-full w-64 bg-white shadow-lg border-r border-gray-200 z-10">
+    <aside className="fixed h-full w-64 bg-sonelgaz-blue text-white shadow-lg z-10">
       <div className="flex flex-col h-full">
-        <div className="p-5 border-b border-gray-200">
-          <h1 className="text-xl font-bold text-gray-800">GIP</h1>
+        <div className="p-5 flex items-center border-b border-blue-800">
+          <img 
+            src="https://apua-asea.org/wp-content/uploads/2023/01/sonelgaz.png" 
+            alt="Sonelgaz Logo" 
+            className="h-8 mr-3"
+          />
+          <h1 className="text-xl font-bold">SONELGAZ</h1>
         </div>
         
         <nav className="flex-1 overflow-y-auto pt-5 pb-5">
@@ -53,11 +60,11 @@ const EmployeeSidebar = () => {
                   to={item.path}
                   className={`w-full flex items-center text-left px-4 py-3 rounded-md transition-colors ${
                     isActive(item.path)
-                      ? 'bg-blue-50 text-blue-700 font-medium'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      ? 'bg-blue-800 text-white font-medium'
+                      : 'text-gray-200 hover:bg-blue-800/50'
                   }`}
                 >
-                  <span className={`${isActive(item.path) ? 'text-blue-600' : 'text-gray-500'}`}>
+                  <span className="text-gray-100">
                     {item.icon}
                   </span>
                   <span className="ml-3">{item.name}</span>
@@ -67,12 +74,12 @@ const EmployeeSidebar = () => {
           </ul>
         </nav>
         
-        <div className="p-4 border-t border-gray-200">
+        <div className="p-4 border-t border-blue-800">
           <button
-            className="w-full flex items-center px-4 py-3 rounded-md text-gray-700 hover:bg-gray-100 transition-colors"
+            className="w-full flex items-center px-4 py-3 rounded-md text-gray-200 hover:bg-blue-800/50 transition-colors"
             onClick={logout}
           >
-            <LogOut className="w-5 h-5 text-gray-500" />
+            <LogOut className="w-5 h-5 text-gray-100" />
             <span className="ml-3">Déconnexion</span>
           </button>
         </div>

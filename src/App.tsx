@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -58,6 +57,8 @@ import EmployeeIncidentFollowUpsPage from './pages/Employee/EmployeeIncidentFoll
 import EmployeeIncidentFollowUpDetailsPage from './pages/Employee/EmployeeIncidentFollowUpDetailsPage';
 import EmployeeReunionsPage from './pages/Employee/EmployeeReunionsPage';
 import EmployeeReunionDetailsPage from './pages/Employee/EmployeeReunionDetailsPage';
+import EmployeeMaitreOuvragePage from './pages/Employee/EmployeeMaitreOuvragePage';
+import EmployeeMaitreOuvrageDetailsPage from './pages/Employee/EmployeeMaitreOuvrageDetailsPage';
 
 // Admin Pages Imports
 import AdminLayout from "./components/Layout/AdminLayout";
@@ -125,6 +126,7 @@ function App() {
               </ProtectedRoute>
             } />
             
+            {/* Admin Routes */}
             <Route path="/admin" element={
               <ProtectedRoute allowedRole="admin">
                 <AdminLayout />
@@ -141,6 +143,7 @@ function App() {
               <Route path="about" element={<div>About Us Page</div>} />
             </Route>
             
+            {/* Chef Routes */}
             <Route path="/" element={
               <ProtectedRoute allowedRole="chef">
                 <MainLayout />
@@ -187,6 +190,7 @@ function App() {
               <Route path="about" element={<div>About Us Page</div>} />
             </Route>
             
+            {/* Employee Routes */}
             <Route path="/employee" element={
               <ProtectedRoute allowedRole="employee">
                 <EmployeeLayout />
@@ -202,6 +206,8 @@ function App() {
               <Route path="documents/:id" element={<EmployeeDocumentDetailsPage />} />
               <Route path="reunions" element={<EmployeeReunionsPage />} />
               <Route path="reunions/:id" element={<EmployeeReunionDetailsPage />} />
+              <Route path="maitre-ouvrage" element={<EmployeeMaitreOuvragePage />} />
+              <Route path="maitre-ouvrage/:id" element={<EmployeeMaitreOuvrageDetailsPage />} />
               <Route path="marche" element={<EmployeeMarchePage />} />
               <Route path="marche/:id" element={<EmployeMarcheDetailsPage />} />
               <Route path="profile" element={<EmployeeProfilePage />} />
