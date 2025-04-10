@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,16 +22,17 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from '@/hooks/use-toast';
 import { STATUS_OPTIONS } from '@/components/Admin/UserForm/UserFormSchema';
+import PhoneInput from '@/components/PhoneInput';
 
 const profileFormSchema = z.object({
   name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
   prenom: z.string().min(2, "Le prénom doit contenir au moins 2 caractères"),
   email: z.string().email("Email invalide"),
-  telephone: z.string().regex(/^\+213\s\d{9}$/, "Format de téléphone invalide (+213 suivi de 9 chiffres)"),
+  telephone: z.string().min(6, "Format de téléphone invalide (indicatif pays suivi du numéro)"),
   matricule: z.string().min(1, "Le matricule est requis"),
   gender: z.enum(["male", "female"]),
   role: z.enum(["admin", "chef", "employee"]),
-  status: z.string().refine(val => STATUS_OPTIONS.includes(val), {
+  status: z.enum(["En poste", "En congé", "Maladie", "Mission", "Formation", "Disponible"], {
     message: "Veuillez sélectionner un état valide"
   }),
   createdAt: z.date(),
@@ -38,6 +40,7 @@ const profileFormSchema = z.object({
 
 const AdminProfilePage: React.FC = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [adminUser, setAdminUser] = useState<User | null>(null);
 
@@ -122,6 +125,7 @@ const AdminProfilePage: React.FC = () => {
       });
       
       setLoading(false);
+      navigate('/admin/profile');
     }, 800);
   };
 
@@ -133,10 +137,10 @@ const AdminProfilePage: React.FC = () => {
     <div className="space-y-6">
       <Card className="overflow-hidden">
         <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-xl font-semibold">Gérer compte</h2>
+          <h2 className="text-xl font-semibold">Modifier profil</h2>
           <Button 
             variant="outline" 
-            onClick={() => window.history.back()}
+            onClick={() => navigate('/admin/profile')}
             className="ml-auto"
           >
             <X className="h-4 w-4 mr-2" />
@@ -211,9 +215,10 @@ const AdminProfilePage: React.FC = () => {
                           <FormLabel>Numéro de téléphone</FormLabel>
                           <FormControl>
                             <Input 
-                              type="tel" 
-                              placeholder="+213 xxxxxxxxx" 
-                              {...field} 
+                              value={field.value} 
+                              readOnly
+                              disabled
+                              className="bg-gray-100"
                             />
                           </FormControl>
                           <FormMessage />
@@ -254,9 +259,10 @@ const AdminProfilePage: React.FC = () => {
                           <FormLabel>Adresse Email</FormLabel>
                           <FormControl>
                             <Input 
-                              type="email" 
-                              placeholder="Email" 
-                              {...field} 
+                              value={field.value}
+                              readOnly
+                              disabled
+                              className="bg-gray-100"
                             />
                           </FormControl>
                           <FormMessage />

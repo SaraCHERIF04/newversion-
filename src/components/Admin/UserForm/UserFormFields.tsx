@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { UserFormSchema, STATUS_OPTIONS } from './UserFormSchema';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import PhoneInput from '@/components/PhoneInput';
 
 interface UserFormFieldsProps {
   form: UseFormReturn<z.infer<typeof UserFormSchema>>;
@@ -109,11 +110,17 @@ export const UserFormFields: React.FC<UserFormFieldsProps> = ({
               <FormItem>
                 <FormLabel>Numéro de téléphone</FormLabel>
                 <FormControl>
-                  <Input 
-                    type="tel" 
-                    placeholder="+213 xxxxxxxxx" 
-                    {...field} 
-                  />
+                  {isEditMode ? (
+                    <Input 
+                      type="tel" 
+                      value={field.value}
+                      readOnly
+                      disabled
+                      className="bg-gray-100"
+                    />
+                  ) : (
+                    <PhoneInput value={field.value} onChange={field.onChange} />
+                  )}
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -156,6 +163,9 @@ export const UserFormFields: React.FC<UserFormFieldsProps> = ({
                     type="email" 
                     placeholder="Email" 
                     {...field} 
+                    readOnly={isEditMode}
+                    disabled={isEditMode}
+                    className={isEditMode ? "bg-gray-100" : ""}
                   />
                 </FormControl>
                 <FormMessage />
