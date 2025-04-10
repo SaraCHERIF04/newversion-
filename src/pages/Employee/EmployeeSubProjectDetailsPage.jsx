@@ -6,12 +6,15 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ArrowLeft, Printer, Download } from 'lucide-react';
 
 const EmployeeSubProjectDetailsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [subProject, setSubProject] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [subProjectDocuments, setSubProjectDocuments] = useState([]);
+  const [subProjectMeetings, setSubProjectMeetings] = useState([]);
   
   useEffect(() => {
     // Fetch subproject details
@@ -25,6 +28,22 @@ const EmployeeSubProjectDetailsPage = () => {
           const foundSubProject = subProjects.find(sp => sp.id === id);
           if (foundSubProject) {
             setSubProject(foundSubProject);
+            
+            // Fetch documents for this subproject
+            const documentsString = localStorage.getItem('documents');
+            if (documentsString) {
+              const allDocuments = JSON.parse(documentsString);
+              const subProjectDocs = allDocuments.filter(doc => doc.subProjectId === id);
+              setSubProjectDocuments(subProjectDocs);
+            }
+            
+            // Fetch meetings for this subproject
+            const meetingsString = localStorage.getItem('meetings');
+            if (meetingsString) {
+              const allMeetings = JSON.parse(meetingsString);
+              const subProjectMeetings = allMeetings.filter(meeting => meeting.subProjectId === id);
+              setSubProjectMeetings(subProjectMeetings);
+            }
           } else {
             // SubProject not found
             console.error('SubProject not found');
@@ -39,6 +58,20 @@ const EmployeeSubProjectDetailsPage = () => {
     
     fetchSubProject();
   }, [id]);
+  
+  const handlePrint = () => {
+    window.print();
+  };
+  
+  const handleDownload = (document) => {
+    // Create a dummy anchor element to trigger download
+    const link = document.createElement('a');
+    link.href = document.fileUrl || `/documents/${document.fileName || 'document'}`;
+    link.download = document.fileName || 'document';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
   
   if (loading) {
     return <div className="flex items-center justify-center h-64">Chargement...</div>;
@@ -58,13 +91,27 @@ const EmployeeSubProjectDetailsPage = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <div>
+        <div className="flex items-center space-x-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => navigate('/employee/sous-projets')}
+            className="flex items-center gap-1"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span>Retour</span>
+          </Button>
           <h1 className="text-2xl font-bold">{subProject.name}</h1>
-          <p className="text-gray-500">{subProject.description}</p>
         </div>
-        <div className="flex space-x-2">
-          {/* Read-only view for employees - no edit or delete buttons */}
-        </div>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={handlePrint}
+          className="flex items-center gap-1"
+        >
+          <Printer className="h-4 w-4" />
+          <span>Imprimer</span>
+        </Button>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -128,7 +175,7 @@ const EmployeeSubProjectDetailsPage = () => {
                   <div key={index} className="flex items-center space-x-2">
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={member.avatar} alt={member.name} />
-                      <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
+                      <AvatarFallback>{member.name?.charAt(0) || '?'}</AvatarFallback>
                     </Avatar>
                     <span className="text-sm">{member.name}</span>
                   </div>
@@ -153,8 +200,48 @@ const EmployeeSubProjectDetailsPage = () => {
                 <h3 className="text-lg font-medium">Documents du sous-projet</h3>
               </div>
               <div className="space-y-4">
-                {/* Display documents (read-only) */}
-                <p className="text-gray-500">Vue des documents (lecture seule)</p>
+                {subProjectDocuments.length > 0 ? (
+                  <div className="grid grid-cols-1 gap-2">
+                    {subProjectDocuments.map((doc) => (
+                      <div key={doc.id} className="flex items-center justify-between border rounded-md p-3">
+                        <div className="flex items-center space-x-3">
+                          <div className="flex-shrink-0">
+                            {doc.type === 'pdf' && (
+                              <div className="bg-red-100 text-red-700 p-2 rounded">PDF</div>
+                            )}
+                            {doc.type === 'excel' && (
+                              <div className="bg-green-100 text-green-700 p-2 rounded">XLS</div>
+                            )}
+                            {doc.type === 'word' && (
+                              <div className="bg-blue-100 text-blue-700 p-2 rounded">DOC</div>
+                            )}
+                            {doc.type === 'image' && (
+                              <div className="bg-purple-100 text-purple-700 p-2 rounded">IMG</div>
+                            )}
+                            {(!doc.type || doc.type === 'autre') && (
+                              <div className="bg-gray-100 text-gray-700 p-2 rounded">DOC</div>
+                            )}
+                          </div>
+                          <div>
+                            <div className="font-medium">{doc.title}</div>
+                            <div className="text-sm text-gray-500">{doc.dateAdded || 'Date inconnue'}</div>
+                          </div>
+                        </div>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => handleDownload(doc)}
+                          className="flex items-center gap-1"
+                        >
+                          <Download className="h-4 w-4" />
+                          <span>Télécharger</span>
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500">Aucun document associé à ce sous-projet</p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -166,8 +253,23 @@ const EmployeeSubProjectDetailsPage = () => {
                 <h3 className="text-lg font-medium">Réunions du sous-projet</h3>
               </div>
               <div className="space-y-4">
-                {/* Display meetings (read-only) */}
-                <p className="text-gray-500">Vue des réunions (lecture seule)</p>
+                {subProjectMeetings.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {subProjectMeetings.map((meeting) => (
+                      <div 
+                        key={meeting.id} 
+                        className="border rounded-md p-4 hover:bg-gray-50 cursor-pointer"
+                        onClick={() => navigate(`/employee/reunions/${meeting.id}`)}
+                      >
+                        <div className="font-medium">{meeting.title}</div>
+                        <div className="text-sm text-gray-500">Date: {meeting.date}</div>
+                        <div className="text-sm text-gray-500">Lieu: {meeting.location}</div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500">Aucune réunion associée à ce sous-projet</p>
+                )}
               </div>
             </CardContent>
           </Card>

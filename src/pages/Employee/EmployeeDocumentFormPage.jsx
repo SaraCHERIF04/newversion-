@@ -8,15 +8,14 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/components/ui/use-toast';
+import { ArrowLeft } from 'lucide-react';
 
 const DOCUMENT_TYPES = [
-  'Rapport',
-  'Plan',
-  'Contrat',
-  'Facture',
-  'Documentation technique',
-  'Correspondance',
-  'Autre'
+  { id: 'pdf', name: 'PDF' },
+  { id: 'word', name: 'Word' },
+  { id: 'excel', name: 'Excel' },
+  { id: 'image', name: 'Image' },
+  { id: 'autre', name: 'Autre' }
 ];
 
 const EmployeeDocumentFormPage = () => {
@@ -25,33 +24,40 @@ const EmployeeDocumentFormPage = () => {
   const queryParams = new URLSearchParams(location.search);
   const editId = queryParams.get('edit');
   const isEdit = Boolean(editId);
-  const userId = localStorage.getItem('userId');
-  const userName = localStorage.getItem('userName');
+  const userId = localStorage.getItem('userId') || 'default-user';
+  const userName = localStorage.getItem('userName') || 'Employé';
 
   const [document, setDocument] = useState({
     id: uuidv4(),
     title: '',
-    type: '',
+    type: 'pdf',
     description: '',
     dateAdded: new Date().toISOString().split('T')[0],
     projectId: '',
     subProjectId: '',
+    meetingId: '',
     fileUrl: '',
     fileName: '',
     createdAt: new Date().toISOString(),
     createdBy: userId,
-    createdByName: userName
+    createdByName: userName,
+    reference: '',
+    version: '1.0'
   });
 
   const [projects, setProjects] = useState([]);
   const [subProjects, setSubProjects] = useState([]);
+  const [meetings, setMeetings] = useState([]);
   const [filteredSubProjects, setFilteredSubProjects] = useState([]);
-  const [file, setFile] = useState(null);
+  const [filteredMeetings, setFilteredMeetings] = useState([]);
+  const [files, setFiles] = useState([]);
+  const [existingFiles, setExistingFiles] = useState([]);
 
   useEffect(() => {
-    // Load projects and subprojects from localStorage
+    // Load projects, subprojects and meetings from localStorage
     const projectsString = localStorage.getItem('projects');
     const subProjectsString = localStorage.getItem('subProjects');
+    const meetingsString = localStorage.getItem('meetings');
 
     if (projectsString) {
       try {
@@ -70,6 +76,15 @@ const EmployeeDocumentFormPage = () => {
         console.error('Error loading subprojects:', error);
       }
     }
+    
+    if (meetingsString) {
+      try {
+        const loadedMeetings = JSON.parse(meetingsString);
+        setMeetings(loadedMeetings);
+      } catch (error) {
+        console.error('Error loading meetings:', error);
+      }
+    }
 
     // If editing, load document data
     if (isEdit) {
@@ -81,7 +96,7 @@ const EmployeeDocumentFormPage = () => {
           
           if (docToEdit) {
             // Check if this document belongs to the current user
-            if (docToEdit.createdBy !== userId) {
+            if (docToEdit.createdBy !== userId && userId !== 'default-user') {
               toast({
                 title: "Accès refusé",
                 description: "Vous ne pouvez pas modifier ce document car il ne vous appartient pas.",
@@ -92,6 +107,16 @@ const EmployeeDocumentFormPage = () => {
             }
             
             setDocument(docToEdit);
+            
+            // Set existing files if any
+            if (docToEdit.files && docToEdit.files.length > 0) {
+              setExistingFiles(docToEdit.files);
+            } else if (docToEdit.fileUrl && docToEdit.fileName) {
+              setExistingFiles([{
+                url: docToEdit.fileUrl,
+                name: docToEdit.fileName
+              }]);
+            }
           } else {
             toast({
               title: "Document introuvable",
@@ -112,14 +137,46 @@ const EmployeeDocumentFormPage = () => {
     if (document.projectId) {
       const filtered = subProjects.filter(sp => sp.projectId === document.projectId);
       setFilteredSubProjects(filtered);
+      
+      // Filter meetings related to this project
+      const filteredMtgs = meetings.filter(m => m.projectId === document.projectId);
+      setFilteredMeetings(filteredMtgs);
     } else {
       setFilteredSubProjects([]);
+      setFilteredMeetings(meetings);
     }
-  }, [document.projectId, subProjects]);
+  }, [document.projectId, subProjects, meetings]);
+  
+  useEffect(() => {
+    // Further filter meetings if a subproject is selected
+    if (document.subProjectId) {
+      const filtered = meetings.filter(m => m.subProjectId === document.subProjectId);
+      setFilteredMeetings(filtered);
+    } else if (document.projectId) {
+      // If only project is selected, filter by project
+      const filtered = meetings.filter(m => m.projectId === document.projectId);
+      setFilteredMeetings(filtered);
+    } else {
+      // If neither project nor subproject is selected, show all meetings
+      setFilteredMeetings(meetings);
+    }
+  }, [document.subProjectId, document.projectId, meetings]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setDocument({ ...document, [name]: value });
+    
+    // Validation for numeric fields
+    if (name === 'reference') {
+      // Allow only numbers and letters for reference
+      const validValue = value.replace(/[^a-zA-Z0-9-]/g, '');
+      setDocument({ ...document, [name]: validValue });
+    } else if (name === 'version') {
+      // Allow only valid version format (e.g. 1.0, 2.3.1)
+      const validValue = value.replace(/[^0-9.]/g, '');
+      setDocument({ ...document, [name]: validValue });
+    } else {
+      setDocument({ ...document, [name]: value });
+    }
   };
 
   const handleSelectChange = (name, value) => {
@@ -127,19 +184,49 @@ const EmployeeDocumentFormPage = () => {
     
     // Reset subProjectId if projectId changes
     if (name === 'projectId') {
-      setDocument(prev => ({ ...prev, subProjectId: '' }));
+      setDocument(prev => ({ ...prev, subProjectId: '', meetingId: '' }));
+    }
+    
+    // Reset meetingId if subProjectId changes
+    if (name === 'subProjectId') {
+      setDocument(prev => ({ ...prev, meetingId: '' }));
     }
   };
 
   const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    if (!selectedFile) return;
+    const selectedFiles = Array.from(e.target.files || []);
+    if (selectedFiles.length === 0) return;
 
-    setFile(selectedFile);
-    setDocument({
-      ...document,
-      fileName: selectedFile.name
-    });
+    setFiles(selectedFiles);
+    
+    // Determine document type from the first file
+    if (selectedFiles.length > 0) {
+      const firstFile = selectedFiles[0];
+      const fileExtension = firstFile.name.split('.').pop()?.toLowerCase();
+      
+      let documentType = 'autre';
+      if (fileExtension === 'pdf') documentType = 'pdf';
+      else if (['doc', 'docx'].includes(fileExtension)) documentType = 'word';
+      else if (['xls', 'xlsx', 'csv'].includes(fileExtension)) documentType = 'excel';
+      else if (['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(fileExtension)) documentType = 'image';
+      
+      setDocument({
+        ...document,
+        type: documentType
+      });
+    }
+  };
+  
+  const handleRemoveFile = (index) => {
+    const newFiles = [...files];
+    newFiles.splice(index, 1);
+    setFiles(newFiles);
+  };
+  
+  const handleRemoveExistingFile = (index) => {
+    const newExistingFiles = [...existingFiles];
+    newExistingFiles.splice(index, 1);
+    setExistingFiles(newExistingFiles);
   };
 
   const handleSubmit = (e) => {
@@ -164,26 +251,31 @@ const EmployeeDocumentFormPage = () => {
       return;
     }
 
-    if (!isEdit && !file) {
+    if (!isEdit && files.length === 0 && existingFiles.length === 0) {
       toast({
         title: "Erreur",
-        description: "Un fichier est requis",
+        description: "Au moins un fichier est requis",
         variant: "destructive"
       });
       return;
     }
 
-    // In a real app, you would upload the file to a server
-    // For this demo, we'll simulate a file URL
-    const simulatedFileUrl = file ? 
-      `data:application/octet-stream;base64,${document.fileName}` : 
-      document.fileUrl;
+    // In a real app, you would upload the files to a server
+    // For this demo, we'll simulate file URLs
+    const fileInfos = files.map(file => ({
+      url: `data:application/octet-stream;base64,${file.name}`,
+      name: file.name,
+      type: document.type
+    }));
+    
+    // Combine existing files with new files
+    const allFiles = [...existingFiles, ...fileInfos];
     
     const updatedDocument = {
       ...document,
-      fileUrl: simulatedFileUrl,
-      createdBy: userId, // Ensure this is always set
-      createdByName: userName,
+      files: allFiles,
+      fileUrl: allFiles.length > 0 ? allFiles[0].url : '', // For backward compatibility
+      fileName: allFiles.length > 0 ? allFiles[0].name : '', // For backward compatibility
       updatedAt: new Date().toISOString()
     };
 
@@ -221,13 +313,55 @@ const EmployeeDocumentFormPage = () => {
       });
     }
 
+    // If a meeting is selected, add the document reference to the meeting
+    if (document.meetingId) {
+      const meetingsString = localStorage.getItem('meetings');
+      if (meetingsString) {
+        try {
+          const meetings = JSON.parse(meetingsString);
+          const meetingIndex = meetings.findIndex(m => m.id === document.meetingId);
+          
+          if (meetingIndex !== -1) {
+            if (!meetings[meetingIndex].documents) {
+              meetings[meetingIndex].documents = [];
+            }
+            
+            const docExists = meetings[meetingIndex].documents.some(d => d.id === updatedDocument.id);
+            if (!docExists) {
+              meetings[meetingIndex].documents.push({
+                id: updatedDocument.id,
+                title: updatedDocument.title,
+                url: updatedDocument.fileUrl,
+                type: updatedDocument.type
+              });
+              
+              localStorage.setItem('meetings', JSON.stringify(meetings));
+            }
+          }
+        } catch (error) {
+          console.error('Error updating meeting:', error);
+        }
+      }
+    }
+
     // Navigate back to documents list
     navigate('/employee/documents');
   };
 
   return (
     <div className="max-w-2xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-8">{isEdit ? 'Modifier' : 'Ajouter'} un document</h1>
+      <div className="flex items-center mb-4">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={() => navigate('/employee/documents')}
+          className="flex items-center gap-1"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Retour</span>
+        </Button>
+        <h1 className="text-2xl font-bold ml-2">{isEdit ? 'Modifier' : 'Ajouter'} un document</h1>
+      </div>
       
       <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm p-6 space-y-6">
         <div className="space-y-4">
@@ -244,6 +378,30 @@ const EmployeeDocumentFormPage = () => {
           </div>
           
           <div>
+            <Label htmlFor="reference" className="text-sm font-medium">Référence</Label>
+            <Input
+              id="reference"
+              name="reference"
+              value={document.reference}
+              onChange={handleChange}
+              className="mt-1"
+              placeholder="Entrez une référence (ex: DOC-2023-01)"
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="version" className="text-sm font-medium">Version</Label>
+            <Input
+              id="version"
+              name="version"
+              value={document.version}
+              onChange={handleChange}
+              className="mt-1"
+              placeholder="Entrez un numéro de version (ex: 1.0)"
+            />
+          </div>
+          
+          <div>
             <Label htmlFor="type" className="text-sm font-medium">Type de document</Label>
             <Select
               value={document.type}
@@ -254,8 +412,8 @@ const EmployeeDocumentFormPage = () => {
               </SelectTrigger>
               <SelectContent>
                 {DOCUMENT_TYPES.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type}
+                  <SelectItem key={type.id} value={type.id}>
+                    {type.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -317,17 +475,80 @@ const EmployeeDocumentFormPage = () => {
           </div>
           
           <div>
-            <Label htmlFor="file" className="text-sm font-medium">Fichier</Label>
+            <Label htmlFor="meetingId" className="text-sm font-medium">Réunion associée</Label>
+            <Select
+              value={document.meetingId}
+              onValueChange={(value) => handleSelectChange('meetingId', value)}
+              disabled={filteredMeetings.length === 0}
+            >
+              <SelectTrigger id="meetingId" className="mt-1">
+                <SelectValue placeholder="Sélectionnez une réunion (optionnel)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Aucune</SelectItem>
+                {filteredMeetings.map((meeting) => (
+                  <SelectItem key={meeting.id} value={meeting.id}>
+                    {meeting.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div>
+            <Label htmlFor="file" className="text-sm font-medium">Fichiers</Label>
             <Input
               id="file"
               type="file"
+              multiple
               onChange={handleFileChange}
               className="mt-1"
             />
-            {document.fileName && (
-              <p className="text-sm text-gray-500 mt-1">
-                Fichier sélectionné: {document.fileName}
-              </p>
+            
+            {/* Display existing files (for edit mode) */}
+            {existingFiles.length > 0 && (
+              <div className="mt-2">
+                <p className="text-sm font-medium mb-1">Fichiers existants:</p>
+                <div className="space-y-2">
+                  {existingFiles.map((file, index) => (
+                    <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
+                      <span className="text-sm truncate">{file.name}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveExistingFile(index)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        Supprimer
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Display new files */}
+            {files.length > 0 && (
+              <div className="mt-2">
+                <p className="text-sm font-medium mb-1">Nouveaux fichiers:</p>
+                <div className="space-y-2">
+                  {files.map((file, index) => (
+                    <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
+                      <span className="text-sm truncate">{file.name}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveFile(index)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        Supprimer
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
         </div>
