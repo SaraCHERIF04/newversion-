@@ -90,14 +90,17 @@ const EmployeeMarcheAndMaitreOuvragePage = () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Nom</TableHead>
               {isMarche ? (
                 <>
+                  <TableHead>Numéro marché</TableHead>
+                  <TableHead>Nom</TableHead>
+                  <TableHead>Date signature</TableHead>
                   <TableHead>Type</TableHead>
-                  <TableHead>Description</TableHead>
+                  <TableHead>Fournisseur</TableHead>
                 </>
               ) : (
                 <>
+                  <TableHead>Nom</TableHead>
                   <TableHead>Adresse</TableHead>
                   <TableHead>Téléphone</TableHead>
                 </>
@@ -109,14 +112,17 @@ const EmployeeMarcheAndMaitreOuvragePage = () => {
             {filteredItems.length > 0 ? (
               filteredItems.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell>{item.name || item.nom}</TableCell>
                   {isMarche ? (
                     <>
+                      <TableCell>{item.numeroMarche}</TableCell>
+                      <TableCell>{item.nom}</TableCell>
+                      <TableCell>{item.dateSignature}</TableCell>
                       <TableCell>{item.type}</TableCell>
-                      <TableCell className="truncate max-w-xs">{item.description}</TableCell>
+                      <TableCell>{item.fournisseur}</TableCell>
                     </>
                   ) : (
                     <>
+                      <TableCell>{item.name || item.nom}</TableCell>
                       <TableCell>{item.address || item.adresse}</TableCell>
                       <TableCell>{item.phone || item.telephone}</TableCell>
                     </>
@@ -126,7 +132,7 @@ const EmployeeMarcheAndMaitreOuvragePage = () => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={isMarche ? 4 : 4} className="text-center py-4">
+                <TableCell colSpan={isMarche ? 6 : 4} className="text-center py-4">
                   Aucun {isMarche ? 'marché' : 'maître d\'ouvrage'} trouvé
                 </TableCell>
               </TableRow>

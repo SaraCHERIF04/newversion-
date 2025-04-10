@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Project } from './ProjectCard';
@@ -156,7 +157,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
     }
   };
 
-  // Fix: Correctly handle document operations without using document object
+  // Fix: Correctly handle document operations
   const handleDownloadFile = (doc: ProjectDocument) => {
     if (doc.url) {
       const a = document.createElement('a');

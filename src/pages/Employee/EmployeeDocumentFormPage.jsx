@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
@@ -54,7 +53,6 @@ const EmployeeDocumentFormPage = () => {
   const [existingFiles, setExistingFiles] = useState([]);
 
   useEffect(() => {
-    // Load projects, subprojects and meetings from localStorage
     const projectsString = localStorage.getItem('projects');
     const subProjectsString = localStorage.getItem('subProjects');
     const meetingsString = localStorage.getItem('meetings');
@@ -86,7 +84,6 @@ const EmployeeDocumentFormPage = () => {
       }
     }
 
-    // If editing, load document data
     if (isEdit) {
       const documentsString = localStorage.getItem('documents');
       if (documentsString) {
@@ -95,7 +92,6 @@ const EmployeeDocumentFormPage = () => {
           const docToEdit = documents.find(doc => doc.id === editId);
           
           if (docToEdit) {
-            // Check if this document belongs to the current user
             if (docToEdit.createdBy !== userId && userId !== 'default-user') {
               toast({
                 title: "Accès refusé",
@@ -108,7 +104,6 @@ const EmployeeDocumentFormPage = () => {
             
             setDocument(docToEdit);
             
-            // Set existing files if any
             if (docToEdit.files && docToEdit.files.length > 0) {
               setExistingFiles(docToEdit.files);
             } else if (docToEdit.fileUrl && docToEdit.fileName) {
@@ -133,12 +128,10 @@ const EmployeeDocumentFormPage = () => {
   }, [editId, isEdit, navigate, userId]);
 
   useEffect(() => {
-    // Filter subprojects based on selected project
     if (document.projectId) {
       const filtered = subProjects.filter(sp => sp.projectId === document.projectId);
       setFilteredSubProjects(filtered);
       
-      // Filter meetings related to this project
       const filteredMtgs = meetings.filter(m => m.projectId === document.projectId);
       setFilteredMeetings(filteredMtgs);
     } else {
@@ -148,16 +141,13 @@ const EmployeeDocumentFormPage = () => {
   }, [document.projectId, subProjects, meetings]);
   
   useEffect(() => {
-    // Further filter meetings if a subproject is selected
     if (document.subProjectId) {
       const filtered = meetings.filter(m => m.subProjectId === document.subProjectId);
       setFilteredMeetings(filtered);
     } else if (document.projectId) {
-      // If only project is selected, filter by project
       const filtered = meetings.filter(m => m.projectId === document.projectId);
       setFilteredMeetings(filtered);
     } else {
-      // If neither project nor subproject is selected, show all meetings
       setFilteredMeetings(meetings);
     }
   }, [document.subProjectId, document.projectId, meetings]);
@@ -165,13 +155,10 @@ const EmployeeDocumentFormPage = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     
-    // Validation for numeric fields
     if (name === 'reference') {
-      // Allow only numbers and letters for reference
       const validValue = value.replace(/[^a-zA-Z0-9-]/g, '');
       setDocument({ ...document, [name]: validValue });
     } else if (name === 'version') {
-      // Allow only valid version format (e.g. 1.0, 2.3.1)
       const validValue = value.replace(/[^0-9.]/g, '');
       setDocument({ ...document, [name]: validValue });
     } else {
@@ -182,12 +169,10 @@ const EmployeeDocumentFormPage = () => {
   const handleSelectChange = (name, value) => {
     setDocument({ ...document, [name]: value });
     
-    // Reset subProjectId if projectId changes
     if (name === 'projectId') {
       setDocument(prev => ({ ...prev, subProjectId: '', meetingId: '' }));
     }
     
-    // Reset meetingId if subProjectId changes
     if (name === 'subProjectId') {
       setDocument(prev => ({ ...prev, meetingId: '' }));
     }
@@ -197,10 +182,9 @@ const EmployeeDocumentFormPage = () => {
     const selectedFiles = Array.from(e.target.files || []);
     if (selectedFiles.length === 0) return;
 
-    setFiles(selectedFiles);
+    setFiles(prevFiles => [...prevFiles, ...selectedFiles]);
     
-    // Determine document type from the first file
-    if (selectedFiles.length > 0) {
+    if (!document.type || document.type === 'autre') {
       const firstFile = selectedFiles[0];
       const fileExtension = firstFile.name.split('.').pop()?.toLowerCase();
       
@@ -232,7 +216,6 @@ const EmployeeDocumentFormPage = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Validation
     if (!document.title.trim()) {
       toast({
         title: "Erreur",
@@ -260,26 +243,22 @@ const EmployeeDocumentFormPage = () => {
       return;
     }
 
-    // In a real app, you would upload the files to a server
-    // For this demo, we'll simulate file URLs
     const fileInfos = files.map(file => ({
       url: `data:application/octet-stream;base64,${file.name}`,
       name: file.name,
       type: document.type
     }));
     
-    // Combine existing files with new files
     const allFiles = [...existingFiles, ...fileInfos];
     
     const updatedDocument = {
       ...document,
       files: allFiles,
-      fileUrl: allFiles.length > 0 ? allFiles[0].url : '', // For backward compatibility
-      fileName: allFiles.length > 0 ? allFiles[0].name : '', // For backward compatibility
+      fileUrl: allFiles.length > 0 ? allFiles[0].url : '',
+      fileName: allFiles.length > 0 ? allFiles[0].name : '',
       updatedAt: new Date().toISOString()
     };
 
-    // Load existing documents
     const documentsString = localStorage.getItem('documents');
     let documents = [];
     
@@ -292,7 +271,6 @@ const EmployeeDocumentFormPage = () => {
     }
 
     if (isEdit) {
-      // Update existing document
       const updatedDocuments = documents.map(doc => 
         doc.id === editId ? updatedDocument : doc
       );
@@ -303,7 +281,6 @@ const EmployeeDocumentFormPage = () => {
         description: "Le document a été mis à jour avec succès"
       });
     } else {
-      // Add new document at the beginning of the array
       documents.unshift(updatedDocument);
       localStorage.setItem('documents', JSON.stringify(documents));
       
@@ -313,7 +290,6 @@ const EmployeeDocumentFormPage = () => {
       });
     }
 
-    // If a meeting is selected, add the document reference to the meeting
     if (document.meetingId) {
       const meetingsString = localStorage.getItem('meetings');
       if (meetingsString) {
@@ -344,7 +320,6 @@ const EmployeeDocumentFormPage = () => {
       }
     }
 
-    // Navigate back to documents list
     navigate('/employee/documents');
   };
 
@@ -505,10 +480,9 @@ const EmployeeDocumentFormPage = () => {
               className="mt-1"
             />
             
-            {/* Display existing files (for edit mode) */}
             {existingFiles.length > 0 && (
               <div className="mt-2">
-                <p className="text-sm font-medium mb-1">Fichiers existants:</p>
+                <p className="text-sm font-medium mb-1">Fichiers existants ({existingFiles.length}):</p>
                 <div className="space-y-2">
                   {existingFiles.map((file, index) => (
                     <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
@@ -528,11 +502,10 @@ const EmployeeDocumentFormPage = () => {
               </div>
             )}
             
-            {/* Display new files */}
             {files.length > 0 && (
               <div className="mt-2">
-                <p className="text-sm font-medium mb-1">Nouveaux fichiers:</p>
-                <div className="space-y-2">
+                <p className="text-sm font-medium mb-1">Nouveaux fichiers ({files.length}):</p>
+                <div className="space-y-2 max-h-60 overflow-y-auto">
                   {files.map((file, index) => (
                     <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
                       <span className="text-sm truncate">{file.name}</span>
@@ -550,6 +523,11 @@ const EmployeeDocumentFormPage = () => {
                 </div>
               </div>
             )}
+            
+            <p className="text-xs text-gray-500 mt-1">
+              Vous pouvez télécharger plusieurs fichiers à la fois. 
+              Maintenez la touche Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs fichiers.
+            </p>
           </div>
         </div>
         
@@ -561,7 +539,7 @@ const EmployeeDocumentFormPage = () => {
           >
             Annuler
           </Button>
-          <Button type="submit">
+          <Button type="submit" variant="default">
             {isEdit ? 'Mettre à jour' : 'Enregistrer'}
           </Button>
         </div>
