@@ -6,7 +6,7 @@ export interface User {
   telephone?: string;
   matricule?: string;
   gender?: 'male' | 'female';
-  role: 'admin' | 'chef' | 'employee';
+  role: 'admin' | 'chef' | 'employee' | 'responsable';
   status: 'En poste' | 'En congé' | 'Maladie' | 'Mission' | 'Formation' | 'Disponible';
   createdAt: string;
   avatar?: string;

@@ -47,6 +47,19 @@ const LoginPage = () => {
         navigate('/employee/projects');
         setLoading(false);
       }, 1000);
+    } else if (role === 'responsable' && email === 'ahmed.benali@sonelgaz.dz' && password === 'responsable123') {
+      setTimeout(() => {
+        localStorage.setItem('userRole', 'responsable');
+        localStorage.setItem('userId', '4');
+        localStorage.setItem('userName', 'Ahmed Benali');
+        localStorage.setItem('userEmail', email);
+        toast({
+          title: "Connexion réussie",
+          description: "Bienvenue sur le tableau de bord responsable",
+        });
+        navigate('/responsable/dashboard');
+        setLoading(false);
+      }, 1000);
     } else if (role === 'admin' && email === 'admin@sonelgaz.dz' && password === 'admin123') {
       setTimeout(() => {
         localStorage.setItem('userRole', 'admin');
@@ -103,6 +116,7 @@ const LoginPage = () => {
                   <SelectContent>
                     <SelectItem value="admin">Administrateur</SelectItem>
                     <SelectItem value="chef">Chef de projet</SelectItem>
+                    <SelectItem value="responsable">Responsable</SelectItem>
                     <SelectItem value="employee">Employé</SelectItem>
                   </SelectContent>
                 </Select>
@@ -148,6 +162,8 @@ const LoginPage = () => {
               <strong>Admin:</strong> admin@sonelgaz.dz / admin123
               <br />
               <strong>Chef:</strong> alexarowles@sonelgaz.dz / admin123
+              <br />
+              <strong>Responsable:</strong> ahmed.benali@sonelgaz.dz / responsable123
               <br />
               <strong>Employee:</strong> jeandupont@sonelgaz.dz / employee123
             </p>

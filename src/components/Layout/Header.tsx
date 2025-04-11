@@ -8,9 +8,10 @@ type HeaderProps = {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   isEmployee?: boolean;
+  isResponsable?: boolean;
 };
 
-const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, isEmployee = false }) => {
+const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, isEmployee = false, isResponsable = false }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const navigate = useNavigate();
   const [userProfile, setUserProfile] = useState({
@@ -39,6 +40,13 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, isEmployee
         role: 'Employé',
         profileImage: 'https://randomuser.me/api/portraits/men/32.jpg'
       };
+    } else if (isResponsable) {
+      profileInfo = {
+        name: 'Benali',
+        firstName: 'Ahmed',
+        role: 'Responsable',
+        profileImage: 'https://randomuser.me/api/portraits/men/36.jpg'
+      };
     } else if (userRole === 'admin') {
       profileInfo = {
         name: 'Booles',
@@ -49,9 +57,14 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, isEmployee
     }
 
     // Check for saved profile
-    const savedProfile = isEmployee ? 
-      localStorage.getItem('userProfileEmployee') : 
-      localStorage.getItem('userProfile');
+    let savedProfileKey = 'userProfile';
+    if (isEmployee) {
+      savedProfileKey = 'userProfileEmployee';
+    } else if (isResponsable) {
+      savedProfileKey = 'userProfileResponsable';
+    }
+    
+    const savedProfile = localStorage.getItem(savedProfileKey);
     
     if (savedProfile) {
       try {
@@ -68,13 +81,14 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, isEmployee
     }
 
     setUserProfile(profileInfo);
-  }, [isEmployee]);
+  }, [isEmployee, isResponsable]);
 
   const handleLogout = () => {
     // Clear user data from localStorage
     localStorage.removeItem('userRole');
     localStorage.removeItem('userProfile');
     localStorage.removeItem('userProfileEmployee');
+    localStorage.removeItem('userProfileResponsable');
     
     // Redirect to login page
     navigate('/login');
@@ -163,7 +177,13 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, isEmployee
               <div className="py-1" role="menu" aria-orientation="vertical">
                 <button
                   onClick={() => {
-                    navigate(isEmployee ? '/employee/profile' : localStorage.getItem('userRole') === 'admin' ? '/admin/profile' : '/profile');
+                    navigate(isEmployee 
+                      ? '/employee/profile' 
+                      : isResponsable 
+                        ? '/responsable/profile'
+                        : localStorage.getItem('userRole') === 'admin' 
+                          ? '/admin/profile' 
+                          : '/profile');
                     setIsProfileOpen(false);
                   }}
                   className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
@@ -173,7 +193,13 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, isEmployee
                 </button>
                 <button
                   onClick={() => {
-                    navigate(isEmployee ? '/employee/parametres' : localStorage.getItem('userRole') === 'admin' ? '/admin/parametres' : '/parametres');
+                    navigate(isEmployee 
+                      ? '/employee/parametres' 
+                      : isResponsable 
+                        ? '/responsable/parametres'
+                        : localStorage.getItem('userRole') === 'admin' 
+                          ? '/admin/parametres' 
+                          : '/parametres');
                     setIsProfileOpen(false);
                   }}
                   className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"

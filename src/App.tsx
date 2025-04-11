@@ -58,6 +58,15 @@ import EmployeeIncidentDetailsPage from "./pages/Employee/EmployeeIncidentDetail
 import EmployeeMarchePage from "./pages/Employee/EmployeeMarchePage";
 import EmployeMarcheDetailsPage from "./pages/Employee/EmployeMarcheDetailsPage";
 
+// Responsable Pages Imports
+import ResponsableLayout from "./components/Layout/ResponsableLayout";
+import ResponsableDashboardPage from "./pages/Responsable/ResponsableDashboardPage";
+import ResponsableIncidentsPage from "./pages/Responsable/ResponsableIncidentsPage";
+import ResponsableIncidentDetailsPage from "./pages/Responsable/ResponsableIncidentDetailsPage";
+import ResponsableIncidentFollowUpsPage from "./pages/Responsable/ResponsableIncidentFollowUpsPage";
+import ResponsableIncidentFollowUpDetailsPage from "./pages/Responsable/ResponsableIncidentFollowUpDetailsPage";
+import ResponsableProfilePage from "./pages/Responsable/ResponsableProfilePage";
+
 // Admin Pages Imports
 import AdminLayout from "./components/Layout/AdminLayout";
 import AdminUsersPage from "./pages/Admin/AdminUsersPage";
@@ -83,6 +92,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRole }
     return <Navigate to={
       userRole === 'chef' ? "/" : 
       userRole === 'employee' ? "/employee" :
+      userRole === 'responsable' ? "/responsable" :
       userRole === 'admin' ? "/admin" : "/login"
     } replace />;
   }
@@ -120,6 +130,8 @@ function App() {
                   <Navigate to="/project" replace /> : 
                   localStorage.getItem('userRole') === 'employee' ?
                   <Navigate to="/employee/projects" replace /> :
+                  localStorage.getItem('userRole') === 'responsable' ?
+                  <Navigate to="/responsable/dashboard" replace /> :
                   <Navigate to="/admin/users" replace />}
               </ProtectedRoute>
             } />
@@ -136,6 +148,22 @@ function App() {
               <Route path="users/:id" element={<AdminUserDetailsPage />} />
               <Route path="profile" element={<AdminProfileDetailsPage />} />
               <Route path="profile/edit" element={<AdminProfilePage />} />
+              <Route path="parametres" element={<div>Paramètres Page</div>} />
+              <Route path="about" element={<div>About Us Page</div>} />
+            </Route>
+            
+            <Route path="/responsable" element={
+              <ProtectedRoute allowedRole="responsable">
+                <ResponsableLayout />
+              </ProtectedRoute>
+            }>
+              <Route index element={<Navigate to="/responsable/dashboard" replace />} />
+              <Route path="dashboard" element={<ResponsableDashboardPage />} />
+              <Route path="incidents" element={<ResponsableIncidentsPage />} />
+              <Route path="incidents/:id" element={<ResponsableIncidentDetailsPage />} />
+              <Route path="incidents/suivis/:id" element={<ResponsableIncidentFollowUpsPage />} />
+              <Route path="incidents/suivis/:incidentId/:followUpId" element={<ResponsableIncidentFollowUpDetailsPage />} />
+              <Route path="profile" element={<ResponsableProfilePage />} />
               <Route path="parametres" element={<div>Paramètres Page</div>} />
               <Route path="about" element={<div>About Us Page</div>} />
             </Route>
