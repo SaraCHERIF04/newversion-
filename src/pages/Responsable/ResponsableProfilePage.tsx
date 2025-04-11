@@ -20,6 +20,7 @@ const ResponsableProfilePage = () => {
     matricule: 'RS-12345',
     profileImage: 'https://randomuser.me/api/portraits/men/36.jpg',
     gender: 'male',
+    createdAt: '2023-02-15',
   });
 
   // Password change state
@@ -171,6 +172,8 @@ const ResponsableProfilePage = () => {
                       name="matricule"
                       value={formData.matricule}
                       onChange={handleInputChange}
+                      readOnly
+                      className="bg-gray-50"
                     />
                   </div>
                   <div className="space-y-2">
@@ -198,6 +201,17 @@ const ResponsableProfilePage = () => {
                       id="role"
                       name="role"
                       value={formData.role}
+                      readOnly
+                      className="bg-gray-50"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="createdAt">Date d'ajout</Label>
+                    <Input
+                      id="createdAt"
+                      name="createdAt"
+                      type="date"
+                      value={formData.createdAt}
                       readOnly
                       className="bg-gray-50"
                     />
@@ -251,6 +265,10 @@ const ResponsableProfilePage = () => {
                 <div>
                   <Label className="block text-sm text-gray-500 mb-1">État</Label>
                   <div className="p-2 border border-gray-200 rounded-md bg-gray-50">{formData.status}</div>
+                </div>
+                <div>
+                  <Label className="block text-sm text-gray-500 mb-1">Date d'ajout</Label>
+                  <div className="p-2 border border-gray-200 rounded-md bg-gray-50">{formData.createdAt}</div>
                 </div>
               </div>
             )}
