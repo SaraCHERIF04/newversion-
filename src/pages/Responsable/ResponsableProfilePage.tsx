@@ -1,27 +1,34 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 
 const ResponsableProfilePage = () => {
-  const navigate = useNavigate();
   const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState<'info' | 'password'>('info');
+  const [isEditMode, setIsEditMode] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: '',
-    name: '',
-    email: '',
-    telephone: '',
+    firstName: 'Ahmed',
+    name: 'Benali',
+    email: 'ahmed.benali@sonelgaz.dz',
+    telephone: '0551234567',
     role: 'Responsable',
     status: 'En poste',
-    matricule: '',
-    profileImage: ''
+    matricule: 'RS-12345',
+    profileImage: 'https://randomuser.me/api/portraits/men/36.jpg',
+    gender: 'male',
   });
+
+  // Password change state
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [passwordError, setPasswordError] = useState('');
 
   useEffect(() => {
     // Get profile data from localStorage if it exists
@@ -36,18 +43,6 @@ const ResponsableProfilePage = () => {
       } catch (error) {
         console.error("Error parsing profile:", error);
       }
-    } else {
-      // Set default values
-      setFormData({
-        firstName: 'Ahmed',
-        name: 'Benali',
-        email: 'ahmed.benali@sonelgaz.dz',
-        telephone: '0551234567',
-        role: 'Responsable',
-        status: 'En poste',
-        matricule: 'RS-12345',
-        profileImage: 'https://randomuser.me/api/portraits/men/36.jpg'
-      });
     }
   }, []);
 
@@ -59,17 +54,18 @@ const ResponsableProfilePage = () => {
     });
   };
 
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData({
-      ...formData,
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setPasswordData({
+      ...passwordData,
       [name]: value
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSaveProfile = () => {
     // Save profile to localStorage
     localStorage.setItem('userProfileResponsable', JSON.stringify(formData));
+    setIsEditMode(false);
     
     toast({
       title: "Profil mis à jour",
@@ -77,147 +73,261 @@ const ResponsableProfilePage = () => {
     });
   };
 
+  const handleSavePassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Basic validation
+    if (passwordData.newPassword.length < 8) {
+      setPasswordError('Votre mot de passe doit comporter au moins 8 caractères et inclure une combinaison de chiffres, de lettres et de caractères spéciaux (Ex:#.*)');
+      return;
+    }
+    
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setPasswordError('Les mots de passe ne correspondent pas');
+      return;
+    }
+    
+    // Save password (in a real app this would call an API)
+    localStorage.setItem('responsablePassword', passwordData.newPassword);
+    
+    // Reset fields
+    setPasswordData({
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    });
+    setPasswordError('');
+    
+    toast({
+      title: "Mot de passe mis à jour",
+      description: "Votre mot de passe a été changé avec succès."
+    });
+  };
+
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Votre Profil</h1>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="col-span-1">
-          <CardHeader>
-            <CardTitle>Photo de profil</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col items-center">
-            <Avatar className="h-24 w-24 mb-4">
-              <AvatarImage 
-                src={formData.profileImage} 
-                alt={`${formData.firstName} ${formData.name}`} 
-              />
-              <AvatarFallback>
-                {formData.firstName?.charAt(0)}{formData.name?.charAt(0)}
-              </AvatarFallback>
-            </Avatar>
-            <Button variant="outline" className="w-full">
-              Changer l'image
+    <div className="container mx-auto p-6">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-100">
+        <div className="flex justify-between items-center p-6 border-b border-gray-100">
+          <div className="flex space-x-4">
+            <button
+              className={`px-4 py-2 font-medium ${activeTab === 'info' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+              onClick={() => setActiveTab('info')}
+            >
+              Information profil
+            </button>
+            <button
+              className={`px-4 py-2 font-medium ${activeTab === 'password' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+              onClick={() => setActiveTab('password')}
+            >
+              Changer le mot de passe
+            </button>
+          </div>
+          {activeTab === 'info' && !isEditMode && (
+            <Button 
+              variant="ghost" 
+              className="text-blue-600"
+              onClick={() => setIsEditMode(true)}
+            >
+              Modifier le profil
             </Button>
-          </CardContent>
-          <CardFooter className="flex flex-col items-start gap-2">
-            <div>
-              <CardTitle className="text-base">{formData.firstName} {formData.name}</CardTitle>
-              <CardDescription>{formData.role}</CardDescription>
+          )}
+        </div>
+
+        {activeTab === 'info' && (
+          <div className="p-6">
+            <div className="flex flex-col items-center mb-8">
+              <Avatar className="h-24 w-24 mb-3">
+                <AvatarImage src={formData.profileImage} alt={`${formData.firstName} ${formData.name}`} />
+                <AvatarFallback>{formData.firstName?.[0]}{formData.name?.[0]}</AvatarFallback>
+              </Avatar>
+              <p className="text-sm text-gray-500">{formData.email}</p>
             </div>
-            <div className="text-sm">
-              <p className="mb-1"><strong>Email:</strong> {formData.email}</p>
-              <p className="mb-1"><strong>Téléphone:</strong> {formData.telephone}</p>
-              <p><strong>Statut:</strong> {formData.status}</p>
-            </div>
-          </CardFooter>
-        </Card>
-        
-        <Card className="col-span-1 lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Informations personnelles</CardTitle>
-            <CardDescription>Modifiez vos informations de profil</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">Prénom</Label>
-                  <Input
-                    id="firstName"
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleInputChange}
-                  />
+
+            {isEditMode ? (
+              <form className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Nom</Label>
+                    <Input
+                      id="name"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName">Prénom</Label>
+                    <Input
+                      id="firstName"
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="matricule">Matricule</Label>
+                    <Input
+                      id="matricule"
+                      name="matricule"
+                      value={formData.matricule}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="telephone">Numéro de téléphone</Label>
+                    <Input
+                      id="telephone"
+                      name="telephone"
+                      value={formData.telephone}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Adresse Email</Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="role">Rôle</Label>
+                    <Input
+                      id="role"
+                      name="role"
+                      value={formData.role}
+                      readOnly
+                      className="bg-gray-50"
+                    />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="name">Nom</Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="telephone">Téléphone</Label>
-                  <Input
-                    id="telephone"
-                    name="telephone"
-                    value={formData.telephone}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="role">Rôle</Label>
-                  <Select 
-                    disabled
-                    value={formData.role} 
-                    onValueChange={(value) => handleSelectChange('role', value)}
+                
+                <div className="flex justify-end gap-3 pt-4">
+                  <Button 
+                    type="button" 
+                    variant="outline"
+                    onClick={() => setIsEditMode(false)}
                   >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner un rôle" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Responsable">Responsable</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="status">Statut</Label>
-                  <Select 
-                    value={formData.status} 
-                    onValueChange={(value) => handleSelectChange('status', value)}
+                    Annuler
+                  </Button>
+                  <Button 
+                    type="button"
+                    variant="default"
+                    className="bg-blue-600 hover:bg-blue-700"
+                    onClick={handleSaveProfile}
                   >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner un statut" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="En poste">En poste</SelectItem>
-                      <SelectItem value="En congé">En congé</SelectItem>
-                      <SelectItem value="Maladie">Maladie</SelectItem>
-                      <SelectItem value="Mission">Mission</SelectItem>
-                      <SelectItem value="Formation">Formation</SelectItem>
-                      <SelectItem value="Disponible">Disponible</SelectItem>
-                    </SelectContent>
-                  </Select>
+                    Enregistrer
+                  </Button>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="matricule">Matricule</Label>
-                  <Input
-                    id="matricule"
-                    name="matricule"
-                    value={formData.matricule}
-                    onChange={handleInputChange}
-                  />
+              </form>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <Label className="block text-sm text-gray-500 mb-1">Nom</Label>
+                  <div className="p-2 border border-gray-200 rounded-md bg-gray-50">{formData.name}</div>
                 </div>
+                <div>
+                  <Label className="block text-sm text-gray-500 mb-1">Prénom</Label>
+                  <div className="p-2 border border-gray-200 rounded-md bg-gray-50">{formData.firstName}</div>
+                </div>
+                <div>
+                  <Label className="block text-sm text-gray-500 mb-1">Matricule</Label>
+                  <div className="p-2 border border-gray-200 rounded-md bg-gray-50">{formData.matricule}</div>
+                </div>
+                <div>
+                  <Label className="block text-sm text-gray-500 mb-1">Numéro de téléphone</Label>
+                  <div className="p-2 border border-gray-200 rounded-md bg-gray-50">{formData.telephone}</div>
+                </div>
+                <div>
+                  <Label className="block text-sm text-gray-500 mb-1">Adresse Email</Label>
+                  <div className="p-2 border border-gray-200 rounded-md bg-gray-50">{formData.email}</div>
+                </div>
+                <div>
+                  <Label className="block text-sm text-gray-500 mb-1">Rôle</Label>
+                  <div className="p-2 border border-gray-200 rounded-md bg-gray-50">{formData.role}</div>
+                </div>
+                <div>
+                  <Label className="block text-sm text-gray-500 mb-1">État</Label>
+                  <div className="p-2 border border-gray-200 rounded-md bg-gray-50">{formData.status}</div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'password' && (
+          <div className="p-6">
+            <div className="max-w-2xl mx-auto">
+              <div className="flex flex-col items-center mb-6">
+                <Avatar className="h-24 w-24 mb-3">
+                  <AvatarImage src={formData.profileImage} alt={`${formData.firstName} ${formData.name}`} />
+                  <AvatarFallback>{formData.firstName?.[0]}{formData.name?.[0]}</AvatarFallback>
+                </Avatar>
+                <h2 className="text-lg font-medium">{formData.firstName} {formData.name}</h2>
               </div>
               
-              <div className="flex justify-end gap-2 pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => navigate(-1)}
-                >
-                  Annuler
-                </Button>
-                <Button type="submit">
-                  Enregistrer
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
+              <p className="mb-6 text-sm text-gray-600">
+                Votre mot de passe doit comporter au moins 8 caractères et inclure une combinaison de chiffres, 
+                de lettres et de caractères spéciaux (Ex:#.*).
+              </p>
+              
+              {passwordError && (
+                <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-md">
+                  {passwordError}
+                </div>
+              )}
+              
+              <form onSubmit={handleSavePassword} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="current-password">Mot de passe actuel</Label>
+                  <Input
+                    id="current-password"
+                    name="currentPassword"
+                    type="password"
+                    value={passwordData.currentPassword}
+                    onChange={handlePasswordChange}
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="new-password">Nouveau mot de passe</Label>
+                  <Input
+                    id="new-password"
+                    name="newPassword"
+                    type="password"
+                    value={passwordData.newPassword}
+                    onChange={handlePasswordChange}
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="confirm-password">Retapez le nouveau mot de passe</Label>
+                  <Input
+                    id="confirm-password"
+                    name="confirmPassword"
+                    type="password"
+                    value={passwordData.confirmPassword}
+                    onChange={handlePasswordChange}
+                    required
+                  />
+                </div>
+                
+                <div className="flex justify-end pt-4">
+                  <Button 
+                    type="submit"
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    Enregistrer
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
