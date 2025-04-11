@@ -33,7 +33,6 @@ const DocumentFormPage: React.FC = () => {
   const [subProjectId, setSubProjectId] = useState<string>('');
   const [files, setFiles] = useState<File[]>([]);
   const [existingFiles, setExistingFiles] = useState<FileInfo[]>([]);
-  const [version, setVersion] = useState('1.0');
   
   const [projects, setProjects] = useState<Project[]>([]);
   const [subProjects, setSubProjects] = useState<SubProject[]>([]);
@@ -87,7 +86,6 @@ const DocumentFormPage: React.FC = () => {
             setType(document.type || 'pdf');
             setProjectId(document.projectId || '');
             setSubProjectId(document.subProjectId || '');
-            setVersion(document.version || '1.0');
             
             // Handle files
             if (document.files && document.files.length > 0) {
@@ -152,12 +150,6 @@ const DocumentFormPage: React.FC = () => {
     setExistingFiles(newExistingFiles);
   };
   
-  const handleVersionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Allow only valid version format (e.g. 1.0, 2.3.1)
-    const value = e.target.value.replace(/[^0-9.]/g, '');
-    setVersion(value);
-  };
-  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -200,7 +192,6 @@ const DocumentFormPage: React.FC = () => {
       description,
       url,
       files: allFiles,
-      version,
       updatedAt: new Date().toISOString(),
       createdBy: userId,
       createdByName: userName,
@@ -380,16 +371,6 @@ const DocumentFormPage: React.FC = () => {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 required
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="version" className="mb-2 block">Version</Label>
-              <Input
-                id="version"
-                value={version}
-                onChange={handleVersionChange}
-                placeholder="Entrez un numéro de version (ex: 1.0)"
               />
             </div>
             

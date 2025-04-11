@@ -41,7 +41,6 @@ const EmployeeDocumentFormPage = () => {
     createdAt: new Date().toISOString(),
     createdBy: userId,
     createdByName: userName,
-    version: '1.0'
   });
 
   const [projects, setProjects] = useState([]);
@@ -343,18 +342,6 @@ const EmployeeDocumentFormPage = () => {
               onChange={handleChange}
               className="mt-1"
               placeholder="Entrez le titre du document"
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="version" className="text-sm font-medium">Version</Label>
-            <Input
-              id="version"
-              name="version"
-              value={document.version}
-              onChange={handleChange}
-              className="mt-1"
-              placeholder="Entrez un numéro de version (ex: 1.0)"
             />
           </div>
           

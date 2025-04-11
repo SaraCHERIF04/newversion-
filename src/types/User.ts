@@ -61,8 +61,94 @@ export const addNotification = (
       });
       
       localStorage.setItem('users', JSON.stringify(updatedUsers));
+      
+      // Return the number of notifications added
+      return targetUserIds.length;
     } catch (error) {
       console.error('Error updating notifications:', error);
+      return 0;
     }
   }
+  return 0;
+};
+
+// Function to get unread notifications count for a user
+export const getUnreadNotificationsCount = (userId: string): number => {
+  const usersString = localStorage.getItem('users');
+  
+  if (usersString && userId) {
+    try {
+      const users: User[] = JSON.parse(usersString);
+      const user = users.find(u => u.id === userId);
+      
+      if (user && user.notifications) {
+        return user.notifications.filter(notification => !notification.read).length;
+      }
+    } catch (error) {
+      console.error('Error getting unread notifications count:', error);
+    }
+  }
+  
+  return 0;
+};
+
+// Function to mark a notification as read
+export const markNotificationAsRead = (userId: string, notificationId: string): void => {
+  const usersString = localStorage.getItem('users');
+  
+  if (usersString && userId && notificationId) {
+    try {
+      const users: User[] = JSON.parse(usersString);
+      const userIndex = users.findIndex(u => u.id === userId);
+      
+      if (userIndex !== -1 && users[userIndex].notifications) {
+        const updatedNotifications = users[userIndex].notifications.map(notification => {
+          if (notification.id === notificationId) {
+            return { ...notification, read: true };
+          }
+          return notification;
+        });
+        
+        users[userIndex].notifications = updatedNotifications;
+        localStorage.setItem('users', JSON.stringify(users));
+      }
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
+  }
+};
+
+// Function to add project assignment notification
+export const addProjectAssignmentNotification = (
+  employeeId: string,
+  projectName: string,
+  subProjectName?: string,
+  isAdded: boolean = true
+) => {
+  if (!employeeId || !projectName) return;
+  
+  const title = isAdded ? "Affectation à un projet" : "Retrait d'un projet";
+  
+  let message = "";
+  if (isAdded) {
+    message = subProjectName 
+      ? `Vous avez été affecté au sous-projet "${subProjectName}" dans le projet "${projectName}"`
+      : `Vous avez été affecté au projet "${projectName}"`;
+  } else {
+    message = subProjectName 
+      ? `Vous avez été retiré du sous-projet "${subProjectName}" dans le projet "${projectName}"`
+      : `Vous avez été retiré du projet "${projectName}"`;
+  }
+  
+  const link = subProjectName 
+    ? `/employee/subprojects/${subProjectName}`
+    : `/employee/projects/${projectName}`;
+    
+  addNotification(
+    [employeeId],
+    title,
+    message,
+    isAdded ? 'success' : 'info',
+    link
+  );
 };
