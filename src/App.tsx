@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   createBrowserRouter,
@@ -6,13 +7,10 @@ import {
 import MainLayout from '@/components/Layout/MainLayout';
 import ProjectsPage from '@/pages/ProjectsPage';
 import ProjectDetailsPage from '@/pages/ProjectDetailsPage';
-import NewProjectPage from '@/pages/NewProjectPage';
 import SubProjectsPage from '@/pages/SubProjectsPage';
 import SubProjectDetailsPage from '@/pages/SubProjectDetailsPage';
-import NewSubProjectPage from '@/pages/NewSubProjectPage';
 import IncidentsPage from '@/pages/IncidentsPage';
 import IncidentDetailsPage from '@/pages/IncidentDetailsPage';
-import NewIncidentPage from '@/pages/NewIncidentPage';
 import LoginPage from '@/pages/LoginPage';
 import ResponsableDashboardPage from '@/pages/Responsable/ResponsableDashboardPage';
 import EmployeeProjectsPage from '@/pages/Employee/EmployeeProjectsPage';
@@ -69,7 +67,7 @@ function App() {
                 },
                 {
                   path: "new",
-                  element: <NewProjectPage />,
+                  element: <ProjectsPage />,
                 },
                 {
                   path: ":id",
@@ -95,7 +93,7 @@ function App() {
                 },
                 {
                   path: "new",
-                  element: <NewSubProjectPage />,
+                  element: <SubProjectsPage />,
                 },
                 {
                   path: ":id",
@@ -121,7 +119,7 @@ function App() {
                 },
                 {
                   path: "new",
-                  element: <NewIncidentPage />,
+                  element: <IncidentsPage />,
                 },
                 {
                   path: ":id",

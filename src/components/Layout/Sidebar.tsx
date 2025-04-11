@@ -1,6 +1,7 @@
+
 import {
   HardDriveIcon,
-  FileDocumentIcon,
+  FileText as FileDocumentIcon,
   LayersIcon,
   Building2Icon,
   BriefcaseIcon,
