@@ -1,96 +1,116 @@
 
 import React from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { 
-  Briefcase, 
-  FileText, 
-  MessageSquare, 
-  User, 
-  Package, 
-  LayoutDashboard,
-  AlertTriangle,
-  Building2,
-  DollarSign,
-  Settings,
-  Info,
-  LogOut
-} from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { cn } from '@/lib/utils';
+
+const SidebarMenuItem = ({ item, active }) => {
+  return (
+    <Link
+      to={item.path}
+      className={cn(
+        'flex items-center gap-3 rounded-md px-3 py-2 transition-all',
+        active
+          ? 'bg-[#192759] text-white'
+          : 'text-gray-600 hover:bg-blue-50 hover:text-[#192759]'
+      )}
+    >
+      <div className={cn('flex h-6 w-6 items-center justify-center', active ? 'text-white' : 'text-gray-500')}>
+        {item.icon}
+      </div>
+      <span className={active ? 'font-medium' : 'font-normal'}>{item.name}</span>
+    </Link>
+  );
+};
 
 const EmployeeSidebar = () => {
-  const navigate = useNavigate();
   const location = useLocation();
-
-  const isActive = (path) => {
-    return location.pathname.startsWith(path);
-  };
-
+  
   const menuItems = [
-    { name: 'Project', path: '/employee/projects', icon: <Briefcase className="w-5 h-5" /> },
-    { name: 'sous_projet', path: '/employee/sous-projets', icon: <Package className="w-5 h-5" /> },
-    { name: 'Dashboard', path: '/employee', icon: <LayoutDashboard className="w-5 h-5" /> },
-    { name: 'Incidents', path: '/employee/incidents', icon: <AlertTriangle className="w-5 h-5" /> },
-    { name: 'Documents', path: '/employee/documents', icon: <FileText className="w-5 h-5" /> },
-    { name: 'Réunion', path: '/employee/reunions', icon: <MessageSquare className="w-5 h-5" /> },
-    { name: 'Paramètres', path: '/employee/parametres', icon: <Settings className="w-5 h-5" /> },
-    { name: 'About US', path: '/employee/about', icon: <Info className="w-5 h-5" /> },
+    {
+      name: 'Projets',
+      path: '/employee/projects',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+      ),
+    },
+    {
+      name: 'Sous-projets',
+      path: '/employee/sous-projets',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+      ),
+    },
+    {
+      name: 'Documents',
+      path: '/employee/documents',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+        </svg>
+      ),
+    },
+    {
+      name: 'Réunions',
+      path: '/employee/reunions',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+      ),
+    },
+    {
+      name: 'Maître d\'ouvrage',
+      path: '/employee/maitre-ouvrage',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+        </svg>
+      ),
+    },
+    {
+      name: 'Marché',
+      path: '/employee/marche',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+      ),
+    },
+    {
+      name: 'Mon Profil',
+      path: '/employee/profile',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+      ),
+    },
   ];
 
-  const logout = () => {
-    localStorage.removeItem('currentUserId');
-    localStorage.removeItem('userRole');
-    navigate('/login');
-  };
-
   return (
-    <aside className="fixed h-full w-64 bg-white shadow-lg z-10">
-      <div className="flex flex-col h-full">
-        <div className="p-5 flex items-center border-b border-gray-200">
-          <div className="flex items-center">
-            <div className="w-10 h-10 rounded bg-orange-500 flex items-center justify-center mr-3">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M13 10L21 5V19L13 14V10Z" fill="#0052CC" />
-                <path d="M3 19L11 14V10L3 5V19Z" fill="#0052CC" />
-              </svg>
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-sonelgaz-blue">SONELGAZ</h1>
-              <p className="text-sm text-gray-600">Projects</p>
-            </div>
+    <aside className="min-h-screen w-[200px] border-r border-gray-200 bg-white">
+      <div className="flex h-16 items-center justify-center border-b">
+        <Link to="/employee" className="flex items-center gap-2">
+          <img src="/public/lovable-uploads/58530a94-5d90-46f6-a581-d78a21f82b7a.png" alt="Sonelgaz Logo" className="h-10" />
+          <div className="flex flex-col items-start">
+            <span className="text-sm font-bold text-[#192759]">SONELGAZ</span>
+            <span className="text-xs text-gray-600">Employé</span>
           </div>
-        </div>
-        
-        <nav className="flex-1 overflow-y-auto pt-5 pb-5">
-          <ul className="space-y-1 px-2">
-            {menuItems.map((item) => (
-              <li key={item.path}>
-                <Link
-                  to={item.path}
-                  className={`w-full flex items-center text-left px-4 py-3 rounded-md transition-colors ${
-                    isActive(item.path)
-                      ? 'bg-indigo-900 text-white font-medium'
-                      : 'text-gray-600 hover:bg-gray-100'
-                  }`}
-                >
-                  <span className={`mr-3 ${isActive(item.path) ? 'text-white' : 'text-gray-400'}`}>
-                    {item.icon}
-                  </span>
-                  <span>{item.name}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-        
-        <div className="p-4 border-t border-gray-200">
-          <button
-            className="w-full flex items-center px-4 py-3 rounded-md text-gray-600 hover:bg-gray-100 transition-colors"
-            onClick={logout}
-          >
-            <LogOut className="w-5 h-5 mr-3 text-gray-400" />
-            <span>Déconnexion</span>
-          </button>
-        </div>
+        </Link>
       </div>
+      <nav className="flex flex-col gap-1 p-3">
+        {menuItems.map((item) => (
+          <SidebarMenuItem
+            key={item.path}
+            item={item}
+            active={location.pathname.startsWith(item.path)}
+          />
+        ))}
+      </nav>
     </aside>
   );
 };

@@ -49,16 +49,9 @@ import EmployeeDocumentDetailsPage from "./pages/Employee/EmployeeDocumentDetail
 import EmployeeProfilePage from "./pages/Employee/EmployeeProfilePage";
 import EmployeeSubProjectsPage from "./pages/Employee/EmployeeSubProjectsPage";
 import EmployeeSubProjectDetailsPage from "./pages/Employee/EmployeeSubProjectDetailsPage";
-import EmployeeMarchePage from './pages/Employee/EmployeeMarchePage';
-import EmployeMarcheDetailsPage from './pages/Employee/EmployeMarcheDetailsPage';
-import EmployeeIncidentsPage from './pages/Employee/EmployeeIncidentsPage';
-import EmployeeIncidentDetailsPage from './pages/Employee/EmployeeIncidentDetailsPage';
-import EmployeeIncidentFollowUpsPage from './pages/Employee/EmployeeIncidentFollowUpsPage';
-import EmployeeIncidentFollowUpDetailsPage from './pages/Employee/EmployeeIncidentFollowUpDetailsPage';
-import EmployeeReunionsPage from './pages/Employee/EmployeeReunionsPage';
-import EmployeeReunionDetailsPage from './pages/Employee/EmployeeReunionDetailsPage';
-import EmployeeMaitreOuvragePage from './pages/Employee/EmployeeMaitreOuvragePage';
-import EmployeeMaitreOuvrageDetailsPage from './pages/Employee/EmployeeMaitreOuvrageDetailsPage';
+import EmployeeMarcheAndMaitreOuvragePage from "./pages/Employee/EmployeeMarcheAndMaitreOuvragePage";
+import EmployeeReunionsPage from "./pages/Employee/EmployeeReunionsPage";
+import EmployeeReunionDetailsPage from "./pages/Employee/EmployeeReunionDetailsPage";
 
 // Admin Pages Imports
 import AdminLayout from "./components/Layout/AdminLayout";
@@ -126,7 +119,6 @@ function App() {
               </ProtectedRoute>
             } />
             
-            {/* Admin Routes */}
             <Route path="/admin" element={
               <ProtectedRoute allowedRole="admin">
                 <AdminLayout />
@@ -143,7 +135,6 @@ function App() {
               <Route path="about" element={<div>About Us Page</div>} />
             </Route>
             
-            {/* Chef Routes */}
             <Route path="/" element={
               <ProtectedRoute allowedRole="chef">
                 <MainLayout />
@@ -190,7 +181,6 @@ function App() {
               <Route path="about" element={<div>About Us Page</div>} />
             </Route>
             
-            {/* Employee Routes */}
             <Route path="/employee" element={
               <ProtectedRoute allowedRole="employee">
                 <EmployeeLayout />
@@ -206,21 +196,13 @@ function App() {
               <Route path="documents/:id" element={<EmployeeDocumentDetailsPage />} />
               <Route path="reunions" element={<EmployeeReunionsPage />} />
               <Route path="reunions/:id" element={<EmployeeReunionDetailsPage />} />
-              <Route path="maitre-ouvrage" element={<EmployeeMaitreOuvragePage />} />
-              <Route path="maitre-ouvrage/:id" element={<EmployeeMaitreOuvrageDetailsPage />} />
-              <Route path="marche" element={<EmployeeMarchePage />} />
-              <Route path="marche/:id" element={<EmployeMarcheDetailsPage />} />
+              <Route path="marche" element={<EmployeeMarcheAndMaitreOuvragePage />} />
+              <Route path="maitre-ouvrage" element={<EmployeeMarcheAndMaitreOuvragePage />} />
               <Route path="profile" element={<EmployeeProfilePage />} />
-              
-              <Route path="incidents" element={<EmployeeIncidentsPage />} />
-              <Route path="incidents/:id" element={<EmployeeIncidentDetailsPage />} />
-              <Route path="incidents/suivis/:id" element={<EmployeeIncidentFollowUpsPage />} />
-              <Route path="incidents/suivis/:incidentId/:followUpId" element={<EmployeeIncidentFollowUpDetailsPage />} />
-              
               <Route path="parametres" element={<div>Paramètres</div>} />
             </Route>
             
-            <Route path="*" element={<NotFound />} />
+            <Route path="*" element={<div>Page not found</div>} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>

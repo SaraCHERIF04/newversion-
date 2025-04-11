@@ -43,9 +43,9 @@ const EmployeeReunionsPage = () => {
     } else {
       const term = searchTerm.toLowerCase();
       const filtered = reunions.filter(reunion => 
-        reunion.title?.toLowerCase().includes(term) ||
-        reunion.location?.toLowerCase().includes(term) ||
-        reunion.description?.toLowerCase().includes(term)
+        reunion.title.toLowerCase().includes(term) ||
+        reunion.location.toLowerCase().includes(term) ||
+        reunion.description.toLowerCase().includes(term)
       );
       setFilteredReunions(filtered);
     }
@@ -125,7 +125,7 @@ const EmployeeReunionsPage = () => {
                       <div className="flex -space-x-2">
                         {reunion.participants.slice(0, 3).map((participant, index) => (
                           <img 
-                            key={`${participant.id || index}-${index}`}
+                            key={`${participant.id}-${index}`}
                             src={participant.avatar || 'https://via.placeholder.com/40'} 
                             alt={participant.name} 
                             className="h-6 w-6 rounded-full border border-white"

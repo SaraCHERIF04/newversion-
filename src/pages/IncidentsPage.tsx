@@ -19,12 +19,7 @@ const IncidentsPage = () => {
     const storedIncidents = localStorage.getItem('incidents');
     if (storedIncidents) {
       try {
-        // Parse and sort incidents by createdAt (newest first)
-        const parsedIncidents = JSON.parse(storedIncidents);
-        const sortedIncidents = parsedIncidents.sort((a: Incident, b: Incident) => 
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
-        setIncidents(sortedIncidents);
+        setIncidents(JSON.parse(storedIncidents));
       } catch (error) {
         console.error("Error loading incidents:", error);
       }
@@ -41,7 +36,7 @@ const IncidentsPage = () => {
         subProjectName: "Sub Project 1",
         description: "Description de l'incident...",
         documents: [],
-        createdAt: new Date(Date.now() - i * 86400000).toISOString() // Create descending dates
+        createdAt: new Date().toISOString()
       }));
       
       localStorage.setItem('incidents', JSON.stringify(demoData));

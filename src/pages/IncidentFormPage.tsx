@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Upload, Trash2 } from 'lucide-react';
+import { ArrowLeft, Upload } from 'lucide-react';
 import { Incident } from '@/types/Incident';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -25,43 +25,6 @@ const IncidentFormPage = () => {
   });
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [fileNames, setFileNames] = useState<string[]>([]);
-  const [projects, setProjects] = useState<{id: string, name: string}[]>([]);
-  const [subProjects, setSubProjects] = useState<{id: string, name: string, projectId: string}[]>([]);
-  const [filteredSubProjects, setFilteredSubProjects] = useState<{id: string, name: string, projectId: string}[]>([]);
-
-  // Load project and subproject data
-  useEffect(() => {
-    // Load projects
-    const storedProjects = localStorage.getItem('projects');
-    if (storedProjects) {
-      try {
-        const parsedProjects = JSON.parse(storedProjects);
-        const projectOptions = parsedProjects.map((project: any) => ({
-          id: project.id,
-          name: project.name
-        }));
-        setProjects(projectOptions);
-      } catch (error) {
-        console.error("Error loading projects:", error);
-      }
-    }
-
-    // Load subprojects
-    const storedSubProjects = localStorage.getItem('subProjects');
-    if (storedSubProjects) {
-      try {
-        const parsedSubProjects = JSON.parse(storedSubProjects);
-        const subProjectOptions = parsedSubProjects.map((subProject: any) => ({
-          id: subProject.id,
-          name: subProject.name,
-          projectId: subProject.projectId
-        }));
-        setSubProjects(subProjectOptions);
-      } catch (error) {
-        console.error("Error loading subprojects:", error);
-      }
-    }
-  }, []);
 
   // Load incident data if editing
   useEffect(() => {
@@ -78,40 +41,13 @@ const IncidentFormPage = () => {
             if (foundIncident.documents && foundIncident.documents.length) {
               setFileNames(foundIncident.documents.map((doc: any) => doc.name || 'Document'));
             }
-            
-            // Filter subprojects when editing an incident
-            if (foundIncident.projectName) {
-              const projectId = projects.find(p => p.name === foundIncident.projectName)?.id;
-              if (projectId) {
-                setFilteredSubProjects(subProjects.filter(sp => sp.projectId === projectId));
-              }
-            }
           }
         } catch (error) {
           console.error("Error loading incident:", error);
         }
       }
     }
-  }, [id, isEditing, projects, subProjects]);
-
-  // Filter subprojects when project changes
-  useEffect(() => {
-    if (incident.projectName) {
-      const selectedProject = projects.find(p => p.name === incident.projectName);
-      if (selectedProject) {
-        const filtered = subProjects.filter(sp => sp.projectId === selectedProject.id);
-        setFilteredSubProjects(filtered);
-        
-        // Reset subproject selection if current selection is not in filtered list
-        const isCurrentSubProjectValid = filtered.some(sp => sp.name === incident.subProjectName);
-        if (!isCurrentSubProjectValid) {
-          setIncident(prev => ({ ...prev, subProjectName: '' }));
-        }
-      }
-    } else {
-      setFilteredSubProjects([]);
-    }
-  }, [incident.projectName, projects, subProjects]);
+  }, [id, isEditing]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -217,9 +153,9 @@ const IncidentFormPage = () => {
                 required
               >
                 <option value="">Sélectionner un projet</option>
-                {projects.map(project => (
-                  <option key={project.id} value={project.name}>{project.name}</option>
-                ))}
+                <option value="Projet A">Projet A</option>
+                <option value="Projet B">Projet B</option>
+                <option value="Projet C">Projet C</option>
               </select>
             </div>
             <div>
@@ -234,9 +170,9 @@ const IncidentFormPage = () => {
                 required
               >
                 <option value="">Sélectionner un sous-projet</option>
-                {filteredSubProjects.map(subProject => (
-                  <option key={subProject.id} value={subProject.name}>{subProject.name}</option>
-                ))}
+                <option value="Sous-projet 1">Sous-projet 1</option>
+                <option value="Sous-projet 2">Sous-projet 2</option>
+                <option value="Sous-projet 3">Sous-projet 3</option>
               </select>
             </div>
             <div>
