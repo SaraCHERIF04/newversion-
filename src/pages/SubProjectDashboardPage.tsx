@@ -185,7 +185,7 @@ const SubProjectDashboardPage: React.FC = () => {
             <CardContent className="p-4">
               <h3 className="text-gray-500 text-sm">Budget réel du sous projet</h3>
               <p className="text-lg font-semibold text-blue-600 text-center bg-blue-50 p-2 mt-2 rounded-md">
-                {subProject.budget ? subProject.budget : "N/A"}
+                {subProject.budgetAmount ? subProject.budgetAmount : "N/A"}
               </p>
             </CardContent>
           </Card>
@@ -194,7 +194,7 @@ const SubProjectDashboardPage: React.FC = () => {
             <CardContent className="p-4">
               <h3 className="text-gray-500 text-sm">Budget supposé du sous projet</h3>
               <p className="text-lg font-semibold text-blue-600 text-center bg-blue-50 p-2 mt-2 rounded-md">
-                {subProject.budget ? subProject.budget : "N/A"}
+                {subProject.budgetAmount ? subProject.budgetAmount : "N/A"}
               </p>
             </CardContent>
           </Card>

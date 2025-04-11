@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useNavigate } from 'react-router-dom';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   PieChart, 
   Pie, 
@@ -18,24 +18,23 @@ import {
 
 // For the pie chart
 const BUDGET_DATA = [
-  { name: 'Complété', value: 32, color: '#008080' },
-  { name: 'En attente', value: 25, color: '#1E90FF' },
-  { name: 'En cours', value: 25, color: '#6495ED' },
-  { name: 'En planification', value: 18, color: '#87CEEB' }
+  { name: 'Completed', value: 32, color: '#008080' },  // Teal
+  { name: 'On Hold', value: 25, color: '#1E90FF' },    // Dodger Blue
+  { name: 'On Progress', value: 25, color: '#6495ED' }, // Cornflower Blue  
+  { name: 'Pending', value: 18, color: '#87CEEB' }     // Sky Blue
 ];
 
 // For the line chart
-const projectData = [
+const PROJECT_PROGRESS_DATA = [
   { name: 'Oct 2021', 'Projet A': 3, 'Projet B': 4 },
-  { name: 'Nov 2021', 'Projet A': 4, 'Projet B': 3 },
-  { name: 'Dec 2021', 'Projet A': 5, 'Projet B': 2 },
-  { name: 'Jan 2022', 'Projet A': 6, 'Projet B': 3 },
-  { name: 'Feb 2022', 'Projet A': 5, 'Projet B': 5 },
-  { name: 'Mar 2022', 'Projet A': 7, 'Projet B': 4 }
+  { name: 'Nov 2021', 'Projet A': 2, 'Projet B': 3 },
+  { name: 'Dec 2021', 'Projet A': 3, 'Projet B': 5 },
+  { name: 'Jan 2022', 'Projet A': 6, 'Projet B': 4 },
+  { name: 'Feb 2022', 'Projet A': 3, 'Projet B': 5 },
+  { name: 'Mar 2022', 'Projet A': 6, 'Projet B': 3 }
 ];
 
-const ResponsableDashboardPage: React.FC = () => {
-  const navigate = useNavigate();
+const ChefDashboardPage: React.FC = () => {
   const [incidents, setIncidents] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
   const [subProjects, setSubProjects] = useState<any[]>([]);
@@ -83,7 +82,7 @@ const ResponsableDashboardPage: React.FC = () => {
             <CardTitle className="text-md font-medium">Budget</CardTitle>
             <div className="flex justify-end">
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700">
-                Cette semaine
+                This Week
               </span>
             </div>
           </CardHeader>
@@ -120,14 +119,14 @@ const ResponsableDashboardPage: React.FC = () => {
             <CardTitle className="text-md font-medium">État d'avancement des projets</CardTitle>
             <div className="flex justify-end">
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700">
-                Cette semaine
+                This Week
               </span>
             </div>
           </CardHeader>
           <CardContent className="p-4">
             <ResponsiveContainer width="100%" height={300}>
               <LineChart
-                data={projectData}
+                data={PROJECT_PROGRESS_DATA}
                 margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
@@ -145,59 +144,17 @@ const ResponsableDashboardPage: React.FC = () => {
         </Card>
       </div>
 
-      {/* Incidents Section */}
+      {/* Incidents Card */}
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle className="text-lg">Incidents récents</CardTitle>
+          <CardTitle className="text-md font-medium">Incidents</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left p-2">Type</th>
-                  <th className="text-left p-2">Projet</th>
-                  <th className="text-left p-2">Date</th>
-                  <th className="text-left p-2">Lieu</th>
-                  <th className="text-left p-2">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {incidents.slice(0, 5).map((incident, index) => (
-                  <tr 
-                    key={incident.id} 
-                    className={`hover:bg-gray-50 cursor-pointer ${index !== incidents.length - 1 ? 'border-b' : ''}`}
-                    onClick={() => navigate(`/responsable/incidents/${incident.id}`)}
-                  >
-                    <td className="p-2">{incident.type || 'N/A'}</td>
-                    <td className="p-2">{incident.projectName || 'N/A'}</td>
-                    <td className="p-2">{incident.date || incident.createdAt || 'N/A'}</td>
-                    <td className="p-2">{incident.location || 'N/A'}</td>
-                    <td className="p-2">
-                      <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                        {incident.status || 'En cours'}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-                {incidents.length === 0 && (
-                  <tr>
-                    <td colSpan={5} className="p-4 text-center">Aucun incident récent</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+        <CardContent className="flex items-center justify-center">
+          <div className="text-center py-8 px-4 bg-blue-100 rounded-lg w-full">
+            <p className="text-xl font-semibold text-blue-600">
+              {incidents.length} incident{incidents.length !== 1 ? 's' : ''}
+            </p>
           </div>
-          {incidents.length > 5 && (
-            <div className="mt-4 text-right">
-              <button 
-                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                onClick={() => navigate('/responsable/incidents')}
-              >
-                Voir tous les incidents
-              </button>
-            </div>
-          )}
         </CardContent>
       </Card>
 
@@ -271,4 +228,4 @@ const ResponsableDashboardPage: React.FC = () => {
   );
 };
 
-export default ResponsableDashboardPage;
+export default ChefDashboardPage;

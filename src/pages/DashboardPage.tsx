@@ -1,20 +1,9 @@
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  PieChart, 
-  Pie, 
-  Cell, 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer 
-} from 'recharts';
+import { ChartPie, ArrowLeft } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
 // For the pie chart
 const BUDGET_DATA = [
@@ -25,23 +14,23 @@ const BUDGET_DATA = [
 ];
 
 // For the line chart
-const projectData = [
+const PROJECT_PROGRESS_DATA = [
   { name: 'Oct 2021', 'Projet A': 3, 'Projet B': 4 },
-  { name: 'Nov 2021', 'Projet A': 4, 'Projet B': 3 },
-  { name: 'Dec 2021', 'Projet A': 5, 'Projet B': 2 },
-  { name: 'Jan 2022', 'Projet A': 6, 'Projet B': 3 },
-  { name: 'Feb 2022', 'Projet A': 5, 'Projet B': 5 },
-  { name: 'Mar 2022', 'Projet A': 7, 'Projet B': 4 }
+  { name: 'Nov 2021', 'Projet A': 2, 'Projet B': 3 },
+  { name: 'Dec 2021', 'Projet A': 3, 'Projet B': 5 },
+  { name: 'Jan 2022', 'Projet A': 6, 'Projet B': 4 },
+  { name: 'Feb 2022', 'Projet A': 3, 'Projet B': 5 },
+  { name: 'Mar 2022', 'Projet A': 6, 'Projet B': 3 }
 ];
 
-const ResponsableDashboardPage: React.FC = () => {
+const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
-  const [incidents, setIncidents] = useState<any[]>([]);
-  const [projects, setProjects] = useState<any[]>([]);
-  const [subProjects, setSubProjects] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [incidents, setIncidents] = React.useState<any[]>([]);
+  const [projects, setProjects] = React.useState<any[]>([]);
+  const [subProjects, setSubProjects] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState(true);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
@@ -71,6 +60,10 @@ const ResponsableDashboardPage: React.FC = () => {
     
     fetchData();
   }, []);
+
+  if (loading) {
+    return <div className="flex items-center justify-center min-h-[400px]">Chargement...</div>;
+  }
 
   return (
     <div className="container mx-auto p-4">
@@ -127,7 +120,7 @@ const ResponsableDashboardPage: React.FC = () => {
           <CardContent className="p-4">
             <ResponsiveContainer width="100%" height={300}>
               <LineChart
-                data={projectData}
+                data={PROJECT_PROGRESS_DATA}
                 margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
@@ -145,59 +138,17 @@ const ResponsableDashboardPage: React.FC = () => {
         </Card>
       </div>
 
-      {/* Incidents Section */}
+      {/* Incidents Card */}
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle className="text-lg">Incidents récents</CardTitle>
+          <CardTitle className="text-md font-medium">Incidents</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left p-2">Type</th>
-                  <th className="text-left p-2">Projet</th>
-                  <th className="text-left p-2">Date</th>
-                  <th className="text-left p-2">Lieu</th>
-                  <th className="text-left p-2">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {incidents.slice(0, 5).map((incident, index) => (
-                  <tr 
-                    key={incident.id} 
-                    className={`hover:bg-gray-50 cursor-pointer ${index !== incidents.length - 1 ? 'border-b' : ''}`}
-                    onClick={() => navigate(`/responsable/incidents/${incident.id}`)}
-                  >
-                    <td className="p-2">{incident.type || 'N/A'}</td>
-                    <td className="p-2">{incident.projectName || 'N/A'}</td>
-                    <td className="p-2">{incident.date || incident.createdAt || 'N/A'}</td>
-                    <td className="p-2">{incident.location || 'N/A'}</td>
-                    <td className="p-2">
-                      <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                        {incident.status || 'En cours'}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-                {incidents.length === 0 && (
-                  <tr>
-                    <td colSpan={5} className="p-4 text-center">Aucun incident récent</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+        <CardContent className="flex items-center justify-center">
+          <div className="text-center py-8 px-4 bg-blue-100 rounded-lg w-full">
+            <p className="text-xl font-semibold text-blue-600">
+              {incidents.length} incident{incidents.length !== 1 ? 's' : ''}
+            </p>
           </div>
-          {incidents.length > 5 && (
-            <div className="mt-4 text-right">
-              <button 
-                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                onClick={() => navigate('/responsable/incidents')}
-              >
-                Voir tous les incidents
-              </button>
-            </div>
-          )}
         </CardContent>
       </Card>
 
@@ -271,4 +222,4 @@ const ResponsableDashboardPage: React.FC = () => {
   );
 };
 
-export default ResponsableDashboardPage;
+export default DashboardPage;
