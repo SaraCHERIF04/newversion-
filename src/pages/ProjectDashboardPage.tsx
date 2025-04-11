@@ -2,12 +2,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { ArrowLeft } from 'lucide-react';
+import { PieChart, Pie, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import { ExtendedProject } from '@/pages/ProjectDetailsPage';
 import { SubProject } from '@/components/SubProjectCard';
-import { ArrowLeft } from 'lucide-react';
-import { PieChart, Pie, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 type Incident = {
   id: string;
@@ -17,6 +16,8 @@ type Incident = {
   createdAt: string;
   projectId?: string;
 };
+
+const COLORS = ['#008080', '#1E90FF', '#6495ED', '#87CEEB'];
 
 const ProjectDashboardPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -133,7 +134,7 @@ const ProjectDashboardPage: React.FC = () => {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">Budget</CardTitle>
-            <Badge variant="outline" className="bg-blue-50 text-blue-700">This Week</Badge>
+            <Badge variant="outline" className="bg-blue-50 text-blue-700 absolute top-4 right-4">This Week</Badge>
           </CardHeader>
           <CardContent className="p-4">
             <ResponsiveContainer width="100%" height={300}>
@@ -147,7 +148,11 @@ const ProjectDashboardPage: React.FC = () => {
                   fill="#8884d8"
                   dataKey="value"
                   label={({ name, value }) => `${name} ${value}%`}
-                />
+                >
+                  {getBudgetData().map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
                 <Tooltip />
                 <Legend />
               </PieChart>
@@ -159,7 +164,7 @@ const ProjectDashboardPage: React.FC = () => {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">État d'avancement de projet</CardTitle>
-            <Badge variant="outline" className="bg-blue-50 text-blue-700">This Week</Badge>
+            <Badge variant="outline" className="bg-blue-50 text-blue-700 absolute top-4 right-4">This Week</Badge>
           </CardHeader>
           <CardContent className="p-4">
             <ResponsiveContainer width="100%" height={300}>
@@ -182,7 +187,7 @@ const ProjectDashboardPage: React.FC = () => {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">État d'avancement des sous projets</CardTitle>
-            <Badge variant="outline" className="bg-blue-50 text-blue-700">This Week</Badge>
+            <Badge variant="outline" className="bg-blue-50 text-blue-700 absolute top-4 right-4">This Week</Badge>
           </CardHeader>
           <CardContent className="p-4">
             <ResponsiveContainer width="100%" height={300}>

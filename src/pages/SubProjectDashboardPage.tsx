@@ -23,9 +23,10 @@ type SubProject = {
   status?: string;
   startDate?: string;
   endDate?: string;
-  // Note: budget is optional to fix the TypeScript errors
   budget?: string;
 };
+
+const COLORS = ['#008080', '#1E90FF', '#6495ED', '#87CEEB'];
 
 const SubProjectDashboardPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();

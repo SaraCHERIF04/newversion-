@@ -15,10 +15,13 @@ import ProjectsPage from "./pages/ProjectsPage";
 import ProjectNewPage from "./pages/ProjectNewPage";
 import ProjectEditPage from "./pages/ProjectEditPage";
 import ProjectDetailsPage from "./pages/ProjectDetailsPage";
+import ProjectDashboardPage from "./pages/ProjectDashboardPage";
 import SubProjectsPage from "./pages/SubProjectsPage";
 import SubProjectNewPage from "./pages/SubProjectNewPage";
 import SubProjectEditPage from "./pages/SubProjectEditPage";
 import SubProjectDetailsPage from "./pages/SubProjectDetailsPage";
+import SubProjectDashboardPage from "./pages/SubProjectDashboardPage";
+import ChefDashboardPage from "./pages/ChefDashboardPage";
 import DocumentsPage from "./pages/DocumentsPage";
 import DocumentFormPage from "./pages/DocumentFormPage";
 import DocumentDetailsPage from "./pages/DocumentDetailsPage";
@@ -38,6 +41,7 @@ import IncidentDetailsPage from "./pages/IncidentDetailsPage";
 import IncidentFollowUpsPage from "./pages/IncidentFollowUpsPage";
 import IncidentFollowUpFormPage from "./pages/IncidentFollowUpFormPage";
 import IncidentFollowUpDetailsPage from "./pages/IncidentFollowUpDetailsPage";
+import ParametresPage from "./pages/ParametresPage";
 
 // Employee Pages Imports
 import EmployeeLayout from "./components/Layout/EmployeeLayout";
@@ -57,6 +61,9 @@ import EmployeeIncidentsPage from "./pages/Employee/EmployeeIncidentsPage";
 import EmployeeIncidentDetailsPage from "./pages/Employee/EmployeeIncidentDetailsPage";
 import EmployeeMarchePage from "./pages/Employee/EmployeeMarchePage";
 import EmployeMarcheDetailsPage from "./pages/Employee/EmployeMarcheDetailsPage";
+import EmployeeProjectDashboardPage from "./pages/Employee/EmployeeProjectDashboardPage";
+import EmployeeSubProjectDashboardPage from "./pages/Employee/EmployeeSubProjectDashboardPage";
+import EmployeeParametresPage from "./pages/Employee/EmployeeParametresPage";
 
 // Responsable Pages Imports
 import ResponsableLayout from "./components/Layout/ResponsableLayout";
@@ -66,6 +73,7 @@ import ResponsableIncidentDetailsPage from "./pages/Responsable/ResponsableIncid
 import ResponsableIncidentFollowUpsPage from "./pages/Responsable/ResponsableIncidentFollowUpsPage";
 import ResponsableIncidentFollowUpDetailsPage from "./pages/Responsable/ResponsableIncidentFollowUpDetailsPage";
 import ResponsableProfilePage from "./pages/Responsable/ResponsableProfilePage";
+import ResponsableParametresPage from "./pages/Responsable/ResponsableParametresPage";
 
 // Admin Pages Imports
 import AdminLayout from "./components/Layout/AdminLayout";
@@ -74,6 +82,7 @@ import AdminProfilePage from "./pages/Admin/AdminProfilePage";
 import AdminProfileDetailsPage from "./pages/Admin/AdminProfileDetailsPage";
 import AdminUserFormPage from "./pages/Admin/AdminUserFormPage";
 import AdminUserDetailsPage from "./pages/Admin/AdminUserDetailsPage";
+import AdminParametresPage from "./pages/Admin/AdminParametresPage";
 
 // Route protection component
 interface ProtectedRouteProps {
@@ -90,10 +99,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRole }
   
   if (allowedRole && userRole !== allowedRole) {
     return <Navigate to={
-      userRole === 'chef' ? "/" : 
+      userRole === 'chef' ? "/dashboard" : 
       userRole === 'employee' ? "/employee" :
-      userRole === 'responsable' ? "/responsable" :
-      userRole === 'admin' ? "/admin" : "/login"
+      userRole === 'responsable' ? "/responsable/dashboard" :
+      userRole === 'admin' ? "/admin/users" : "/login"
     } replace />;
   }
   
@@ -127,7 +136,7 @@ function App() {
             <Route path="/" element={
               <ProtectedRoute>
                 {localStorage.getItem('userRole') === 'chef' ? 
-                  <Navigate to="/project" replace /> : 
+                  <Navigate to="/dashboard" replace /> : 
                   localStorage.getItem('userRole') === 'employee' ?
                   <Navigate to="/employee/projects" replace /> :
                   localStorage.getItem('userRole') === 'responsable' ?
@@ -148,7 +157,7 @@ function App() {
               <Route path="users/:id" element={<AdminUserDetailsPage />} />
               <Route path="profile" element={<AdminProfileDetailsPage />} />
               <Route path="profile/edit" element={<AdminProfilePage />} />
-              <Route path="parametres" element={<div>Paramètres Page</div>} />
+              <Route path="parametres" element={<AdminParametresPage />} />
               <Route path="about" element={<div>About Us Page</div>} />
             </Route>
             
@@ -164,7 +173,7 @@ function App() {
               <Route path="incidents/suivis/:id" element={<ResponsableIncidentFollowUpsPage />} />
               <Route path="incidents/suivis/:incidentId/:followUpId" element={<ResponsableIncidentFollowUpDetailsPage />} />
               <Route path="profile" element={<ResponsableProfilePage />} />
-              <Route path="parametres" element={<div>Paramètres Page</div>} />
+              <Route path="parametres" element={<ResponsableParametresPage />} />
               <Route path="about" element={<div>About Us Page</div>} />
             </Route>
             
@@ -173,15 +182,18 @@ function App() {
                 <MainLayout />
               </ProtectedRoute>
             }>
-              <Route index element={<Navigate to="/project" replace />} />
+              <Route index element={<Navigate to="/dashboard" replace />} />
+              <Route path="dashboard" element={<ChefDashboardPage />} />
               <Route path="project" element={<ProjectsPage />} />
               <Route path="project/new" element={<ProjectNewPage />} />
               <Route path="project/edit/:id" element={<ProjectEditPage />} />
-              <Route path="project/:id" element={<ProjectDetailsPage />} />
+              <Route path="project/details/:id" element={<ProjectDetailsPage />} />
+              <Route path="project/dashboard/:id" element={<ProjectDashboardPage />} />
               <Route path="sous-projet" element={<SubProjectsPage />} />
               <Route path="sous-projet/new" element={<SubProjectNewPage />} />
               <Route path="sous-projet/edit/:id" element={<SubProjectEditPage />} />
-              <Route path="sous-projet/:id" element={<SubProjectDetailsPage />} />
+              <Route path="sous-projet/details/:id" element={<SubProjectDetailsPage />} />
+              <Route path="sous-projet/dashboard/:id" element={<SubProjectDashboardPage />} />
               <Route path="documents" element={<DocumentsPage />} />
               <Route path="documents/new" element={<DocumentFormPage />} />
               <Route path="documents/edit/:id" element={<DocumentFormPage />} />
@@ -209,8 +221,7 @@ function App() {
               <Route path="incidents/suivis/edit/:incidentId/:followUpId" element={<IncidentFollowUpFormPage />} />
               <Route path="incidents/suivis/:incidentId/:followUpId" element={<IncidentFollowUpDetailsPage />} />
               
-              <Route path="dashboard" element={<div>Dashboard Page</div>} />
-              <Route path="parametres" element={<div>Paramètres Page</div>} />
+              <Route path="parametres" element={<ParametresPage />} />
               <Route path="about" element={<div>About Us Page</div>} />
             </Route>
             
@@ -222,8 +233,10 @@ function App() {
               <Route index element={<EmployeeIndex />} />
               <Route path="projects" element={<EmployeeProjectsPage />} />
               <Route path="projects/:id" element={<EmployeeProjectDetailsPage />} />
+              <Route path="projects/dashboard/:id" element={<EmployeeProjectDashboardPage />} />
               <Route path="sous-projets" element={<EmployeeSubProjectsPage />} />
               <Route path="sous-projets/:id" element={<EmployeeSubProjectDetailsPage />} />
+              <Route path="sous-projets/dashboard/:id" element={<EmployeeSubProjectDashboardPage />} />
               <Route path="documents" element={<EmployeeDocumentsPage />} />
               <Route path="documents/new" element={<EmployeeDocumentFormPage />} />
               <Route path="documents/:id" element={<EmployeeDocumentDetailsPage />} />
@@ -235,10 +248,10 @@ function App() {
               <Route path="marche/:id" element={<EmployeMarcheDetailsPage />} />
               <Route path="maitre-ouvrage" element={<EmployeeMarcheAndMaitreOuvragePage />} />
               <Route path="profile" element={<EmployeeProfilePage />} />
-              <Route path="parametres" element={<div>Paramètres</div>} />
+              <Route path="parametres" element={<EmployeeParametresPage />} />
             </Route>
             
-            <Route path="*" element={<div>Page not found</div>} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
