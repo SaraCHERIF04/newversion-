@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -52,6 +53,10 @@ import EmployeeSubProjectDetailsPage from "./pages/Employee/EmployeeSubProjectDe
 import EmployeeMarcheAndMaitreOuvragePage from "./pages/Employee/EmployeeMarcheAndMaitreOuvragePage";
 import EmployeeReunionsPage from "./pages/Employee/EmployeeReunionsPage";
 import EmployeeReunionDetailsPage from "./pages/Employee/EmployeeReunionDetailsPage";
+import EmployeeIncidentsPage from "./pages/Employee/EmployeeIncidentsPage";
+import EmployeeIncidentDetailsPage from "./pages/Employee/EmployeeIncidentDetailsPage";
+import EmployeeMarchePage from "./pages/Employee/EmployeeMarchePage";
+import EmployeMarcheDetailsPage from "./pages/Employee/EmployeMarcheDetailsPage";
 
 // Admin Pages Imports
 import AdminLayout from "./components/Layout/AdminLayout";
@@ -196,7 +201,10 @@ function App() {
               <Route path="documents/:id" element={<EmployeeDocumentDetailsPage />} />
               <Route path="reunions" element={<EmployeeReunionsPage />} />
               <Route path="reunions/:id" element={<EmployeeReunionDetailsPage />} />
-              <Route path="marche" element={<EmployeeMarcheAndMaitreOuvragePage />} />
+              <Route path="incidents" element={<EmployeeIncidentsPage />} />
+              <Route path="incidents/:id" element={<EmployeeIncidentDetailsPage />} />
+              <Route path="marche" element={<EmployeeMarchePage />} />
+              <Route path="marche/:id" element={<EmployeMarcheDetailsPage />} />
               <Route path="maitre-ouvrage" element={<EmployeeMarcheAndMaitreOuvragePage />} />
               <Route path="profile" element={<EmployeeProfilePage />} />
               <Route path="parametres" element={<div>Paramètres</div>} />
