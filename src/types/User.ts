@@ -11,4 +11,16 @@ export interface User {
   createdAt: string;
   avatar?: string;
   prenom?: string;
+  notifications?: Notification[];
+}
+
+export interface Notification {
+  id: string;
+  userId: string;
+  title: string;
+  message: string;
+  type: 'info' | 'warning' | 'success' | 'error';
+  read: boolean;
+  createdAt: string;
+  link?: string;
 }

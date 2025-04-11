@@ -128,7 +128,7 @@ const ProjectsPage: React.FC = () => {
             <input
               type="text"
               placeholder="Rechercher un projet..."
-              value={localSearchTerm}
+              value={localSearchTerm || searchQuery}
               onChange={handleSearch}
               className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
             />

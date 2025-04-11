@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Eye } from 'lucide-react';
+import { ArrowLeft, Eye, FileText } from 'lucide-react';
 import { 
   Table, 
   TableBody, 
@@ -12,6 +12,7 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { Incident } from '@/types/Incident';
+import { useSearchQuery } from '@/components/Layout/MainLayout';
 
 interface IncidentFollowUp {
   id: string;
@@ -31,6 +32,8 @@ const ResponsableIncidentFollowUpsPage: React.FC = () => {
   const navigate = useNavigate();
   const [incident, setIncident] = useState<Incident | null>(null);
   const [followUps, setFollowUps] = useState<IncidentFollowUp[]>([]);
+  const [filteredFollowUps, setFilteredFollowUps] = useState<IncidentFollowUp[]>([]);
+  const { searchQuery } = useSearchQuery();
 
   useEffect(() => {
     // Load incident data
@@ -106,6 +109,24 @@ const ResponsableIncidentFollowUpsPage: React.FC = () => {
     }
   }, [id]);
 
+  // Filter follow-ups based on search query
+  useEffect(() => {
+    if (!searchQuery) {
+      setFilteredFollowUps(followUps);
+      return;
+    }
+
+    const lowerCaseQuery = searchQuery.toLowerCase();
+    const filtered = followUps.filter(followUp => 
+      followUp.title.toLowerCase().includes(lowerCaseQuery) ||
+      followUp.description.toLowerCase().includes(lowerCaseQuery) ||
+      followUp.status.toLowerCase().includes(lowerCaseQuery) ||
+      (followUp.assignedTo && followUp.assignedTo.toLowerCase().includes(lowerCaseQuery))
+    );
+    
+    setFilteredFollowUps(filtered);
+  }, [searchQuery, followUps]);
+
   if (!incident) {
     return (
       <div className="container mx-auto p-4">
@@ -147,45 +168,64 @@ const ResponsableIncidentFollowUpsPage: React.FC = () => {
           <h2 className="text-lg font-semibold">Liste des suivis</h2>
         </div>
         
-        <div className="overflow-hidden">
+        <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Date de signalement</TableHead>
-                <TableHead>Description</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Titre</TableHead>
+                <TableHead>Statut</TableHead>
+                <TableHead>Assigné à</TableHead>
                 <TableHead>Documents</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {followUps.length > 0 ? (
-                followUps.map((followUp, index) => (
+              {filteredFollowUps.length > 0 ? (
+                filteredFollowUps.map((followUp, index) => (
                   <TableRow key={followUp.id} className={index % 2 === 0 ? 'bg-gray-50' : ''}>
                     <TableCell>{followUp.reportDate || followUp.date}</TableCell>
-                    <TableCell className="max-w-xs truncate">
-                      {followUp.description.substring(0, 50)}
-                      {followUp.description.length > 50 ? '...' : ''}
-                    </TableCell>
+                    <TableCell className="font-medium">{followUp.title}</TableCell>
                     <TableCell>
-                      {followUp.documents && followUp.documents.length ? 
-                        `${followUp.documents.length} document(s)` : 
-                        'Aucun document'}
+                      <span 
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          followUp.status === 'Résolu' 
+                            ? 'bg-green-100 text-green-800' 
+                            : followUp.status === 'En attente'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-blue-100 text-blue-800'
+                        }`}
+                      >
+                        {followUp.status}
+                      </span>
                     </TableCell>
-                    <TableCell className="flex justify-end gap-2">
+                    <TableCell>{followUp.assignedTo || 'Non assigné'}</TableCell>
+                    <TableCell>
+                      {followUp.documents && followUp.documents.length ? (
+                        <div className="flex items-center text-blue-600">
+                          <FileText className="h-4 w-4 mr-1" />
+                          <span>{followUp.documents.length}</span>
+                        </div>
+                      ) : (
+                        'Aucun'
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
                       <Button
                         variant="ghost"
-                        size="icon"
+                        size="sm"
                         onClick={() => navigate(`/responsable/incidents/suivis/${id}/${followUp.id}`)}
                       >
-                        <Eye className="h-5 w-5" />
+                        <Eye className="h-4 w-4 mr-1" />
+                        Voir
                       </Button>
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center py-4">
-                    Aucun suivi d'incident trouvé
+                  <TableCell colSpan={6} className="text-center py-4">
+                    {searchQuery ? 'Aucun suivi ne correspond à votre recherche' : 'Aucun suivi d\'incident trouvé'}
                   </TableCell>
                 </TableRow>
               )}
