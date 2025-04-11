@@ -6,11 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Upload, Download } from 'lucide-react';
+import { ArrowLeft, Upload } from 'lucide-react';
 import { Document } from '@/types/Document';
 import { Project } from '@/components/ProjectCard';
 import { SubProject } from '@/components/SubProjectCard';
 import { toast } from '@/components/ui/use-toast';
+import { addNotification } from '@/types/User';
 
 interface FileInfo {
   url: string;
@@ -22,24 +23,22 @@ const DocumentFormPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const isEdit = Boolean(id);
+  const userId = localStorage.getItem('userId') || 'default-user';
+  const userName = localStorage.getItem('userName') || 'Chef';
   
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [type, setType] = useState<string>('pdf');
-  const [dateAdded, setDateAdded] = useState(new Date().toISOString().split('T')[0]);
   const [projectId, setProjectId] = useState<string>('');
   const [subProjectId, setSubProjectId] = useState<string>('');
-  const [meetingId, setMeetingId] = useState<string>('');
   const [files, setFiles] = useState<File[]>([]);
   const [existingFiles, setExistingFiles] = useState<FileInfo[]>([]);
-  const [reference, setReference] = useState('');
   const [version, setVersion] = useState('1.0');
   
   const [projects, setProjects] = useState<Project[]>([]);
   const [subProjects, setSubProjects] = useState<SubProject[]>([]);
-  const [meetings, setMeetings] = useState<any[]>([]);
   const [availableSubProjects, setAvailableSubProjects] = useState<SubProject[]>([]);
-  const [availableMeetings, setAvailableMeetings] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   
   useEffect(() => {
     // Load projects
@@ -64,14 +63,14 @@ const DocumentFormPage: React.FC = () => {
       }
     }
     
-    // Load meetings
-    const meetingsString = localStorage.getItem('meetings');
-    if (meetingsString) {
+    // Load users
+    const usersString = localStorage.getItem('users');
+    if (usersString) {
       try {
-        const meetingsList = JSON.parse(meetingsString);
-        setMeetings(meetingsList);
+        const usersList = JSON.parse(usersString);
+        setUsers(usersList);
       } catch (error) {
-        console.error('Error loading meetings:', error);
+        console.error('Error loading users:', error);
       }
     }
     
@@ -86,11 +85,8 @@ const DocumentFormPage: React.FC = () => {
             setTitle(document.title);
             setDescription(document.description || '');
             setType(document.type || 'pdf');
-            setDateAdded(document.dateAdded);
             setProjectId(document.projectId || '');
             setSubProjectId(document.subProjectId || '');
-            setMeetingId(document.meetingId || '');
-            setReference(document.reference || '');
             setVersion(document.version || '1.0');
             
             // Handle files
@@ -116,44 +112,14 @@ const DocumentFormPage: React.FC = () => {
       const filtered = subProjects.filter(sp => sp.projectId === projectId);
       setAvailableSubProjects(filtered);
       
-      // Filter meetings related to this project
-      const filteredMtgs = meetings.filter((m: any) => m.projectId === projectId);
-      setAvailableMeetings(filteredMtgs);
-      
       // If the currently selected subProject doesn't belong to the new project, reset it
       if (subProjectId && !filtered.some(sp => sp.id === subProjectId)) {
         setSubProjectId('');
       }
-      
-      // If the currently selected meeting doesn't belong to the new project, reset it
-      if (meetingId && !filteredMtgs.some((m: any) => m.id === meetingId)) {
-        setMeetingId('');
-      }
     } else {
       setAvailableSubProjects([]);
-      setAvailableMeetings(meetings);
     }
-  }, [projectId, subProjects, meetings, subProjectId, meetingId]);
-  
-  useEffect(() => {
-    // Further filter meetings if a subproject is selected
-    if (subProjectId && subProjectId !== 'none') {
-      const filtered = meetings.filter((m: any) => m.subProjectId === subProjectId);
-      setAvailableMeetings(filtered);
-      
-      // If the currently selected meeting doesn't belong to the new subproject, reset it
-      if (meetingId && !filtered.some((m: any) => m.id === meetingId)) {
-        setMeetingId('');
-      }
-    } else if (projectId && projectId !== 'none') {
-      // If only project is selected, filter by project
-      const filtered = meetings.filter((m: any) => m.projectId === projectId);
-      setAvailableMeetings(filtered);
-    } else {
-      // If neither project nor subproject is selected, show all meetings
-      setAvailableMeetings(meetings);
-    }
-  }, [subProjectId, projectId, meetings, meetingId]);
+  }, [projectId, subProjects, subProjectId]);
   
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -184,12 +150,6 @@ const DocumentFormPage: React.FC = () => {
     const newExistingFiles = [...existingFiles];
     newExistingFiles.splice(index, 1);
     setExistingFiles(newExistingFiles);
-  };
-  
-  const handleReferenceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Allow only numbers and letters for reference
-    const value = e.target.value.replace(/[^a-zA-Z0-9-]/g, '');
-    setReference(value);
   };
   
   const handleVersionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -234,16 +194,17 @@ const DocumentFormPage: React.FC = () => {
       id: id || `doc-${Date.now()}`,
       title,
       type,
-      dateAdded,
+      dateAdded: new Date().toISOString().split('T')[0],
       projectId: projectId !== 'none' ? projectId : undefined,
       subProjectId: subProjectId !== 'none' ? subProjectId : undefined,
-      meetingId: meetingId !== 'none' ? meetingId : undefined,
       description,
       url,
       files: allFiles,
-      reference,
       version,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
+      createdBy: userId,
+      createdByName: userName,
+      createdAt: new Date().toISOString(),
     };
     
     // Save document to localStorage
@@ -273,34 +234,58 @@ const DocumentFormPage: React.FC = () => {
     
     localStorage.setItem('documents', JSON.stringify(documents));
     
-    // If a meeting is selected, add the document reference to the meeting
-    if (meetingId && meetingId !== 'none') {
-      const meetingsString = localStorage.getItem('meetings');
-      if (meetingsString) {
+    // If a project is selected, add the document reference to the project
+    if (projectId && projectId !== 'none') {
+      const projectsString = localStorage.getItem('projects');
+      if (projectsString) {
         try {
-          const meetings = JSON.parse(meetingsString);
-          const meetingIndex = meetings.findIndex((m: any) => m.id === meetingId);
+          const projects = JSON.parse(projectsString);
+          const projectIndex = projects.findIndex((p: any) => p.id === projectId);
           
-          if (meetingIndex !== -1) {
-            if (!meetings[meetingIndex].documents) {
-              meetings[meetingIndex].documents = [];
+          if (projectIndex !== -1) {
+            if (!projects[projectIndex].documents) {
+              projects[projectIndex].documents = [];
             }
             
-            const docExists = meetings[meetingIndex].documents.some((d: any) => d.id === documentData.id);
+            const docExists = projects[projectIndex].documents.some((d: any) => d.id === documentData.id);
             if (!docExists) {
-              meetings[meetingIndex].documents.push({
+              projects[projectIndex].documents.push({
                 id: documentData.id,
                 title: documentData.title,
                 url: documentData.url,
                 type: documentData.type
               });
               
-              localStorage.setItem('meetings', JSON.stringify(meetings));
+              localStorage.setItem('projects', JSON.stringify(projects));
             }
           }
         } catch (error) {
-          console.error('Error updating meeting:', error);
+          console.error('Error updating project:', error);
         }
+      }
+    }
+    
+    // If not editing, send notifications to employees
+    if (!isEdit) {
+      const employees = users.filter(user => user.role === 'employee');
+      
+      if (employees.length > 0) {
+        const targetUserIds = employees.map(user => user.id);
+        const projectName = projectId && projectId !== 'none' ? 
+          (projects.find(p => p.id === projectId)?.name || '') : '';
+        
+        const title = "Nouveau document ajouté";
+        const message = projectName ? 
+          `${userName} a ajouté un nouveau document "${documentData.title}" au projet "${projectName}"` :
+          `${userName} a ajouté un nouveau document "${documentData.title}"`;
+        
+        addNotification(
+          targetUserIds,
+          title,
+          message,
+          'info',
+          `/employee/documents/${documentData.id}`
+        );
       }
     }
     
@@ -345,19 +330,6 @@ const DocumentFormPage: React.FC = () => {
               return subProject;
             });
             localStorage.setItem('subProjects', JSON.stringify(updatedSubProjects));
-          }
-          
-          // Also remove from meetings
-          const meetingsString = localStorage.getItem('meetings');
-          if (meetingsString) {
-            const meetings = JSON.parse(meetingsString);
-            const updatedMeetings = meetings.map((meeting: any) => {
-              if (meeting.documents) {
-                meeting.documents = meeting.documents.filter((doc: any) => doc.id !== id);
-              }
-              return meeting;
-            });
-            localStorage.setItem('meetings', JSON.stringify(updatedMeetings));
           }
           
           toast({
@@ -412,16 +384,6 @@ const DocumentFormPage: React.FC = () => {
             </div>
             
             <div>
-              <Label htmlFor="reference" className="mb-2 block">Référence</Label>
-              <Input
-                id="reference"
-                value={reference}
-                onChange={handleReferenceChange}
-                placeholder="Entrez une référence (ex: DOC-2023-01)"
-              />
-            </div>
-            
-            <div>
               <Label htmlFor="version" className="mb-2 block">Version</Label>
               <Input
                 id="version"
@@ -445,17 +407,6 @@ const DocumentFormPage: React.FC = () => {
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-            
-            <div>
-              <Label htmlFor="date" className="mb-2 block">Date d'Ajout</Label>
-              <Input
-                id="date"
-                type="date"
-                value={dateAdded}
-                onChange={(e) => setDateAdded(e.target.value)}
-                required
-              />
             </div>
             
             <div>
@@ -490,27 +441,6 @@ const DocumentFormPage: React.FC = () => {
                   {availableSubProjects.map((subProject) => (
                     <SelectItem key={subProject.id} value={subProject.id}>
                       {subProject.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div>
-              <Label htmlFor="meeting" className="mb-2 block">Réunion associée</Label>
-              <Select 
-                value={meetingId} 
-                onValueChange={setMeetingId}
-                disabled={availableMeetings.length === 0}
-              >
-                <SelectTrigger id="meeting">
-                  <SelectValue placeholder="Sélectionnez une réunion" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Aucune</SelectItem>
-                  {availableMeetings.map((meeting: any) => (
-                    <SelectItem key={meeting.id} value={meeting.id}>
-                      {meeting.title}
                     </SelectItem>
                   ))}
                 </SelectContent>

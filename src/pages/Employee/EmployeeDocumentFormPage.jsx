@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
@@ -8,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/components/ui/use-toast';
 import { ArrowLeft } from 'lucide-react';
+import { addNotification } from '@/types/User';
 
 const DOCUMENT_TYPES = [
   { id: 'pdf', name: 'PDF' },
@@ -34,28 +36,25 @@ const EmployeeDocumentFormPage = () => {
     dateAdded: new Date().toISOString().split('T')[0],
     projectId: '',
     subProjectId: '',
-    meetingId: '',
     fileUrl: '',
     fileName: '',
     createdAt: new Date().toISOString(),
     createdBy: userId,
     createdByName: userName,
-    reference: '',
     version: '1.0'
   });
 
   const [projects, setProjects] = useState([]);
   const [subProjects, setSubProjects] = useState([]);
-  const [meetings, setMeetings] = useState([]);
   const [filteredSubProjects, setFilteredSubProjects] = useState([]);
-  const [filteredMeetings, setFilteredMeetings] = useState([]);
   const [files, setFiles] = useState([]);
   const [existingFiles, setExistingFiles] = useState([]);
+  const [users, setUsers] = useState([]);
 
   useEffect(() => {
     const projectsString = localStorage.getItem('projects');
     const subProjectsString = localStorage.getItem('subProjects');
-    const meetingsString = localStorage.getItem('meetings');
+    const usersString = localStorage.getItem('users');
 
     if (projectsString) {
       try {
@@ -75,12 +74,12 @@ const EmployeeDocumentFormPage = () => {
       }
     }
     
-    if (meetingsString) {
+    if (usersString) {
       try {
-        const loadedMeetings = JSON.parse(meetingsString);
-        setMeetings(loadedMeetings);
+        const loadedUsers = JSON.parse(usersString);
+        setUsers(loadedUsers);
       } catch (error) {
-        console.error('Error loading meetings:', error);
+        console.error('Error loading users:', error);
       }
     }
 
@@ -131,50 +130,21 @@ const EmployeeDocumentFormPage = () => {
     if (document.projectId) {
       const filtered = subProjects.filter(sp => sp.projectId === document.projectId);
       setFilteredSubProjects(filtered);
-      
-      const filteredMtgs = meetings.filter(m => m.projectId === document.projectId);
-      setFilteredMeetings(filteredMtgs);
     } else {
       setFilteredSubProjects([]);
-      setFilteredMeetings(meetings);
     }
-  }, [document.projectId, subProjects, meetings]);
-  
-  useEffect(() => {
-    if (document.subProjectId) {
-      const filtered = meetings.filter(m => m.subProjectId === document.subProjectId);
-      setFilteredMeetings(filtered);
-    } else if (document.projectId) {
-      const filtered = meetings.filter(m => m.projectId === document.projectId);
-      setFilteredMeetings(filtered);
-    } else {
-      setFilteredMeetings(meetings);
-    }
-  }, [document.subProjectId, document.projectId, meetings]);
+  }, [document.projectId, subProjects]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
-    if (name === 'reference') {
-      const validValue = value.replace(/[^a-zA-Z0-9-]/g, '');
-      setDocument({ ...document, [name]: validValue });
-    } else if (name === 'version') {
-      const validValue = value.replace(/[^0-9.]/g, '');
-      setDocument({ ...document, [name]: validValue });
-    } else {
-      setDocument({ ...document, [name]: value });
-    }
+    setDocument({ ...document, [name]: value });
   };
 
   const handleSelectChange = (name, value) => {
     setDocument({ ...document, [name]: value });
     
     if (name === 'projectId') {
-      setDocument(prev => ({ ...prev, subProjectId: '', meetingId: '' }));
-    }
-    
-    if (name === 'subProjectId') {
-      setDocument(prev => ({ ...prev, meetingId: '' }));
+      setDocument(prev => ({ ...prev, subProjectId: '' }));
     }
   };
 
@@ -284,38 +254,62 @@ const EmployeeDocumentFormPage = () => {
       documents.unshift(updatedDocument);
       localStorage.setItem('documents', JSON.stringify(documents));
       
+      // Send notifications to chefs and colleagues (other employees)
+      const chefsAndColleagues = users.filter(user => 
+        user.id !== userId && (user.role === 'chef' || user.role === 'employee')
+      );
+      
+      if (chefsAndColleagues.length > 0) {
+        const targetUserIds = chefsAndColleagues.map(user => user.id);
+        const projectName = document.projectId ? 
+          (projects.find(p => p.id === document.projectId)?.name || '') : '';
+        
+        const title = "Nouveau document ajouté";
+        const message = projectName ? 
+          `${userName} a ajouté un nouveau document "${document.title}" au projet "${projectName}"` :
+          `${userName} a ajouté un nouveau document "${document.title}"`;
+        
+        addNotification(
+          targetUserIds,
+          title,
+          message,
+          'info',
+          `/employee/documents/${updatedDocument.id}`
+        );
+      }
+      
       toast({
         title: "Document ajouté",
         description: "Le document a été ajouté avec succès"
       });
     }
 
-    if (document.meetingId) {
-      const meetingsString = localStorage.getItem('meetings');
-      if (meetingsString) {
+    if (document.projectId) {
+      const projectsString = localStorage.getItem('projects');
+      if (projectsString) {
         try {
-          const meetings = JSON.parse(meetingsString);
-          const meetingIndex = meetings.findIndex(m => m.id === document.meetingId);
+          const projects = JSON.parse(projectsString);
+          const projectIndex = projects.findIndex(p => p.id === document.projectId);
           
-          if (meetingIndex !== -1) {
-            if (!meetings[meetingIndex].documents) {
-              meetings[meetingIndex].documents = [];
+          if (projectIndex !== -1) {
+            if (!projects[projectIndex].documents) {
+              projects[projectIndex].documents = [];
             }
             
-            const docExists = meetings[meetingIndex].documents.some(d => d.id === updatedDocument.id);
+            const docExists = projects[projectIndex].documents.some(d => d.id === updatedDocument.id);
             if (!docExists) {
-              meetings[meetingIndex].documents.push({
+              projects[projectIndex].documents.push({
                 id: updatedDocument.id,
                 title: updatedDocument.title,
                 url: updatedDocument.fileUrl,
                 type: updatedDocument.type
               });
               
-              localStorage.setItem('meetings', JSON.stringify(meetings));
+              localStorage.setItem('projects', JSON.stringify(projects));
             }
           }
         } catch (error) {
-          console.error('Error updating meeting:', error);
+          console.error('Error updating project:', error);
         }
       }
     }
@@ -349,18 +343,6 @@ const EmployeeDocumentFormPage = () => {
               onChange={handleChange}
               className="mt-1"
               placeholder="Entrez le titre du document"
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="reference" className="text-sm font-medium">Référence</Label>
-            <Input
-              id="reference"
-              name="reference"
-              value={document.reference}
-              onChange={handleChange}
-              className="mt-1"
-              placeholder="Entrez une référence (ex: DOC-2023-01)"
             />
           </div>
           
@@ -443,27 +425,6 @@ const EmployeeDocumentFormPage = () => {
                 {filteredSubProjects.map((subProject) => (
                   <SelectItem key={subProject.id} value={subProject.id}>
                     {subProject.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div>
-            <Label htmlFor="meetingId" className="text-sm font-medium">Réunion associée</Label>
-            <Select
-              value={document.meetingId}
-              onValueChange={(value) => handleSelectChange('meetingId', value)}
-              disabled={filteredMeetings.length === 0}
-            >
-              <SelectTrigger id="meetingId" className="mt-1">
-                <SelectValue placeholder="Sélectionnez une réunion (optionnel)" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Aucune</SelectItem>
-                {filteredMeetings.map((meeting) => (
-                  <SelectItem key={meeting.id} value={meeting.id}>
-                    {meeting.title}
                   </SelectItem>
                 ))}
               </SelectContent>
