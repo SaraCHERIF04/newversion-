@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -6,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ArrowLeft, Printer, Download } from 'lucide-react';
+import { ArrowLeft, Printer, Download, BarChart } from 'lucide-react';
 
 const EmployeeSubProjectDetailsPage = () => {
   const { id } = useParams();
@@ -17,11 +16,9 @@ const EmployeeSubProjectDetailsPage = () => {
   const [subProjectMeetings, setSubProjectMeetings] = useState([]);
   
   useEffect(() => {
-    // Fetch subproject details
     const fetchSubProject = () => {
       setLoading(true);
       try {
-        // Get subprojects from localStorage
         const subProjectsString = localStorage.getItem('subProjects');
         if (subProjectsString) {
           const subProjects = JSON.parse(subProjectsString);
@@ -29,7 +26,6 @@ const EmployeeSubProjectDetailsPage = () => {
           if (foundSubProject) {
             setSubProject(foundSubProject);
             
-            // Fetch documents for this subproject
             const documentsString = localStorage.getItem('documents');
             if (documentsString) {
               const allDocuments = JSON.parse(documentsString);
@@ -37,7 +33,6 @@ const EmployeeSubProjectDetailsPage = () => {
               setSubProjectDocuments(subProjectDocs);
             }
             
-            // Fetch meetings for this subproject
             const meetingsString = localStorage.getItem('meetings');
             if (meetingsString) {
               const allMeetings = JSON.parse(meetingsString);
@@ -45,7 +40,6 @@ const EmployeeSubProjectDetailsPage = () => {
               setSubProjectMeetings(subProjectMeetings);
             }
           } else {
-            // SubProject not found
             console.error('SubProject not found');
           }
         }
@@ -63,8 +57,11 @@ const EmployeeSubProjectDetailsPage = () => {
     window.print();
   };
   
+  const handleDashboard = () => {
+    navigate(`/employee/sous-projets/dashboard/${id}`);
+  };
+  
   const handleDownload = (document) => {
-    // Create a dummy anchor element to trigger download
     const link = document.createElement('a');
     link.href = document.fileUrl || `/documents/${document.fileName || 'document'}`;
     link.download = document.fileName || 'document';
@@ -103,15 +100,26 @@ const EmployeeSubProjectDetailsPage = () => {
           </Button>
           <h1 className="text-2xl font-bold">{subProject.name}</h1>
         </div>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={handlePrint}
-          className="flex items-center gap-1"
-        >
-          <Printer className="h-4 w-4" />
-          <span>Imprimer</span>
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleDashboard}
+            className="flex items-center gap-1"
+          >
+            <BarChart className="h-4 w-4" />
+            <span>Tableau de bord</span>
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handlePrint}
+            className="flex items-center gap-1"
+          >
+            <Printer className="h-4 w-4" />
+            <span>Imprimer</span>
+          </Button>
+        </div>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

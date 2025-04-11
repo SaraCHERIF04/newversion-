@@ -1,12 +1,10 @@
-
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Project } from './ProjectCard';
-import { Download, Printer, ArrowLeft } from 'lucide-react';
+import { Download, Printer, ArrowLeft, BarChart } from 'lucide-react';
 import { ExtendedProject } from '@/pages/ProjectDetailsPage';
 import { SubProject } from './SubProjectCard';
 
-// Extend the ProjectMember type with additional properties
 type ProjectMember = {
   id: string;
   name: string;
@@ -29,7 +27,6 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
   const navigate = useNavigate();
   const { id } = useParams();
   
-  // Get project from localStorage if available
   const getProjectFromStorage = (projectId: string): ExtendedProject | undefined => {
     try {
       const projectsString = localStorage.getItem('projects');
@@ -43,7 +40,6 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
     return undefined;
   };
   
-  // Get all subprojects for this project
   const getSubProjectsForProject = (projectId: string): SubProject[] => {
     try {
       const subProjectsString = localStorage.getItem('subProjects');
@@ -57,7 +53,6 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
     return [];
   };
 
-  // Try to get project from localStorage, fallback to props
   const storedProject = id ? getProjectFromStorage(id) : undefined;
   const subProjects = id ? getSubProjectsForProject(id) : [];
   
@@ -104,7 +99,6 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
     subProjects: []
   };
 
-  // We'll use both subProjects from the project and from localStorage
   const combinedSubProjects = [
     ...(projectDetails.subProjects || []),
     ...subProjects.filter(sp => 
@@ -118,18 +112,14 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
 
   const downloadDocument = (doc: Document) => {
     if (doc.url) {
-      // Create a temporary anchor element
       const a = document.createElement('a');
       a.href = doc.url;
       a.download = doc.title;
       
-      // Append to the DOM
       document.body.appendChild(a);
       
-      // Trigger a click on the element
       a.click();
       
-      // Remove the element
       document.body.removeChild(a);
     } else {
       console.error('Document URL is missing');
@@ -140,7 +130,10 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
     navigate('/project');
   };
 
-  // Delete functionality
+  const handleDashboard = () => {
+    navigate(`/project/dashboard/${projectDetails.id}`);
+  };
+
   const handleDelete = () => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer ce projet?')) {
       try {
@@ -150,7 +143,6 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
           const updatedProjects = projects.filter((p: Project) => p.id !== projectDetails.id);
           localStorage.setItem('projects', JSON.stringify(updatedProjects));
           
-          // Also delete related subprojects
           const subProjectsString = localStorage.getItem('subProjects');
           if (subProjectsString) {
             const subProjects = JSON.parse(subProjectsString);
@@ -181,7 +173,6 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
       <h1 className="text-2xl font-bold mb-8">Détails de projets</h1>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main project details */}
         <div className="lg:col-span-2 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex justify-between items-start mb-4">
             <h2 className="text-xl font-bold">{projectDetails.name}</h2>
@@ -264,6 +255,13 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
               Modifier
             </button>
             <button 
+              onClick={handleDashboard}
+              className="px-4 py-2 border border-[#192759] text-[#192759] rounded-md hover:bg-blue-50 flex items-center"
+            >
+              <BarChart className="mr-2 h-4 w-4" />
+              Tableau de bord
+            </button>
+            <button 
               onClick={printProject}
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center"
             >
@@ -273,9 +271,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
           </div>
         </div>
 
-        {/* Sidebar */}
         <div className="space-y-6">
-          {/* Documents */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <h3 className="text-lg font-medium mb-3">Document du projets</h3>
             <div className="space-y-2 max-h-60 overflow-y-auto">
@@ -297,7 +293,6 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
             </div>
           </div>
 
-          {/* Team Members */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <h3 className="text-lg font-medium mb-3">Membres du projet</h3>
             <div className="space-y-3 max-h-60 overflow-y-auto">
@@ -323,7 +318,6 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
         </div>
       </div>
 
-      {/* Sub Projects */}
       <div className="mt-8">
         <h3 className="text-xl font-medium mb-4">Sous projet</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

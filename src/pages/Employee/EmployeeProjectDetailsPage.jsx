@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
@@ -7,7 +6,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Printer, Download } from 'lucide-react';
+import { ArrowLeft, Printer, Download, BarChart } from 'lucide-react';
 
 const EmployeeProjectDetailsPage = () => {
   const { id } = useParams();
@@ -19,11 +18,9 @@ const EmployeeProjectDetailsPage = () => {
   const [projectMeetings, setProjectMeetings] = useState([]);
   
   useEffect(() => {
-    // Fetch project details
     const fetchProject = () => {
       setLoading(true);
       try {
-        // Get projects from localStorage
         const projectsString = localStorage.getItem('projects');
         if (projectsString) {
           const projects = JSON.parse(projectsString);
@@ -31,7 +28,6 @@ const EmployeeProjectDetailsPage = () => {
           if (foundProject) {
             setProject(foundProject);
             
-            // Fetch sub-projects for this project
             const subProjectsString = localStorage.getItem('subProjects');
             if (subProjectsString) {
               const allSubProjects = JSON.parse(subProjectsString);
@@ -39,7 +35,6 @@ const EmployeeProjectDetailsPage = () => {
               setSubProjects(projectSubProjects);
             }
             
-            // Fetch documents for this project
             const documentsString = localStorage.getItem('documents');
             if (documentsString) {
               const allDocuments = JSON.parse(documentsString);
@@ -47,7 +42,6 @@ const EmployeeProjectDetailsPage = () => {
               setProjectDocuments(projectDocs);
             }
             
-            // Fetch meetings for this project
             const meetingsString = localStorage.getItem('meetings');
             if (meetingsString) {
               const allMeetings = JSON.parse(meetingsString);
@@ -55,7 +49,6 @@ const EmployeeProjectDetailsPage = () => {
               setProjectMeetings(projectMeetings);
             }
           } else {
-            // Project not found
             console.error('Project not found');
           }
         }
@@ -73,8 +66,11 @@ const EmployeeProjectDetailsPage = () => {
     window.print();
   };
   
+  const handleDashboard = () => {
+    navigate(`/employee/projects/dashboard/${id}`);
+  };
+  
   const handleDownload = (document) => {
-    // Create a dummy anchor element to trigger download
     const link = document.createElement('a');
     link.href = document.fileUrl || `/documents/${document.fileName || 'document'}`;
     link.download = document.fileName || 'document';
@@ -113,15 +109,26 @@ const EmployeeProjectDetailsPage = () => {
           </Button>
           <h1 className="text-2xl font-bold">{project.name}</h1>
         </div>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={handlePrint}
-          className="flex items-center gap-1"
-        >
-          <Printer className="h-4 w-4" />
-          <span>Imprimer</span>
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleDashboard}
+            className="flex items-center gap-1"
+          >
+            <BarChart className="h-4 w-4" />
+            <span>Tableau de bord</span>
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handlePrint}
+            className="flex items-center gap-1"
+          >
+            <Printer className="h-4 w-4" />
+            <span>Imprimer</span>
+          </Button>
+        </div>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

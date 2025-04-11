@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { SubProject } from '@/components/SubProjectCard';
-import { ArrowLeft, Printer, Download } from 'lucide-react';
+import { ArrowLeft, Printer, Download, BarChart } from 'lucide-react';
 import SubProjectMembersList from '@/components/SubProjectMembersList';
 
 type Document = {
@@ -95,6 +95,10 @@ const SubProjectDetailsPage: React.FC = () => {
 
   const handleBack = () => {
     navigate('/sous-projet');
+  };
+  
+  const handleDashboard = () => {
+    navigate(`/sous-projet/dashboard/${subProjectDetails.id}`);
   };
   
   // Delete functionality
@@ -227,6 +231,13 @@ const SubProjectDetailsPage: React.FC = () => {
               className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
             >
               Modifier
+            </button>
+            <button 
+              onClick={handleDashboard}
+              className="px-4 py-2 border border-[#192759] text-[#192759] rounded-md hover:bg-blue-50 flex items-center"
+            >
+              <BarChart className="mr-2 h-4 w-4" />
+              Tableau de bord
             </button>
             <button 
               onClick={printSubProject}
