@@ -56,10 +56,10 @@ const EmployeeProjectDashboardPage = () => {
   
   const getBudgetData = () => {
     return [
-      { name: 'Completed', value: 32, fill: '#008080' },
-      { name: 'On Hold', value: 25, fill: '#1E90FF' },
-      { name: 'On Progress', value: 25, fill: '#6495ED' },
-      { name: 'Pending', value: 18, fill: '#87CEEB' },
+      { name: 'Complété', value: 32, fill: '#008080' },
+      { name: 'En attente', value: 25, fill: '#1E90FF' },
+      { name: 'En cours', value: 25, fill: '#6495ED' },
+      { name: 'En planification', value: 18, fill: '#87CEEB' },
     ];
   };
   
@@ -121,7 +121,7 @@ const EmployeeProjectDashboardPage = () => {
         <Card>
           <CardHeader className="pb-2">
             <h3 className="text-lg font-medium">Budget</h3>
-            <Badge className="bg-blue-50 text-blue-700">This Week</Badge>
+            <Badge className="bg-blue-50 text-blue-700">Cette semaine</Badge>
           </CardHeader>
           <CardContent className="p-4">
             <ResponsiveContainer width="100%" height={300}>
@@ -147,7 +147,7 @@ const EmployeeProjectDashboardPage = () => {
         <Card>
           <CardHeader className="pb-2">
             <h3 className="text-lg font-medium">État d'avancement de projet</h3>
-            <Badge className="bg-blue-50 text-blue-700">This Week</Badge>
+            <Badge className="bg-blue-50 text-blue-700">Cette semaine</Badge>
           </CardHeader>
           <CardContent className="p-4">
             <ResponsiveContainer width="100%" height={300}>
@@ -170,7 +170,7 @@ const EmployeeProjectDashboardPage = () => {
         <Card>
           <CardHeader className="pb-2">
             <h3 className="text-lg font-medium">État d'avancement des sous projets</h3>
-            <Badge className="bg-blue-50 text-blue-700">This Week</Badge>
+            <Badge className="bg-blue-50 text-blue-700">Cette semaine</Badge>
           </CardHeader>
           <CardContent className="p-4">
             <ResponsiveContainer width="100%" height={300}>
@@ -190,35 +190,43 @@ const EmployeeProjectDashboardPage = () => {
         {/* Project Stats */}
         <div className="grid grid-cols-1 gap-4">
           <Card>
-            <CardContent className="p-4 flex flex-col sm:flex-row justify-between">
-              <div className="mb-4 sm:mb-0">
-                <h3 className="text-gray-500 text-sm">Temps réel du projet</h3>
-                <p className="text-lg font-semibold text-blue-600">12 mois</p>
-              </div>
-              <div className="mb-4 sm:mb-0">
-                <h3 className="text-gray-500 text-sm">Temps supposé du projet</h3>
-                <p className="text-lg font-semibold text-blue-600">12 mois</p>
-              </div>
-              <div>
-                <h3 className="text-gray-500 text-sm">différence</h3>
-                <p className="text-lg font-semibold text-blue-600">0 mois</p>
+            <CardContent className="p-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <h3 className="text-gray-500 text-sm">Temps réel du projet</h3>
+                  <p className="text-lg font-semibold text-blue-600 text-center bg-blue-50 p-2 mt-2 rounded-md">12 mois</p>
+                </div>
+                <div>
+                  <h3 className="text-gray-500 text-sm">Temps supposé du projet</h3>
+                  <p className="text-lg font-semibold text-blue-600 text-center bg-blue-50 p-2 mt-2 rounded-md">12 mois</p>
+                </div>
+                <div>
+                  <h3 className="text-gray-500 text-sm">différence</h3>
+                  <p className="text-lg font-semibold text-blue-600 text-center bg-blue-50 p-2 mt-2 rounded-md">0 mois</p>
+                </div>
               </div>
             </CardContent>
           </Card>
           
           <Card>
-            <CardContent className="p-4 flex flex-col sm:flex-row justify-between">
-              <div className="mb-4 sm:mb-0">
-                <h3 className="text-gray-500 text-sm">Budget réel du projet</h3>
-                <p className="text-lg font-semibold text-blue-600">{project.budget || "N/A"}</p>
-              </div>
-              <div className="mb-4 sm:mb-0">
-                <h3 className="text-gray-500 text-sm">Budget supposé du projet</h3>
-                <p className="text-lg font-semibold text-blue-600">{project.budget || "N/A"}</p>
-              </div>
-              <div>
-                <h3 className="text-gray-500 text-sm">différence</h3>
-                <p className="text-lg font-semibold text-blue-600">0 Da</p>
+            <CardContent className="p-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <h3 className="text-gray-500 text-sm">Budget réel du projet</h3>
+                  <p className="text-lg font-semibold text-blue-600 text-center bg-blue-50 p-2 mt-2 rounded-md">
+                    {project.budget || "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <h3 className="text-gray-500 text-sm">Budget supposé du projet</h3>
+                  <p className="text-lg font-semibold text-blue-600 text-center bg-blue-50 p-2 mt-2 rounded-md">
+                    {project.budget || "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <h3 className="text-gray-500 text-sm">différence</h3>
+                  <p className="text-lg font-semibold text-blue-600 text-center bg-blue-50 p-2 mt-2 rounded-md">0 Da</p>
+                </div>
               </div>
             </CardContent>
           </Card>
