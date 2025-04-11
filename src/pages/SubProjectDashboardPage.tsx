@@ -3,9 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { SubProject } from '@/components/SubProjectCard';
 import { ArrowLeft } from 'lucide-react';
-import { PieChart, Pie, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 
 type Incident = {
   id: string;
@@ -14,6 +13,18 @@ type Incident = {
   status: string;
   createdAt: string;
   subProjectId?: string;
+};
+
+type SubProject = {
+  id: string;
+  name: string;
+  description: string;
+  projectId: string;
+  status?: string;
+  startDate?: string;
+  endDate?: string;
+  // Note: budget is optional to fix the TypeScript errors
+  budget?: string;
 };
 
 const SubProjectDashboardPage: React.FC = () => {
@@ -65,12 +76,12 @@ const SubProjectDashboardPage: React.FC = () => {
   
   const getSubProjectProgressData = () => {
     return [
-      { name: 'Oct 2021', 'Projet A': 5, 'Projet B': 3 },
-      { name: 'Nov 2021', 'Projet A': 4, 'Projet B': 2 },
-      { name: 'Dec 2021', 'Projet A': 6, 'Projet B': 4 },
-      { name: 'Jan 2022', 'Projet A': 8, 'Projet B': 6 },
-      { name: 'Feb 2022', 'Projet A': 7, 'Projet B': 5 },
-      { name: 'Mar 2022', 'Projet A': 9, 'Projet B': 7 },
+      { name: 'Oct 2021', progress: 4, budget: 8 },
+      { name: 'Nov 2021', progress: 3, budget: 6 },
+      { name: 'Dec 2021', progress: 5, budget: 4 },
+      { name: 'Jan 2022', progress: 7, budget: 8 },
+      { name: 'Feb 2022', progress: 6, budget: 9 },
+      { name: 'Mar 2022', progress: 5, budget: 7 },
     ];
   };
   
@@ -104,14 +115,14 @@ const SubProjectDashboardPage: React.FC = () => {
         </button>
       </div>
       
-      <h1 className="text-2xl font-bold mb-8">Tableaux de bord</h1>
+      <h1 className="text-2xl font-bold mb-8">Tableaux de bord - {subProject.name}</h1>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Budget Chart */}
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">Budget</CardTitle>
-            <Badge variant="outline" className="bg-blue-50 text-blue-700">This Week</Badge>
+            <Badge variant="outline" className="bg-blue-50 text-blue-700 absolute top-4 right-4">This Week</Badge>
           </CardHeader>
           <CardContent className="p-4">
             <ResponsiveContainer width="100%" height={300}>
@@ -125,9 +136,18 @@ const SubProjectDashboardPage: React.FC = () => {
                   fill="#8884d8"
                   dataKey="value"
                   label={({ name, value }) => `${name} ${value}%`}
-                />
+                >
+                  {getBudgetData().map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.fill} />
+                  ))}
+                </Pie>
                 <Tooltip />
-                <Legend />
+                <Legend 
+                  align="right" 
+                  verticalAlign="middle" 
+                  layout="vertical"
+                  iconType="circle"
+                />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
@@ -136,8 +156,8 @@ const SubProjectDashboardPage: React.FC = () => {
         {/* SubProject Progress */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg">État d'avancement des sous projets</CardTitle>
-            <Badge variant="outline" className="bg-blue-50 text-blue-700">This Week</Badge>
+            <CardTitle className="text-lg">État d'avancement</CardTitle>
+            <Badge variant="outline" className="bg-blue-50 text-blue-700 absolute top-4 right-4">This Week</Badge>
           </CardHeader>
           <CardContent className="p-4">
             <ResponsiveContainer width="100%" height={300}>
@@ -147,75 +167,91 @@ const SubProjectDashboardPage: React.FC = () => {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="Projet A" stroke="#FF6B6B" activeDot={{ r: 8 }} />
-                <Line type="monotone" dataKey="Projet B" stroke="#4D4DFF" />
+                <Line type="monotone" dataKey="progress" stroke="#FF6B6B" activeDot={{ r: 8 }} name="Progrès" />
+                <Line type="monotone" dataKey="budget" stroke="#4D4DFF" name="Budget" />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
       </div>
       
-      {/* SubProject Stats */}
-      <div className="grid grid-cols-1 gap-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card>
-            <CardContent className="p-4">
-              <h3 className="text-gray-500 text-sm">Temps réel du sous projet</h3>
-              <p className="text-lg font-semibold text-blue-600 text-center bg-blue-50 p-2 mt-2 rounded-md">12 mois</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-4">
-              <h3 className="text-gray-500 text-sm">Temps supposé du sous projet</h3>
-              <p className="text-lg font-semibold text-blue-600 text-center bg-blue-50 p-2 mt-2 rounded-md">12 mois</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-4">
-              <h3 className="text-gray-500 text-sm">différence</h3>
-              <p className="text-lg font-semibold text-blue-600 text-center bg-blue-50 p-2 mt-2 rounded-md">0 mois</p>
-            </CardContent>
-          </Card>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card>
-            <CardContent className="p-4">
-              <h3 className="text-gray-500 text-sm">Budget réel du sous projet</h3>
-              <p className="text-lg font-semibold text-blue-600 text-center bg-blue-50 p-2 mt-2 rounded-md">
-                {subProject.budget || "N/A"}
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-4">
-              <h3 className="text-gray-500 text-sm">Budget supposé du sous projet</h3>
-              <p className="text-lg font-semibold text-blue-600 text-center bg-blue-50 p-2 mt-2 rounded-md">
-                {subProject.budget || "N/A"}
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-4">
-              <h3 className="text-gray-500 text-sm">différence</h3>
-              <p className="text-lg font-semibold text-blue-600 text-center bg-blue-50 p-2 mt-2 rounded-md">0 Da</p>
-            </CardContent>
-          </Card>
-        </div>
+      <div className="grid grid-cols-1 gap-4 mb-8">
+        {/* SubProject Stats */}
+        <Card>
+          <CardContent className="p-4 flex justify-between">
+            <div>
+              <h3 className="text-gray-500 text-sm">Temps réel</h3>
+              <p className="text-lg font-semibold text-blue-600">6 mois</p>
+            </div>
+            <div>
+              <h3 className="text-gray-500 text-sm">Temps prévu</h3>
+              <p className="text-lg font-semibold text-blue-600">8 mois</p>
+            </div>
+            <div>
+              <h3 className="text-gray-500 text-sm">Différence</h3>
+              <p className="text-lg font-semibold text-blue-600">-2 mois</p>
+            </div>
+          </CardContent>
+        </Card>
         
         <Card>
-          <CardContent className="p-4">
-            <h3 className="text-gray-500 text-sm mb-2">Incidents</h3>
-            <p className="text-xl font-semibold text-center text-blue-600 bg-blue-50 p-3 rounded-md">
-              {incidents.length} incident{incidents.length !== 1 ? 's' : ''}
-            </p>
+          <CardContent className="p-4 flex justify-between">
+            <div>
+              <h3 className="text-gray-500 text-sm">Budget réel</h3>
+              <p className="text-lg font-semibold text-blue-600">{subProject.budget || "N/A"}</p>
+            </div>
+            <div>
+              <h3 className="text-gray-500 text-sm">Budget prévu</h3>
+              <p className="text-lg font-semibold text-blue-600">{subProject.budget || "N/A"}</p>
+            </div>
+            <div>
+              <h3 className="text-gray-500 text-sm">Différence</h3>
+              <p className="text-lg font-semibold text-blue-600">0 Da</p>
+            </div>
           </CardContent>
         </Card>
       </div>
+      
+      {/* Recent Incidents */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="text-lg">Incidents récents</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left p-2">Titre</th>
+                  <th className="text-left p-2">Date</th>
+                  <th className="text-left p-2">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {incidents.slice(0, 5).map((incident, index) => (
+                  <tr 
+                    key={incident.id} 
+                    className={`hover:bg-gray-50 cursor-pointer ${index !== incidents.length - 1 ? 'border-b' : ''}`}
+                  >
+                    <td className="p-2">{incident.title}</td>
+                    <td className="p-2">{incident.createdAt}</td>
+                    <td className="p-2">
+                      <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        {incident.status || 'En cours'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+                {incidents.length === 0 && (
+                  <tr>
+                    <td colSpan={3} className="p-4 text-center">Aucun incident récent</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
