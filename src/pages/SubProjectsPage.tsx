@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -51,8 +52,7 @@ const SubProjectsPage = () => {
             <SubProjectCard
               key={subProject.id}
               subProject={subProject}
-              onView={() => handleViewSubProject(subProject.id)}
-              onEdit={() => handleEditSubProject(subProject.id)}
+              onDelete={() => {}}
             />
           ))}
         </div>

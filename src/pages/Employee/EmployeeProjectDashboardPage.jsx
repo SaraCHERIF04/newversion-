@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { PieChart, Pie, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Progress } from '@/components/ui/progress';
 
 const EmployeeProjectDashboardPage = () => {
   const { id } = useParams();
@@ -83,6 +84,24 @@ const EmployeeProjectDashboardPage = () => {
       { name: 'Feb 2022', 'Projet A': 7, 'Projet B': 5 },
       { name: 'Mar 2022', 'Projet A': 9, 'Projet B': 7 },
     ];
+  };
+
+  // Generate progress data for each subproject
+  const getSubProjectProgressData = () => {
+    if (!subProjects || subProjects.length === 0) {
+      return [];
+    }
+
+    return subProjects.map(subProject => {
+      // Generate a random progress value between 0-100 for demonstration
+      const progress = Math.floor(Math.random() * 100);
+      return {
+        id: subProject.id,
+        name: subProject.name,
+        progress: progress,
+        status: subProject.status || 'En cours'
+      };
+    });
   };
   
   if (loading) {
@@ -166,7 +185,7 @@ const EmployeeProjectDashboardPage = () => {
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        {/* Subprojects Progress */}
+        {/* Subprojects Progress Chart */}
         <Card>
           <CardHeader className="pb-2">
             <h3 className="text-lg font-medium">État d'avancement des sous projets</h3>
@@ -187,51 +206,89 @@ const EmployeeProjectDashboardPage = () => {
           </CardContent>
         </Card>
         
+        {/* Individual Subproject Progress */}
+        <Card>
+          <CardHeader className="pb-2">
+            <h3 className="text-lg font-medium">Progression des sous-projets</h3>
+            <Badge className="bg-blue-50 text-blue-700">État actuel</Badge>
+          </CardHeader>
+          <CardContent className="p-4">
+            <div className="space-y-4">
+              {getSubProjectProgressData().map((subProject) => (
+                <div key={subProject.id} className="space-y-1">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">{subProject.name}</span>
+                    <span className="text-sm text-gray-500">{subProject.progress}%</span>
+                  </div>
+                  <Progress value={subProject.progress} className="h-2" />
+                  <div className="flex justify-end">
+                    <Badge 
+                      className={`${
+                        subProject.status === 'Terminé' ? 'bg-green-100 text-green-800' :
+                        subProject.status === 'En cours' ? 'bg-blue-100 text-blue-800' :
+                        subProject.status === 'En attente' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}
+                    >
+                      {subProject.status}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+              {getSubProjectProgressData().length === 0 && (
+                <div className="text-center py-4 text-gray-500">
+                  Aucun sous-projet associé à ce projet
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      
+      <div className="grid grid-cols-1 gap-4">
         {/* Project Stats */}
-        <div className="grid grid-cols-1 gap-4">
-          <Card>
-            <CardContent className="p-4 flex flex-col sm:flex-row justify-between">
-              <div className="mb-4 sm:mb-0">
-                <h3 className="text-gray-500 text-sm">Temps réel du projet</h3>
-                <p className="text-lg font-semibold text-blue-600">12 mois</p>
-              </div>
-              <div className="mb-4 sm:mb-0">
-                <h3 className="text-gray-500 text-sm">Temps supposé du projet</h3>
-                <p className="text-lg font-semibold text-blue-600">12 mois</p>
-              </div>
-              <div>
-                <h3 className="text-gray-500 text-sm">différence</h3>
-                <p className="text-lg font-semibold text-blue-600">0 mois</p>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-4 flex flex-col sm:flex-row justify-between">
-              <div className="mb-4 sm:mb-0">
-                <h3 className="text-gray-500 text-sm">Budget réel du projet</h3>
-                <p className="text-lg font-semibold text-blue-600">{project.budget || "N/A"}</p>
-              </div>
-              <div className="mb-4 sm:mb-0">
-                <h3 className="text-gray-500 text-sm">Budget supposé du projet</h3>
-                <p className="text-lg font-semibold text-blue-600">{project.budget || "N/A"}</p>
-              </div>
-              <div>
-                <h3 className="text-gray-500 text-sm">différence</h3>
-                <p className="text-lg font-semibold text-blue-600">0 Da</p>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-4">
-              <h3 className="text-gray-500 text-sm mb-2">Incidents</h3>
-              <p className="text-xl font-semibold text-center text-blue-600 bg-blue-50 p-3 rounded-md">
-                {incidents.length} incident{incidents.length !== 1 ? 's' : ''}
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+        <Card>
+          <CardContent className="p-4 flex flex-col sm:flex-row justify-between">
+            <div className="mb-4 sm:mb-0">
+              <h3 className="text-gray-500 text-sm">Temps réel du projet</h3>
+              <p className="text-lg font-semibold text-blue-600">12 mois</p>
+            </div>
+            <div className="mb-4 sm:mb-0">
+              <h3 className="text-gray-500 text-sm">Temps supposé du projet</h3>
+              <p className="text-lg font-semibold text-blue-600">12 mois</p>
+            </div>
+            <div>
+              <h3 className="text-gray-500 text-sm">différence</h3>
+              <p className="text-lg font-semibold text-blue-600">0 mois</p>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4 flex flex-col sm:flex-row justify-between">
+            <div className="mb-4 sm:mb-0">
+              <h3 className="text-gray-500 text-sm">Budget réel du projet</h3>
+              <p className="text-lg font-semibold text-blue-600">{project.budget || "N/A"}</p>
+            </div>
+            <div className="mb-4 sm:mb-0">
+              <h3 className="text-gray-500 text-sm">Budget supposé du projet</h3>
+              <p className="text-lg font-semibold text-blue-600">{project.budget || "N/A"}</p>
+            </div>
+            <div>
+              <h3 className="text-gray-500 text-sm">différence</h3>
+              <p className="text-lg font-semibold text-blue-600">0 Da</p>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <h3 className="text-gray-500 text-sm mb-2">Incidents</h3>
+            <p className="text-xl font-semibold text-center text-blue-600 bg-blue-50 p-3 rounded-md">
+              {incidents.length} incident{incidents.length !== 1 ? 's' : ''}
+            </p>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
