@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -187,12 +186,12 @@ function App() {
               <Route path="project" element={<ProjectsPage />} />
               <Route path="project/new" element={<ProjectNewPage />} />
               <Route path="project/edit/:id" element={<ProjectEditPage />} />
-              <Route path="project/details/:id" element={<ProjectDetailsPage />} />
+              <Route path="project/:id" element={<ProjectDetailsPage />} />
               <Route path="project/dashboard/:id" element={<ProjectDashboardPage />} />
               <Route path="sous-projet" element={<SubProjectsPage />} />
               <Route path="sous-projet/new" element={<SubProjectNewPage />} />
               <Route path="sous-projet/edit/:id" element={<SubProjectEditPage />} />
-              <Route path="sous-projet/details/:id" element={<SubProjectDetailsPage />} />
+              <Route path="sous-projet/:id" element={<SubProjectDetailsPage />} />
               <Route path="sous-projet/dashboard/:id" element={<SubProjectDashboardPage />} />
               <Route path="documents" element={<DocumentsPage />} />
               <Route path="documents/new" element={<DocumentFormPage />} />

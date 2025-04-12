@@ -1,172 +1,128 @@
-
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import ProjectCard, { Project } from '@/components/ProjectCard';
-import { useSearchQuery } from '@/components/Layout/MainLayout';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Plus, Edit, Trash2, Eye } from 'lucide-react';
+import { Project } from '@/components/ProjectCard';
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 
-// Sample data for projects
-const sampleProjects: Project[] = [
-  {
-    id: '1',
-    name: 'Nom projet',
-    description: 'Petite description du projet',
-    status: 'En cours',
-    deadline: '23 JUIN 2023',
-    members: [
-      { id: '1', name: 'User 1', avatar: 'https://randomuser.me/api/portraits/women/44.jpg' },
-      { id: '2', name: 'User 2', avatar: 'https://randomuser.me/api/portraits/men/32.jpg' },
-      { id: '3', name: 'User 3', avatar: 'https://randomuser.me/api/portraits/men/44.jpg' },
-      { id: '4', name: 'User 4', avatar: 'https://randomuser.me/api/portraits/women/58.jpg' },
-    ],
-    documentsCount: 1,
-  },
-  {
-    id: '2',
-    name: 'Nom projet',
-    description: 'Petite description du projet',
-    status: 'Terminé',
-    deadline: '14 JUIN 2023',
-    members: [
-      { id: '1', name: 'User 1', avatar: 'https://randomuser.me/api/portraits/women/44.jpg' },
-      { id: '2', name: 'User 2', avatar: 'https://randomuser.me/api/portraits/men/32.jpg' },
-      { id: '3', name: 'User 3', avatar: 'https://randomuser.me/api/portraits/men/44.jpg' },
-    ],
-    documentsCount: 13,
-  },
-  {
-    id: '3',
-    name: 'Nom projet',
-    description: 'Petite description du projet',
-    status: 'En cours',
-    members: [
-      { id: '1', name: 'User 1', avatar: 'https://randomuser.me/api/portraits/women/44.jpg' },
-      { id: '2', name: 'User 2', avatar: 'https://randomuser.me/api/portraits/men/32.jpg' },
-      { id: '3', name: 'User 3', avatar: 'https://randomuser.me/api/portraits/men/44.jpg' },
-    ],
-    documentsCount: 5,
-  },
-  {
-    id: '4',
-    name: 'Nom projet',
-    description: 'Petite description du projet',
-    status: 'Annulé',
-    members: [
-      { id: '1', name: 'User 1', avatar: 'https://randomuser.me/api/portraits/women/44.jpg' },
-      { id: '2', name: 'User 2', avatar: 'https://randomuser.me/api/portraits/men/32.jpg' },
-      { id: '3', name: 'User 3', avatar: 'https://randomuser.me/api/portraits/men/44.jpg' },
-    ],
-    documentsCount: 5,
-  },
-  {
-    id: '5',
-    name: 'Nom projet',
-    description: 'Petite description du projet',
-    status: 'En attente',
-    members: [
-      { id: '1', name: 'User 1', avatar: 'https://randomuser.me/api/portraits/women/44.jpg' },
-      { id: '2', name: 'User 2', avatar: 'https://randomuser.me/api/portraits/men/32.jpg' },
-      { id: '3', name: 'User 3', avatar: 'https://randomuser.me/api/portraits/men/44.jpg' },
-    ],
-    documentsCount: 5,
-  },
-  {
-    id: '6',
-    name: 'Nom projet',
-    description: 'Petite description du projet',
-    status: 'Terminé',
-    members: [
-      { id: '1', name: 'User 1', avatar: 'https://randomuser.me/api/portraits/women/44.jpg' },
-      { id: '2', name: 'User 2', avatar: 'https://randomuser.me/api/portraits/men/32.jpg' },
-      { id: '3', name: 'User 3', avatar: 'https://randomuser.me/api/portraits/men/44.jpg' },
-    ],
-    documentsCount: 5,
-  },
-];
-
-const ProjectsPage: React.FC = () => {
-  const { searchQuery } = useSearchQuery();
-  const [localSearchTerm, setLocalSearchTerm] = useState('');
-  const [allProjects, setAllProjects] = useState<Project[]>([]);
-  const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
-
-  // Load projects from localStorage on component mount
+const ProjectsPage = () => {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  
   useEffect(() => {
-    const savedProjects = localStorage.getItem('projects');
-    if (savedProjects) {
+    const storedProjects = localStorage.getItem('projects');
+    if (storedProjects) {
       try {
-        const parsedProjects = JSON.parse(savedProjects);
-        setAllProjects([...parsedProjects, ...sampleProjects]);
+        setProjects(JSON.parse(storedProjects));
       } catch (error) {
-        console.error('Error parsing projects from localStorage:', error);
-        setAllProjects(sampleProjects);
+        console.error("Erreur lors du chargement des projets:", error);
       }
-    } else {
-      setAllProjects(sampleProjects);
     }
+    setLoading(false);
   }, []);
 
-  // Effect to handle both header search and local search
-  useEffect(() => {
-    const combinedSearchTerm = searchQuery || localSearchTerm;
-    const results = allProjects.filter(project =>
-      project.name.toLowerCase().includes(combinedSearchTerm.toLowerCase()) ||
-      project.description.toLowerCase().includes(combinedSearchTerm.toLowerCase())
-    );
-    setFilteredProjects(results);
-  }, [searchQuery, localSearchTerm, allProjects]);
+  const handleCreateProject = () => {
+    navigate('/project/new');
+  };
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLocalSearchTerm(e.target.value);
+  const handleEditProject = (id: string) => {
+    navigate(`/project/edit/${id}`);
+  };
+
+  const handleDeleteProject = (id: string) => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce projet?')) {
+      try {
+        const storedProjects = localStorage.getItem('projects');
+        if (storedProjects) {
+          const projects = JSON.parse(storedProjects);
+          const updatedProjects = projects.filter((project: Project) => project.id !== id);
+          localStorage.setItem('projects', JSON.stringify(updatedProjects));
+          setProjects(updatedProjects);
+        }
+      } catch (error) {
+        console.error("Erreur lors de la suppression du projet:", error);
+      }
+    }
+  };
+
+  const handleViewProject = (id: string) => {
+    navigate(`/project/${id}`);
   };
 
   return (
-    <div>
-      <div className="mb-6 flex justify-between items-center">
+    <div className="container mx-auto py-10">
+      <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Projets</h1>
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Rechercher un projet..."
-              value={localSearchTerm || searchQuery}
-              onChange={handleSearch}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
-            />
-            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-            </div>
-          </div>
-          <Link
-            to="/project/new"
-            className="bg-[#192759] text-white px-4 py-2 rounded-md hover:bg-blue-700"
-          >
-            Créer nouveau
-          </Link>
-        </div>
+        <Button onClick={handleCreateProject} className="bg-[#192759] text-white hover:bg-blue-700">
+          <Plus className="mr-2 h-4 w-4" />
+          Nouveau projet
+        </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredProjects.map(project => (
-          <Link key={project.id} to={`/project/${project.id}`} className="block">
-            <div className="h-full transition-transform hover:scale-102 hover:shadow-lg">
-              <ProjectCard project={project} />
-            </div>
-          </Link>
-        ))}
-      </div>
+      {loading ? (
+        <p>Chargement des projets...</p>
+      ) : (
+        <div className="grid gap-4">
+          {projects.length === 0 ? (
+            <Card>
+              <CardContent className="py-8 text-center">
+                <CardTitle>Aucun projet trouvé</CardTitle>
+                <CardDescription>Cliquez sur le bouton "Nouveau projet" pour en créer un.</CardDescription>
+              </CardContent>
+            </Card>
+          ) : (
+            <Table>
+              <TableCaption>A list of your recent projects.</TableCaption>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[100px]">Id</TableHead>
+                  <TableHead>Project</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {projects.map((project) => (
+                  <TableRow key={project.id}>
+                    <TableCell className="font-medium">{project.id}</TableCell>
+                    <TableCell>{project.name}</TableCell>
+                    <TableCell>{project.status}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button size="sm" variant="ghost" onClick={() => handleViewProject(project.id)}>
+                          <Eye className="h-4 w-4 mr-2" />
+                          View
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => handleEditProject(project.id)}>
+                          <Edit className="h-4 w-4 mr-2" />
+                          Edit
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => handleDeleteProject(project.id)}>
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </div>
+      )}
     </div>
   );
 };
