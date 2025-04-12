@@ -10,12 +10,12 @@ const COLORS = ['#008080', '#1e40af', '#3b82f6', '#93c5fd'];
 
 // Pour le graphique linéaire
 const projectData = [
-  { month: 'Oct 2021', projet1: 3, projet2: 4 },
-  { month: 'Nov 2021', projet1: 4, projet2: 3 },
-  { month: 'Dec 2021', projet1: 5, projet2: 2 },
-  { month: 'Jan 2022', projet1: 6, projet2: 3 },
-  { month: 'Feb 2022', projet1: 5, projet2: 5 },
-  { month: 'Mar 2022', projet1: 7, projet2: 4 }
+  { month: 'Oct 2021', 'Projet A': 3, 'Projet B': 4 },
+  { month: 'Nov 2021', 'Projet A': 4, 'Projet B': 3 },
+  { month: 'Dec 2021', 'Projet A': 5, 'Projet B': 2 },
+  { month: 'Jan 2022', 'Projet A': 6, 'Projet B': 3 },
+  { month: 'Feb 2022', 'Projet A': 5, 'Projet B': 5 },
+  { month: 'Mar 2022', 'Projet A': 7, 'Projet B': 4 }
 ];
 
 const budgetData = [
@@ -122,8 +122,8 @@ const ChefDashboardPage: React.FC = () => {
                     contentStyle={{ backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)' }}
                   />
                   <Legend />
-                  <Line type="monotone" dataKey="projet1" stroke="#FF6B6B" activeDot={{ r: 8 }} name="Projet A" />
-                  <Line type="monotone" dataKey="projet2" stroke="#4D4DFF" name="Projet B" />
+                  <Line type="monotone" dataKey="Projet A" stroke="#FF6B6B" activeDot={{ r: 8 }} />
+                  <Line type="monotone" dataKey="Projet B" stroke="#4D4DFF" />
                 </LineChart>
               </ResponsiveContainer>
             </div>

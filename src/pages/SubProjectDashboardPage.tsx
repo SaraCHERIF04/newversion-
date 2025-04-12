@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft } from 'lucide-react';
 import { PieChart, Pie, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 
+const COLORS = ['#008080', '#1E90FF', '#6495ED', '#87CEEB'];
+
 type Incident = {
   id: string;
   title: string;
@@ -25,8 +27,6 @@ type SubProject = {
   endDate?: string;
   budget?: string;
 };
-
-const COLORS = ['#008080', '#1E90FF', '#6495ED', '#87CEEB'];
 
 const SubProjectDashboardPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();

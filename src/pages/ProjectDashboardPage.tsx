@@ -5,26 +5,27 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft } from 'lucide-react';
 import { PieChart, Pie, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
-import { ExtendedProject } from '@/pages/ProjectDetailsPage';
-import { SubProject } from '@/components/SubProjectCard';
-
-type Incident = {
-  id: string;
-  title: string;
-  description: string;
-  status: string;
-  createdAt: string;
-  projectId?: string;
-};
 
 const COLORS = ['#008080', '#1E90FF', '#6495ED', '#87CEEB'];
+
+type Project = {
+  id: string;
+  name: string;
+  description?: string;
+  status: string;
+  chef?: string;
+  region?: string;
+  budget?: string;
+  startDate?: string;
+  endDate?: string;
+  members?: Array<{id: string, name: string, avatar: string}>;
+};
 
 const ProjectDashboardPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [project, setProject] = useState<ExtendedProject | null>(null);
-  const [subProjects, setSubProjects] = useState<SubProject[]>([]);
-  const [incidents, setIncidents] = useState<Incident[]>([]);
+  const [project, setProject] = useState<Project | null>(null);
+  const [incidents, setIncidents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
@@ -35,25 +36,17 @@ const ProjectDashboardPage: React.FC = () => {
         const projectsString = localStorage.getItem('projects');
         if (projectsString && id) {
           const projects = JSON.parse(projectsString);
-          const projectData = projects.find((p: ExtendedProject) => p.id === id);
+          const projectData = projects.find((p: any) => p.id === id);
           if (projectData) {
             setProject(projectData);
           }
-        }
-        
-        // Fetch subprojects
-        const subProjectsString = localStorage.getItem('subProjects');
-        if (subProjectsString && id) {
-          const allSubProjects = JSON.parse(subProjectsString);
-          const filteredSubProjects = allSubProjects.filter((sp: SubProject) => sp.projectId === id);
-          setSubProjects(filteredSubProjects);
         }
         
         // Fetch incidents
         const incidentsString = localStorage.getItem('incidents');
         if (incidentsString && id) {
           const allIncidents = JSON.parse(incidentsString);
-          const filteredIncidents = allIncidents.filter((incident: Incident) => incident.projectId === id);
+          const filteredIncidents = allIncidents.filter((incident: any) => incident.projectId === id);
           setIncidents(filteredIncidents);
         }
       } catch (error) {
@@ -83,17 +76,6 @@ const ProjectDashboardPage: React.FC = () => {
       { name: 'Jan 2022', projet: 7, budget: 8 },
       { name: 'Feb 2022', projet: 6, budget: 9 },
       { name: 'Mar 2022', projet: 5, budget: 7 },
-    ];
-  };
-  
-  const getSubProjectsProgressData = () => {
-    return [
-      { name: 'Oct 2021', 'Projet A': 5, 'Projet B': 3 },
-      { name: 'Nov 2021', 'Projet A': 4, 'Projet B': 2 },
-      { name: 'Dec 2021', 'Projet A': 6, 'Projet B': 4 },
-      { name: 'Jan 2022', 'Projet A': 8, 'Projet B': 6 },
-      { name: 'Feb 2022', 'Projet A': 7, 'Projet B': 5 },
-      { name: 'Mar 2022', 'Projet A': 9, 'Projet B': 7 },
     ];
   };
   
@@ -127,7 +109,7 @@ const ProjectDashboardPage: React.FC = () => {
         </button>
       </div>
       
-      <h1 className="text-2xl font-bold mb-8">Tableaux de bord</h1>
+      <h1 className="text-2xl font-bold mb-8">Tableaux de bord - {project.name}</h1>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Budget Chart */}
@@ -150,11 +132,16 @@ const ProjectDashboardPage: React.FC = () => {
                   label={({ name, value }) => `${name} ${value}%`}
                 >
                   {getBudgetData().map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell key={`cell-${index}`} fill={entry.fill} />
                   ))}
                 </Pie>
                 <Tooltip />
-                <Legend />
+                <Legend 
+                  align="right" 
+                  verticalAlign="middle" 
+                  layout="vertical"
+                  iconType="circle"
+                />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
@@ -174,82 +161,91 @@ const ProjectDashboardPage: React.FC = () => {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="projet" stroke="#FF6B6B" activeDot={{ r: 8 }} />
-                <Line type="monotone" dataKey="budget" stroke="#4D4DFF" />
+                <Line type="monotone" dataKey="projet" stroke="#FF6B6B" activeDot={{ r: 8 }} name="Projet A" />
+                <Line type="monotone" dataKey="budget" stroke="#4D4DFF" name="Budget" />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        {/* Subprojects Progress */}
+      <div className="grid grid-cols-1 gap-4 mb-8">
+        {/* Project Stats */}
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">État d'avancement des sous projets</CardTitle>
-            <Badge variant="outline" className="bg-blue-50 text-blue-700 absolute top-4 right-4">This Week</Badge>
-          </CardHeader>
-          <CardContent className="p-4">
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={getSubProjectsProgressData()}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="Projet A" stroke="#FF6B6B" activeDot={{ r: 8 }} />
-                <Line type="monotone" dataKey="Projet B" stroke="#4D4DFF" />
-              </LineChart>
-            </ResponsiveContainer>
+          <CardContent className="p-4 flex justify-between">
+            <div>
+              <h3 className="text-gray-500 text-sm">Temps réel</h3>
+              <p className="text-lg font-semibold text-blue-600">12 mois</p>
+            </div>
+            <div>
+              <h3 className="text-gray-500 text-sm">Temps prévu</h3>
+              <p className="text-lg font-semibold text-blue-600">12 mois</p>
+            </div>
+            <div>
+              <h3 className="text-gray-500 text-sm">Différence</h3>
+              <p className="text-lg font-semibold text-blue-600">0 mois</p>
+            </div>
           </CardContent>
         </Card>
         
-        {/* Project Stats */}
-        <div className="grid grid-cols-1 gap-4">
-          <Card>
-            <CardContent className="p-4 flex justify-between">
-              <div>
-                <h3 className="text-gray-500 text-sm">Temps réel du projet</h3>
-                <p className="text-lg font-semibold text-blue-600">12 mois</p>
-              </div>
-              <div>
-                <h3 className="text-gray-500 text-sm">Temps supposé du projet</h3>
-                <p className="text-lg font-semibold text-blue-600">12 mois</p>
-              </div>
-              <div>
-                <h3 className="text-gray-500 text-sm">différence</h3>
-                <p className="text-lg font-semibold text-blue-600">0 mois</p>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-4 flex justify-between">
-              <div>
-                <h3 className="text-gray-500 text-sm">Budget réel du projet</h3>
-                <p className="text-lg font-semibold text-blue-600">{project.budget || "N/A"}</p>
-              </div>
-              <div>
-                <h3 className="text-gray-500 text-sm">Budget supposé du projet</h3>
-                <p className="text-lg font-semibold text-blue-600">{project.budget || "N/A"}</p>
-              </div>
-              <div>
-                <h3 className="text-gray-500 text-sm">différence</h3>
-                <p className="text-lg font-semibold text-blue-600">0 Da</p>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-4">
-              <h3 className="text-gray-500 text-sm mb-2">Incidents</h3>
-              <p className="text-xl font-semibold text-center text-blue-600 bg-blue-50 p-3 rounded-md">
-                {incidents.length} incident{incidents.length !== 1 ? 's' : ''}
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+        <Card>
+          <CardContent className="p-4 flex justify-between">
+            <div>
+              <h3 className="text-gray-500 text-sm">Budget réel</h3>
+              <p className="text-lg font-semibold text-blue-600">{project.budget || "N/A"}</p>
+            </div>
+            <div>
+              <h3 className="text-gray-500 text-sm">Budget prévu</h3>
+              <p className="text-lg font-semibold text-blue-600">{project.budget || "N/A"}</p>
+            </div>
+            <div>
+              <h3 className="text-gray-500 text-sm">Différence</h3>
+              <p className="text-lg font-semibold text-blue-600">0 Da</p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
+      
+      {/* Recent Incidents */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="text-lg">Incidents récents</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left p-2">Titre</th>
+                  <th className="text-left p-2">Date</th>
+                  <th className="text-left p-2">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {incidents.slice(0, 5).map((incident, index) => (
+                  <tr 
+                    key={incident.id} 
+                    className={`hover:bg-gray-50 cursor-pointer ${index !== incidents.length - 1 ? 'border-b' : ''}`}
+                  >
+                    <td className="p-2">{incident.title}</td>
+                    <td className="p-2">{incident.createdAt}</td>
+                    <td className="p-2">
+                      <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        {incident.status || 'En cours'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+                {incidents.length === 0 && (
+                  <tr>
+                    <td colSpan={3} className="p-4 text-center">Aucun incident récent</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

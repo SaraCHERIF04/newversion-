@@ -80,12 +80,7 @@ const Sidebar = () => {
   ];
 
   const isActive = (item) => {
-    if (item.path === '/dashboard' && location.pathname === '/') {
-      return true;
-    }
-    
-    // Check if we're on a dashboard page and the menu item is dashboard
-    if (item.path === '/dashboard' && location.pathname.includes('/dashboard')) {
+    if (item.path === '/dashboard' && (location.pathname === '/dashboard' || location.pathname.includes('/dashboard'))) {
       return true;
     }
     
