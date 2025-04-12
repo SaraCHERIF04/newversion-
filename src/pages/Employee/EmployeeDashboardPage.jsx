@@ -124,6 +124,7 @@ const EmployeeDashboardPage = () => {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">Statut des sous-projets</CardTitle>
+            <Badge variant="outline" className="bg-blue-50 text-blue-700 absolute top-4 right-4">Vue d'ensemble</Badge>
           </CardHeader>
           <CardContent className="p-4">
             <div className="h-[300px]">
@@ -155,6 +156,7 @@ const EmployeeDashboardPage = () => {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">Progression au fil du temps</CardTitle>
+            <Badge variant="outline" className="bg-blue-50 text-blue-700 absolute top-4 right-4">6 derniers mois</Badge>
           </CardHeader>
           <CardContent className="p-4">
             <div className="h-[300px]">
