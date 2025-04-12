@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -21,30 +20,27 @@ const AboutUsPage = ({ userRole = 'employee' }) => {
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen">
-      {/* Header avec image de fond */}
-      <div className="relative h-[300px] bg-cover bg-center flex items-center justify-center" 
-        style={{ backgroundImage: "url('/lovable-uploads/a9d64634-6787-4936-9b67-0f45093b85a4.png')" }}>
-        <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center">
-          <h1 className="text-4xl font-bold text-white mb-2">À propos de nous</h1>
-          <p className="text-white">SONELGAZ GROUP SPE</p>
+    <div className="bg-gray-200 min-h-screen">
+      {/* Header avec image de fond et poignée de main */}
+      <div className="relative h-[320px] bg-cover bg-center" 
+        style={{ backgroundImage: "url('/lovable-uploads/02dacca4-f631-4e64-9101-ca7dd56b2880.png')" }}>
+        <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center">
+          <h1 className="text-4xl font-bold text-white mb-2">About us</h1>
+          <p className="text-white opacity-80">SONELGAZ GROUP SPE</p>
         </div>
-        <Button 
+        <button 
           onClick={handleBack} 
-          variant="outline" 
-          size="sm" 
-          className="absolute top-4 left-4 bg-white hover:bg-gray-100 text-gray-800"
+          className="absolute top-4 right-4 bg-transparent text-white flex items-center"
         >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Retour
-        </Button>
+          Return back <ArrowLeft className="h-4 w-4 ml-2 transform rotate-180" />
+        </button>
       </div>
 
       {/* Contenu de la page */}
-      <div className="max-w-6xl mx-auto py-12 px-4">
+      <div className="max-w-6xl mx-auto py-6 px-4">
         {/* Introduction */}
-        <div className="bg-white p-6 rounded-lg shadow-md mb-10">
-          <p className="text-base md:text-lg text-gray-700 leading-relaxed">
+        <div className="bg-gray-200 p-6 rounded-lg mb-8">
+          <p className="text-base md:text-lg text-center text-gray-800 leading-relaxed">
             Sonelgaz, créée en 1969, est le principal fournisseur d'électricité et de gaz en Algérie.
             Suite à la loi sur l'électricité et le gaz, elle est passée d'une entreprise intégrée à une
             holding gérant plusieurs filiales. Sonelgaz joue un rôle clé dans le développement
@@ -56,43 +52,43 @@ const AboutUsPage = ({ userRole = 'employee' }) => {
         </div>
 
         {/* Siège social */}
-        <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mb-10">
+        <div className="mb-8">
           <div>
             <img 
-              src="/lovable-uploads/4d60c7f9-2d10-45dc-9f1c-a896a5790d9e.png" 
+              src="/lovable-uploads/549dd4d1-f727-4cfd-a66e-915e0c142ed6.png" 
               alt="Siège Sonelgaz" 
-              className="w-full h-auto rounded-lg shadow-md"
+              className="w-full h-auto rounded-lg"
             />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <div>
             <img 
-              src="/lovable-uploads/987df8d2-4f5c-41f8-ae7b-896457b502da.png" 
+              src="/lovable-uploads/549dd4d1-f727-4cfd-a66e-915e0c142ed6.png" 
               alt="Bâtiment Sonelgaz 1" 
-              className="w-full h-auto rounded-lg shadow-md"
+              className="w-full h-auto rounded-lg"
             />
           </div>
           <div>
             <img 
-              src="/lovable-uploads/f9797427-3857-44b4-ac51-2ba21026b9ba.png" 
+              src="/lovable-uploads/801ed7d1-6edc-46a5-b785-e4ba325df412.png" 
               alt="Bâtiment Sonelgaz 2" 
-              className="w-full h-auto rounded-lg shadow-md"
+              className="w-full h-auto rounded-lg"
             />
           </div>
           <div>
             <img 
-              src="/lovable-uploads/29c0ed59-08cd-474c-a3c5-4a3662a4432f.png" 
+              src="/lovable-uploads/5f5547c8-a301-4332-a529-bcd9ae747703.png" 
               alt="Bâtiment Sonelgaz 3" 
-              className="w-full h-auto rounded-lg shadow-md"
+              className="w-full h-auto rounded-lg"
             />
           </div>
         </div>
 
         {/* Description S-PE */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
-          <div className="bg-white p-6 rounded-lg shadow-md flex flex-col justify-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div className="bg-gray-100 p-6 rounded-lg flex flex-col justify-center">
             <p className="text-base md:text-lg text-gray-800 leading-relaxed text-center">
               La société Sonelgaz-Production de l'Électricité (S-PE) est un acteur 
               principal et historique sur la scène nationale de la production de 
@@ -103,22 +99,22 @@ const AboutUsPage = ({ userRole = 'employee' }) => {
           </div>
           <div>
             <img 
-              src="/lovable-uploads/ddd3c963-a7ed-4ab4-8283-eed4766ac5c9.png" 
+              src="/lovable-uploads/6d499fde-a3e3-44bb-8048-d1bd6dc87be9.png" 
               alt="Production électricité" 
-              className="w-full h-auto rounded-lg shadow-md"
+              className="w-full h-auto rounded-lg"
             />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
           <div>
             <img 
-              src="/lovable-uploads/6480fa79-940e-4f74-b7ee-215566d792f0.png" 
+              src="/lovable-uploads/6d499fde-a3e3-44bb-8048-d1bd6dc87be9.png" 
               alt="Centrale électrique" 
-              className="w-full h-auto rounded-lg shadow-md"
+              className="w-full h-auto rounded-lg"
             />
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-md flex flex-col justify-center">
+          <div className="bg-gray-100 p-6 rounded-lg flex flex-col justify-center">
             <p className="text-base md:text-lg text-gray-800 leading-relaxed text-center">
               La S-PE est présente sur tout le territoire national avec ses 
               Directions Régions de Production et leurs unités rattachées, afin de faire face à 
@@ -130,26 +126,26 @@ const AboutUsPage = ({ userRole = 'employee' }) => {
         </div>
 
         {/* Énergie renouvelable */}
-        <div className="mb-10">
-          <div className="relative">
+        <div className="mb-8">
+          <div>
             <img 
-              src="/lovable-uploads/ee1168e6-a80c-4e11-93e4-c62ee0667237.png" 
+              src="/lovable-uploads/6d499fde-a3e3-44bb-8048-d1bd6dc87be9.png" 
               alt="Énergie renouvelable" 
-              className="w-full h-auto rounded-lg shadow-md"
+              className="w-full h-auto rounded-lg"
             />
           </div>
         </div>
 
         {/* Missions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <p className="text-base md:text-lg text-gray-800 leading-relaxed">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div className="bg-gray-100 p-6 rounded-lg">
+            <p className="text-base md:text-lg text-gray-800 leading-relaxed text-center">
               La S-PE est une société par actions au Capital Social de 35 milliards de Dinar, dont le siège 
               social est sis à la route nationale n°38 immeuble des 600 bureaux – Gué de 
               Constantine – Alger.
               <br /><br />
               Les principales missions de S-PE consistent en :
-              <ul className="list-disc pl-6 mt-3 space-y-2">
+              <ul className="list-disc pl-6 mt-3 space-y-2 text-left">
                 <li>La production d'électricité répondant aux exigences de disponibilité, fiabilité, sécurité 
                   et protection de l'environnement ;</li>
                 <li>La commercialisation de l'électricité produite ;</li>
@@ -158,26 +154,26 @@ const AboutUsPage = ({ userRole = 'employee' }) => {
               </ul>
             </p>
           </div>
-          <div className="grid grid-cols-1 gap-6">
+          <div className="grid grid-cols-1 gap-4">
             <div>
               <img 
-                src="/lovable-uploads/89da70f9-aba3-41bf-8ede-f678a306f557.png" 
+                src="/lovable-uploads/6d499fde-a3e3-44bb-8048-d1bd6dc87be9.png" 
                 alt="Technicien Sonelgaz" 
-                className="w-full h-auto rounded-lg shadow-md"
+                className="w-full h-auto rounded-lg"
               />
             </div>
             <div>
               <img 
-                src="/lovable-uploads/83d1e85d-0a44-481a-8ee0-c20c741d7087.png" 
+                src="/lovable-uploads/6d499fde-a3e3-44bb-8048-d1bd6dc87be9.png" 
                 alt="Centrale électrique nuit" 
-                className="w-full h-auto rounded-lg shadow-md"
+                className="w-full h-auto rounded-lg"
               />
             </div>
           </div>
         </div>
 
         {/* Message de remerciement */}
-        <div className="bg-white p-8 rounded-lg shadow-md text-center">
+        <div className="bg-gray-100 p-8 rounded-lg text-center">
           <h2 className="text-xl font-bold mb-4">Last word for you!</h2>
           <p className="text-base text-gray-700 leading-relaxed max-w-2xl mx-auto">
             We feel so fortunate to have someone with your skills and 
