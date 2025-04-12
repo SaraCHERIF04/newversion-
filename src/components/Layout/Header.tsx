@@ -1,15 +1,22 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bell, BellRing } from 'lucide-react';
+import { Bell, BellRing, Search } from 'lucide-react';
 import { 
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Notification } from '@/types/User';
+import { 
+  CommandDialog, 
+  CommandEmpty, 
+  CommandGroup, 
+  CommandInput, 
+  CommandItem, 
+  CommandList 
+} from "@/components/ui/command";
 
 type HeaderProps = {
   searchQuery: string;
@@ -18,7 +25,6 @@ type HeaderProps = {
   isResponsable?: boolean;
 };
 
-// Sample notifications per role
 const getSampleNotifications = (role: string): Notification[] => {
   const baseNotifications: Notification[] = [
     {
@@ -144,7 +150,6 @@ const getSampleNotifications = (role: string): Notification[] => {
   return baseNotifications;
 };
 
-// Function to get background color based on notification type
 const getNotificationColor = (type: string) => {
   switch (type) {
     case 'info':
@@ -160,6 +165,14 @@ const getNotificationColor = (type: string) => {
   }
 };
 
+interface SearchResult {
+  id: string;
+  title: string;
+  description?: string;
+  type: 'project' | 'subproject' | 'reunion' | 'document' | 'incident' | 'user';
+  link: string;
+}
+
 const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, isEmployee = false, isResponsable = false }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -172,12 +185,12 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, isEmployee
     role: '',
     profileImage: ''
   });
+  const [openCommandMenu, setOpenCommandMenu] = useState(false);
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
 
-  // Load user profile and set notifications
   useEffect(() => {
     const userRole = localStorage.getItem('userRole') || '';
     
-    // Set default profile info based on role
     let profileInfo = {
       name: 'Rowles',
       firstName: 'Alexa',
@@ -185,7 +198,6 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, isEmployee
       profileImage: 'https://randomuser.me/api/portraits/women/44.jpg'
     };
 
-    // Override with role-specific info
     if (isEmployee) {
       profileInfo = {
         name: 'Dupont',
@@ -209,7 +221,6 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, isEmployee
       };
     }
 
-    // Check for saved profile
     let savedProfileKey = 'userProfile';
     if (isEmployee) {
       savedProfileKey = 'userProfileEmployee';
@@ -235,12 +246,10 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, isEmployee
 
     setUserProfile(profileInfo);
 
-    // Get role-based notifications
     let currentRole = userRole;
     if (isEmployee) currentRole = 'employee';
     if (isResponsable) currentRole = 'responsable';
     
-    // Load saved notifications or use sample ones
     const savedNotifications = localStorage.getItem('notifications');
     if (savedNotifications) {
       try {
@@ -261,38 +270,253 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, isEmployee
     }
   }, [isEmployee, isResponsable]);
 
-  // Handle global search navigation
+  const performGlobalSearch = (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    const normalizedQuery = query.toLowerCase().trim();
+    const results: SearchResult[] = [];
+    const userRole = isEmployee ? 'employee' : isResponsable ? 'responsable' : localStorage.getItem('userRole');
+    
+    try {
+      const projectsString = localStorage.getItem('projects');
+      if (projectsString) {
+        const projects = JSON.parse(projectsString);
+        const matchedProjects = projects.filter((project: any) => 
+          project.name?.toLowerCase().includes(normalizedQuery) || 
+          project.description?.toLowerCase().includes(normalizedQuery) ||
+          project.id?.toLowerCase().includes(normalizedQuery) ||
+          project.code?.toLowerCase().includes(normalizedQuery)
+        );
+        
+        matchedProjects.forEach((project: any) => {
+          results.push({
+            id: project.id,
+            title: project.name || 'Projet sans nom',
+            description: project.description?.substring(0, 50) || 'Aucune description',
+            type: 'project',
+            link: isEmployee 
+              ? `/employee/projects/${project.id}` 
+              : isResponsable 
+                ? `/responsable/projects/${project.id}`
+                : `/project/${project.id}`
+          });
+        });
+      }
+    } catch (error) {
+      console.error("Error searching projects:", error);
+    }
+    
+    try {
+      const subProjectsString = localStorage.getItem('subProjects');
+      if (subProjectsString) {
+        const subProjects = JSON.parse(subProjectsString);
+        const matchedSubProjects = subProjects.filter((subProject: any) => 
+          subProject.name?.toLowerCase().includes(normalizedQuery) || 
+          subProject.description?.toLowerCase().includes(normalizedQuery) ||
+          subProject.id?.toLowerCase().includes(normalizedQuery)
+        );
+        
+        matchedSubProjects.forEach((subProject: any) => {
+          results.push({
+            id: subProject.id,
+            title: subProject.name || 'Sous-projet sans nom',
+            description: `Projet: ${subProject.projectName || 'non spécifié'}`,
+            type: 'subproject',
+            link: isEmployee 
+              ? `/employee/subprojects/${subProject.id}` 
+              : isResponsable 
+                ? `/responsable/subprojects/${subProject.id}`
+                : `/subproject/${subProject.id}`
+          });
+        });
+      }
+    } catch (error) {
+      console.error("Error searching subprojects:", error);
+    }
+    
+    try {
+      const meetingsString = localStorage.getItem('meetings');
+      if (meetingsString) {
+        const meetings = JSON.parse(meetingsString);
+        const matchedMeetings = meetings.filter((meeting: any) => 
+          meeting.title?.toLowerCase().includes(normalizedQuery) || 
+          meeting.description?.toLowerCase().includes(normalizedQuery) ||
+          meeting.id?.toLowerCase().includes(normalizedQuery) ||
+          meeting.pvNumber?.toLowerCase().includes(normalizedQuery) ||
+          meeting.location?.toLowerCase().includes(normalizedQuery)
+        );
+        
+        matchedMeetings.forEach((meeting: any) => {
+          results.push({
+            id: meeting.id,
+            title: meeting.title || `PV ${meeting.pvNumber || ''}`,
+            description: meeting.location || 'Aucun lieu spécifié',
+            type: 'reunion',
+            link: isEmployee 
+              ? `/employee/reunions/${meeting.id}` 
+              : isResponsable 
+                ? `/responsable/reunions/${meeting.id}`
+                : `/meetings/${meeting.id}`
+          });
+        });
+      }
+    } catch (error) {
+      console.error("Error searching meetings:", error);
+    }
+    
+    try {
+      const documentsString = localStorage.getItem('documents');
+      if (documentsString) {
+        const documents = JSON.parse(documentsString);
+        const matchedDocuments = documents.filter((document: any) => 
+          document.title?.toLowerCase().includes(normalizedQuery) || 
+          document.description?.toLowerCase().includes(normalizedQuery) ||
+          document.id?.toLowerCase().includes(normalizedQuery) ||
+          document.fileName?.toLowerCase().includes(normalizedQuery)
+        );
+        
+        matchedDocuments.forEach((document: any) => {
+          results.push({
+            id: document.id,
+            title: document.title || document.fileName || 'Document sans titre',
+            description: document.description?.substring(0, 50) || 'Aucune description',
+            type: 'document',
+            link: isEmployee 
+              ? `/employee/documents/${document.id}` 
+              : isResponsable 
+                ? `/responsable/documents/${document.id}`
+                : `/documents/${document.id}`
+          });
+        });
+      }
+    } catch (error) {
+      console.error("Error searching documents:", error);
+    }
+    
+    try {
+      const incidentsString = localStorage.getItem('incidents');
+      if (incidentsString) {
+        const incidents = JSON.parse(incidentsString);
+        const matchedIncidents = incidents.filter((incident: any) => 
+          incident.title?.toLowerCase().includes(normalizedQuery) || 
+          incident.description?.toLowerCase().includes(normalizedQuery) ||
+          incident.id?.toLowerCase().includes(normalizedQuery) ||
+          incident.code?.toLowerCase().includes(normalizedQuery)
+        );
+        
+        matchedIncidents.forEach((incident: any) => {
+          results.push({
+            id: incident.id,
+            title: incident.title || `Incident #${incident.code || ''}`,
+            description: incident.description?.substring(0, 50) || 'Aucune description',
+            type: 'incident',
+            link: isEmployee 
+              ? `/employee/incidents/${incident.id}` 
+              : isResponsable 
+                ? `/responsable/incidents/${incident.id}`
+                : `/incidents/${incident.id}`
+          });
+        });
+      }
+    } catch (error) {
+      console.error("Error searching incidents:", error);
+    }
+    
+    if (userRole === 'admin') {
+      try {
+        const usersString = localStorage.getItem('users');
+        if (usersString) {
+          const users = JSON.parse(usersString);
+          const matchedUsers = users.filter((user: any) => 
+            user.name?.toLowerCase().includes(normalizedQuery) || 
+            user.firstName?.toLowerCase().includes(normalizedQuery) ||
+            user.email?.toLowerCase().includes(normalizedQuery) ||
+            user.id?.toLowerCase().includes(normalizedQuery) ||
+            user.userId?.toLowerCase().includes(normalizedQuery)
+          );
+          
+          matchedUsers.forEach((user: any) => {
+            results.push({
+              id: user.id || user.userId,
+              title: `${user.firstName || ''} ${user.name || ''}`,
+              description: user.email || 'Aucun email',
+              type: 'user',
+              link: `/admin/users/${user.id || user.userId}`
+            });
+          });
+        }
+      } catch (error) {
+        console.error("Error searching users:", error);
+      }
+    }
+    
+    setSearchResults(results);
+  };
+
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearchQuery(query);
     
-    // If we're not already on a page that consumes the search query,
-    // navigate to an appropriate page based on user role
-    const searchConsumingPages = ['/project', '/documents', '/employee/projects', '/employee/documents', '/responsable/incidents', '/admin/users'];
-    const shouldNavigate = !searchConsumingPages.some(page => location.pathname.startsWith(page));
-    
-    if (shouldNavigate && query.length > 0) {
-      if (isEmployee) {
-        navigate('/employee/projects');
-      } else if (isResponsable) {
-        navigate('/responsable/incidents');
-      } else if (localStorage.getItem('userRole') === 'admin') {
-        navigate('/admin/users');
-      } else {
-        navigate('/project');
-      }
+    if (query.length >= 2) {
+      performGlobalSearch(query);
+      setOpenCommandMenu(true);
+    }
+  };
+
+  const handleSelectSearchResult = (link: string) => {
+    setOpenCommandMenu(false);
+    setSearchQuery('');
+    navigate(link);
+  };
+
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'project':
+        return '📁';
+      case 'subproject':
+        return '📋';
+      case 'reunion':
+        return '🗓️';
+      case 'document':
+        return '📄';
+      case 'incident':
+        return '⚠️';
+      case 'user':
+        return '👤';
+      default:
+        return '🔍';
+    }
+  };
+
+  const getTypeLabel = (type: string) => {
+    switch (type) {
+      case 'project':
+        return 'Projet';
+      case 'subproject':
+        return 'Sous-projet';
+      case 'reunion':
+        return 'Réunion';
+      case 'document':
+        return 'Document';
+      case 'incident':
+        return 'Incident';
+      case 'user':
+        return 'Utilisateur';
+      default:
+        return 'Résultat';
     }
   };
 
   const handleNotificationClick = (notification: Notification, index: number) => {
-    // Mark as read
     const updatedNotifications = [...notifications];
     updatedNotifications[index].read = true;
     setNotifications(updatedNotifications);
     setUnreadCount(unreadCount - 1);
     localStorage.setItem('notifications', JSON.stringify(updatedNotifications));
     
-    // Navigate to the link if provided
     if (notification.link) {
       navigate(notification.link);
     }
@@ -309,13 +533,11 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, isEmployee
   };
 
   const handleLogout = () => {
-    // Clear user data from localStorage
     localStorage.removeItem('userRole');
     localStorage.removeItem('userProfile');
     localStorage.removeItem('userProfileEmployee');
     localStorage.removeItem('userProfileResponsable');
     
-    // Redirect to login page
     navigate('/login');
   };
 
@@ -328,23 +550,54 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, isEmployee
           value={searchQuery}
           onChange={handleSearch}
           className="w-full rounded-full border border-gray-300 bg-gray-50 py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          onFocus={() => {
+            if (searchQuery.length >= 2) {
+              performGlobalSearch(searchQuery);
+              setOpenCommandMenu(true);
+            }
+          }}
         />
         <div className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
+          <Search className="h-5 w-5" />
         </div>
+        
+        <CommandDialog open={openCommandMenu} onOpenChange={setOpenCommandMenu}>
+          <CommandInput 
+            placeholder="Tapez pour rechercher..." 
+            value={searchQuery}
+            onValueChange={(value) => {
+              setSearchQuery(value);
+              performGlobalSearch(value);
+            }}
+          />
+          <CommandList>
+            <CommandEmpty>Aucun résultat trouvé</CommandEmpty>
+            {['project', 'subproject', 'reunion', 'document', 'incident', 'user'].map(type => {
+              const resultsOfType = searchResults.filter(r => r.type === type);
+              if (resultsOfType.length === 0) return null;
+              
+              return (
+                <CommandGroup key={type} heading={getTypeLabel(type)}>
+                  {resultsOfType.map(result => (
+                    <CommandItem 
+                      key={`${result.type}-${result.id}`} 
+                      onSelect={() => handleSelectSearchResult(result.link)}
+                      className="flex items-center"
+                    >
+                      <span className="mr-2">{getTypeIcon(result.type)}</span>
+                      <div>
+                        <p className="font-medium">{result.title}</p>
+                        {result.description && (
+                          <p className="text-xs text-gray-500 truncate">{result.description}</p>
+                        )}
+                      </div>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              );
+            })}
+          </CommandList>
+        </CommandDialog>
       </div>
       
       <div className="flex items-center gap-4">
