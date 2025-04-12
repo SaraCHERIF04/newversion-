@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -45,6 +46,7 @@ import ParametresPage from "./pages/ParametresPage";
 // Employee Pages Imports
 import EmployeeLayout from "./components/Layout/EmployeeLayout";
 import EmployeeIndex from "./pages/Employee/EmployeeIndex";
+import EmployeeDashboardPage from "./pages/Employee/EmployeeDashboardPage";
 import EmployeeProjectsPage from "./pages/Employee/EmployeeProjectsPage";
 import EmployeeProjectDetailsPage from "./pages/Employee/EmployeeProjectDetailsPage";
 import EmployeeDocumentsPage from "./pages/Employee/EmployeeDocumentsPage";
@@ -137,7 +139,7 @@ function App() {
                 {localStorage.getItem('userRole') === 'chef' ? 
                   <Navigate to="/dashboard" replace /> : 
                   localStorage.getItem('userRole') === 'employee' ?
-                  <Navigate to="/employee/projects" replace /> :
+                  <Navigate to="/employee/dashboard" replace /> :
                   localStorage.getItem('userRole') === 'responsable' ?
                   <Navigate to="/responsable/dashboard" replace /> :
                   <Navigate to="/admin/users" replace />}
@@ -229,7 +231,8 @@ function App() {
                 <EmployeeLayout />
               </ProtectedRoute>
             }>
-              <Route index element={<EmployeeIndex />} />
+              <Route index element={<Navigate to="/employee/dashboard" replace />} />
+              <Route path="dashboard" element={<EmployeeDashboardPage />} />
               <Route path="projects" element={<EmployeeProjectsPage />} />
               <Route path="projects/:id" element={<EmployeeProjectDetailsPage />} />
               <Route path="projects/dashboard/:id" element={<EmployeeProjectDashboardPage />} />

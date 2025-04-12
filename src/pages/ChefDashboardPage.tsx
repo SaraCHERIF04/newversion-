@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
 // Pour le graphique circulaire
@@ -61,6 +62,32 @@ const ChefDashboardPage: React.FC = () => {
       }
     }
   }, []);
+
+  // Calculate subproject status distribution
+  const getSubProjectStatusData = () => {
+    const statusCounts = {
+      'Terminé': 0,
+      'En cours': 0,
+      'En attente': 0,
+      'Suspendu': 0
+    };
+    
+    subProjects.forEach(subProject => {
+      const status = subProject.status || 'En cours';
+      if (statusCounts.hasOwnProperty(status)) {
+        statusCounts[status]++;
+      } else {
+        statusCounts['En cours']++;
+      }
+    });
+    
+    return [
+      { name: 'Terminé', value: statusCounts['Terminé'] || 0 },
+      { name: 'En cours', value: statusCounts['En cours'] || 0 },
+      { name: 'En attente', value: statusCounts['En attente'] || 0 },
+      { name: 'Suspendu', value: statusCounts['Suspendu'] || 0 }
+    ].filter(item => item.value > 0); // Only include statuses with values
+  };
 
   return (
     <div className="container mx-auto p-4">
@@ -130,6 +157,75 @@ const ChefDashboardPage: React.FC = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* État d'avancement des sous-projets */}
+      <Card className="mb-6">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg">État d'avancement des sous-projets</CardTitle>
+          <Badge variant="outline" className="bg-blue-50 text-blue-700 absolute top-4 right-4">Vue d'ensemble</Badge>
+        </CardHeader>
+        <CardContent className="p-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={getSubProjectStatusData()}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    outerRadius={100}
+                    fill="#8884d8"
+                    dataKey="value"
+                    label={({ name, value }) => `${name}: ${value}`}
+                  >
+                    {getSubProjectStatusData().map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend layout="vertical" align="right" verticalAlign="middle" />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="text-md font-medium">Progression des sous-projets récents</h3>
+              {subProjects.slice(0, 5).map((subProject) => {
+                // Generate a random progress value between 0-100 for demonstration
+                const progress = subProject.progress || Math.floor(Math.random() * 100);
+                
+                return (
+                  <div key={subProject.id} className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">{subProject.name}</span>
+                      <span className="text-sm text-gray-500">{progress}%</span>
+                    </div>
+                    <Progress value={progress} className="h-2" />
+                    <div className="flex justify-end">
+                      <Badge 
+                        className={`${
+                          subProject.status === 'Terminé' ? 'bg-green-100 text-green-800' :
+                          subProject.status === 'En cours' ? 'bg-blue-100 text-blue-800' :
+                          subProject.status === 'En attente' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}
+                      >
+                        {subProject.status || 'En cours'}
+                      </Badge>
+                    </div>
+                  </div>
+                );
+              })}
+              {subProjects.length === 0 && (
+                <div className="text-center py-4 text-gray-500">
+                  Aucun sous-projet trouvé.
+                </div>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Section Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">

@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { FileText, AlertTriangle, ShoppingBag } from 'lucide-react';
+import { FileText, AlertTriangle, ShoppingBag, BarChart } from 'lucide-react';
 
 const SidebarMenuItem = ({ item, active }) => {
   return (
@@ -27,6 +27,13 @@ const EmployeeSidebar = () => {
   const location = useLocation();
   
   const menuItems = [
+    {
+      name: 'Tableau de bord',
+      path: '/employee/dashboard',
+      icon: (
+        <BarChart size={20} />
+      ),
+    },
     {
       name: 'Projets',
       path: '/employee/projects',
