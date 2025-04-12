@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useNavigate } from 'react-router-dom';
 import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { Progress } from '@/components/ui/progress';
 
 // For the pie chart
 const COLORS = ['#008080', '#1e40af', '#3b82f6', '#93c5fd'];
@@ -21,6 +21,7 @@ const projectData = [
 const ResponsableDashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const [incidents, setIncidents] = useState<any[]>([]);
+  const [subProjects, setSubProjects] = useState<any[]>([]);
   const [budgetData, setBudgetData] = useState([
     { name: 'Completed', value: 32 },
     { name: 'On Hold', value: 25 },
@@ -38,7 +39,35 @@ const ResponsableDashboardPage: React.FC = () => {
         console.error("Error loading incidents:", error);
       }
     }
+
+    // Load subprojects
+    const storedSubProjects = localStorage.getItem('subProjects');
+    if (storedSubProjects) {
+      try {
+        setSubProjects(JSON.parse(storedSubProjects));
+      } catch (error) {
+        console.error("Error loading subprojects:", error);
+      }
+    }
   }, []);
+
+  // Generate progress data for each subproject
+  const getSubProjectProgressData = () => {
+    if (!subProjects || subProjects.length === 0) {
+      return [];
+    }
+
+    return subProjects.slice(0, 5).map(subProject => {
+      // Generate a random progress value between 0-100 for demonstration
+      const progress = Math.floor(Math.random() * 100);
+      return {
+        id: subProject.id,
+        name: subProject.name,
+        progress: progress,
+        status: subProject.status || 'En cours'
+      };
+    });
+  };
 
   return (
     <div className="container mx-auto p-4">
@@ -117,6 +146,70 @@ const ResponsableDashboardPage: React.FC = () => {
         </Card>
       </div>
 
+      {/* Section Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <Card>
+          <CardContent className="p-4 text-center">
+            <h3 className="text-gray-500 text-sm mb-1">Projets</h3>
+            <p className="text-xl font-semibold text-blue-600">{projects.length}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 text-center">
+            <h3 className="text-gray-500 text-sm mb-1">Sous-projets</h3>
+            <p className="text-xl font-semibold text-blue-600">{subProjects.length}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 text-center">
+            <h3 className="text-gray-500 text-sm mb-1">Incidents</h3>
+            <p className="text-xl font-semibold text-blue-600">{incidents.length}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 text-center">
+            <h3 className="text-gray-500 text-sm mb-1">Budget Total</h3>
+            <p className="text-xl font-semibold text-blue-600">100M Da</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Ajout - État d'avancement des sous-projets */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="text-lg">État d'avancement des sous-projets</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {getSubProjectProgressData().map((subProject) => (
+              <div key={subProject.id} className="space-y-1">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium">{subProject.name}</span>
+                  <span className="text-sm text-gray-500">{subProject.progress}%</span>
+                </div>
+                <Progress value={subProject.progress} className="h-2" />
+                <div className="flex justify-end">
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    subProject.status === 'Terminé' ? 'bg-green-100 text-green-800' :
+                    subProject.status === 'En cours' ? 'bg-blue-100 text-blue-800' :
+                    subProject.status === 'En attente' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-gray-100 text-gray-800'
+                  }`}>
+                    {subProject.status}
+                  </span>
+                </div>
+              </div>
+            ))}
+            {subProjects.length === 0 && (
+              <div className="text-center py-4 text-gray-500">
+                Aucun sous-projet trouvé
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Incidents récents */}
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="text-lg">Incidents récents</CardTitle>
