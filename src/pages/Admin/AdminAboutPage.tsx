@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 
-const EmployeeAboutPage = () => {
+const AdminAboutPage = () => {
   const navigate = useNavigate();
 
   return (
@@ -13,7 +13,7 @@ const EmployeeAboutPage = () => {
         <Button 
           variant="outline" 
           size="sm" 
-          onClick={() => navigate('/employee/dashboard')}
+          onClick={() => navigate('/admin/users')}
           className="flex items-center gap-1"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -187,4 +187,4 @@ const EmployeeAboutPage = () => {
   );
 };
 
-export default EmployeeAboutPage;
+export default AdminAboutPage;

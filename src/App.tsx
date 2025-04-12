@@ -41,6 +41,7 @@ import IncidentFollowUpsPage from "./pages/IncidentFollowUpsPage";
 import IncidentFollowUpFormPage from "./pages/IncidentFollowUpFormPage";
 import IncidentFollowUpDetailsPage from "./pages/IncidentFollowUpDetailsPage";
 import ParametresPage from "./pages/ParametresPage";
+import AboutUsPage from "./pages/AboutUsPage";
 
 // Employee Pages Imports
 import EmployeeLayout from "./components/Layout/EmployeeLayout";
@@ -75,6 +76,7 @@ import ResponsableIncidentFollowUpsPage from "./pages/Responsable/ResponsableInc
 import ResponsableIncidentFollowUpDetailsPage from "./pages/Responsable/ResponsableIncidentFollowUpDetailsPage";
 import ResponsableProfilePage from "./pages/Responsable/ResponsableProfilePage";
 import ResponsableParametresPage from "./pages/Responsable/ResponsableParametresPage";
+import ResponsableAboutPage from "./pages/Responsable/ResponsableAboutPage";
 
 // Admin Pages Imports
 import AdminLayout from "./components/Layout/AdminLayout";
@@ -84,6 +86,7 @@ import AdminProfileDetailsPage from "./pages/Admin/AdminProfileDetailsPage";
 import AdminUserFormPage from "./pages/Admin/AdminUserFormPage";
 import AdminUserDetailsPage from "./pages/Admin/AdminUserDetailsPage";
 import AdminParametresPage from "./pages/Admin/AdminParametresPage";
+import AdminAboutPage from "./pages/Admin/AdminAboutPage";
 
 // Route protection component
 interface ProtectedRouteProps {
@@ -159,7 +162,7 @@ function App() {
               <Route path="profile" element={<AdminProfileDetailsPage />} />
               <Route path="profile/edit" element={<AdminProfilePage />} />
               <Route path="parametres" element={<AdminParametresPage />} />
-              <Route path="about" element={<div>About Us Page</div>} />
+              <Route path="about" element={<AdminAboutPage />} />
             </Route>
             
             <Route path="/responsable" element={
@@ -175,7 +178,7 @@ function App() {
               <Route path="incidents/suivis/:incidentId/:followUpId" element={<ResponsableIncidentFollowUpDetailsPage />} />
               <Route path="profile" element={<ResponsableProfilePage />} />
               <Route path="parametres" element={<ResponsableParametresPage />} />
-              <Route path="about" element={<div>About Us Page</div>} />
+              <Route path="about" element={<ResponsableAboutPage />} />
             </Route>
             
             <Route path="/" element={
@@ -223,7 +226,7 @@ function App() {
               <Route path="incidents/suivis/:incidentId/:followUpId" element={<IncidentFollowUpDetailsPage />} />
               
               <Route path="parametres" element={<ParametresPage />} />
-              <Route path="about" element={<div>About Us Page</div>} />
+              <Route path="about" element={<AboutUsPage />} />
             </Route>
             
             <Route path="/employee" element={
