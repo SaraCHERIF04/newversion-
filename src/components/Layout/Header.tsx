@@ -15,8 +15,10 @@ import {
   CommandGroup, 
   CommandInput, 
   CommandItem, 
-  CommandList 
+  CommandList,
+  CommandSeparator 
 } from "@/components/ui/command";
+import { DialogTitle } from "@/components/ui/dialog";
 
 type HeaderProps = {
   searchQuery: string;
@@ -281,116 +283,124 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, isEmployee
     const userRole = isEmployee ? 'employee' : isResponsable ? 'responsable' : localStorage.getItem('userRole');
     
     try {
-      const projectsString = localStorage.getItem('projects');
-      if (projectsString) {
-        const projects = JSON.parse(projectsString);
-        const matchedProjects = projects.filter((project: any) => 
-          project.name?.toLowerCase().includes(normalizedQuery) || 
-          project.description?.toLowerCase().includes(normalizedQuery) ||
-          project.id?.toLowerCase().includes(normalizedQuery) ||
-          project.code?.toLowerCase().includes(normalizedQuery)
-        );
-        
-        matchedProjects.forEach((project: any) => {
-          results.push({
-            id: project.id,
-            title: project.name || 'Projet sans nom',
-            description: project.description?.substring(0, 50) || 'Aucune description',
-            type: 'project',
-            link: isEmployee 
-              ? `/employee/projects/${project.id}` 
-              : isResponsable 
-                ? `/responsable/projects/${project.id}`
-                : `/project/${project.id}`
+      if (!isResponsable || userRole === 'admin' || userRole === 'chef') {
+        const projectsString = localStorage.getItem('projects');
+        if (projectsString) {
+          const projects = JSON.parse(projectsString);
+          const matchedProjects = projects.filter((project: any) => 
+            project.name?.toLowerCase().includes(normalizedQuery) || 
+            project.description?.toLowerCase().includes(normalizedQuery) ||
+            project.id?.toLowerCase().includes(normalizedQuery) ||
+            project.code?.toLowerCase().includes(normalizedQuery)
+          );
+          
+          matchedProjects.forEach((project: any) => {
+            results.push({
+              id: project.id,
+              title: project.name || 'Projet sans nom',
+              description: project.description?.substring(0, 50) || 'Aucune description',
+              type: 'project',
+              link: isEmployee 
+                ? `/employee/projects/${project.id}` 
+                : isResponsable 
+                  ? `/responsable/projects/${project.id}`
+                  : `/project/${project.id}`
+            });
           });
-        });
+        }
       }
     } catch (error) {
       console.error("Error searching projects:", error);
     }
     
     try {
-      const subProjectsString = localStorage.getItem('subProjects');
-      if (subProjectsString) {
-        const subProjects = JSON.parse(subProjectsString);
-        const matchedSubProjects = subProjects.filter((subProject: any) => 
-          subProject.name?.toLowerCase().includes(normalizedQuery) || 
-          subProject.description?.toLowerCase().includes(normalizedQuery) ||
-          subProject.id?.toLowerCase().includes(normalizedQuery)
-        );
-        
-        matchedSubProjects.forEach((subProject: any) => {
-          results.push({
-            id: subProject.id,
-            title: subProject.name || 'Sous-projet sans nom',
-            description: `Projet: ${subProject.projectName || 'non spécifié'}`,
-            type: 'subproject',
-            link: isEmployee 
-              ? `/employee/subprojects/${subProject.id}` 
-              : isResponsable 
-                ? `/responsable/subprojects/${subProject.id}`
-                : `/subproject/${subProject.id}`
+      if (!isResponsable || userRole === 'admin' || userRole === 'chef') {
+        const subProjectsString = localStorage.getItem('subProjects');
+        if (subProjectsString) {
+          const subProjects = JSON.parse(subProjectsString);
+          const matchedSubProjects = subProjects.filter((subProject: any) => 
+            subProject.name?.toLowerCase().includes(normalizedQuery) || 
+            subProject.description?.toLowerCase().includes(normalizedQuery) ||
+            subProject.id?.toLowerCase().includes(normalizedQuery)
+          );
+          
+          matchedSubProjects.forEach((subProject: any) => {
+            results.push({
+              id: subProject.id,
+              title: subProject.name || 'Sous-projet sans nom',
+              description: `Projet: ${subProject.projectName || 'non spécifié'}`,
+              type: 'subproject',
+              link: isEmployee 
+                ? `/employee/sous-projets/${subProject.id}` 
+                : isResponsable 
+                  ? `/responsable/sous-projets/${subProject.id}`
+                  : `/sous-projet/${subProject.id}`
+            });
           });
-        });
+        }
       }
     } catch (error) {
       console.error("Error searching subprojects:", error);
     }
     
     try {
-      const meetingsString = localStorage.getItem('meetings');
-      if (meetingsString) {
-        const meetings = JSON.parse(meetingsString);
-        const matchedMeetings = meetings.filter((meeting: any) => 
-          meeting.title?.toLowerCase().includes(normalizedQuery) || 
-          meeting.description?.toLowerCase().includes(normalizedQuery) ||
-          meeting.id?.toLowerCase().includes(normalizedQuery) ||
-          meeting.pvNumber?.toLowerCase().includes(normalizedQuery) ||
-          meeting.location?.toLowerCase().includes(normalizedQuery)
-        );
-        
-        matchedMeetings.forEach((meeting: any) => {
-          results.push({
-            id: meeting.id,
-            title: meeting.title || `PV ${meeting.pvNumber || ''}`,
-            description: meeting.location || 'Aucun lieu spécifié',
-            type: 'reunion',
-            link: isEmployee 
-              ? `/employee/reunions/${meeting.id}` 
-              : isResponsable 
-                ? `/responsable/reunions/${meeting.id}`
-                : `/meetings/${meeting.id}`
+      if (!isResponsable || userRole === 'admin' || userRole === 'chef') {
+        const meetingsString = localStorage.getItem('meetings');
+        if (meetingsString) {
+          const meetings = JSON.parse(meetingsString);
+          const matchedMeetings = meetings.filter((meeting: any) => 
+            meeting.title?.toLowerCase().includes(normalizedQuery) || 
+            meeting.description?.toLowerCase().includes(normalizedQuery) ||
+            meeting.id?.toLowerCase().includes(normalizedQuery) ||
+            meeting.pvNumber?.toLowerCase().includes(normalizedQuery) ||
+            meeting.location?.toLowerCase().includes(normalizedQuery)
+          );
+          
+          matchedMeetings.forEach((meeting: any) => {
+            results.push({
+              id: meeting.id,
+              title: meeting.title || `PV ${meeting.pvNumber || ''}`,
+              description: meeting.location || 'Aucun lieu spécifié',
+              type: 'reunion',
+              link: isEmployee 
+                ? `/employee/reunions/${meeting.id}` 
+                : isResponsable 
+                  ? `/responsable/reunions/${meeting.id}`
+                  : `/reunion/${meeting.id}`
+            });
           });
-        });
+        }
       }
     } catch (error) {
       console.error("Error searching meetings:", error);
     }
     
     try {
-      const documentsString = localStorage.getItem('documents');
-      if (documentsString) {
-        const documents = JSON.parse(documentsString);
-        const matchedDocuments = documents.filter((document: any) => 
-          document.title?.toLowerCase().includes(normalizedQuery) || 
-          document.description?.toLowerCase().includes(normalizedQuery) ||
-          document.id?.toLowerCase().includes(normalizedQuery) ||
-          document.fileName?.toLowerCase().includes(normalizedQuery)
-        );
-        
-        matchedDocuments.forEach((document: any) => {
-          results.push({
-            id: document.id,
-            title: document.title || document.fileName || 'Document sans titre',
-            description: document.description?.substring(0, 50) || 'Aucune description',
-            type: 'document',
-            link: isEmployee 
-              ? `/employee/documents/${document.id}` 
-              : isResponsable 
-                ? `/responsable/documents/${document.id}`
-                : `/documents/${document.id}`
+      if (!isResponsable || userRole === 'admin' || userRole === 'chef') {
+        const documentsString = localStorage.getItem('documents');
+        if (documentsString) {
+          const documents = JSON.parse(documentsString);
+          const matchedDocuments = documents.filter((document: any) => 
+            document.title?.toLowerCase().includes(normalizedQuery) || 
+            document.description?.toLowerCase().includes(normalizedQuery) ||
+            document.id?.toLowerCase().includes(normalizedQuery) ||
+            document.fileName?.toLowerCase().includes(normalizedQuery)
+          );
+          
+          matchedDocuments.forEach((document: any) => {
+            results.push({
+              id: document.id,
+              title: document.title || document.fileName || 'Document sans titre',
+              description: document.description?.substring(0, 50) || 'Aucune description',
+              type: 'document',
+              link: isEmployee 
+                ? `/employee/documents/${document.id}` 
+                : isResponsable 
+                  ? `/responsable/documents/${document.id}`
+                  : `/documents/${document.id}`
+            });
           });
-        });
+        }
       }
     } catch (error) {
       console.error("Error searching documents:", error);
@@ -562,6 +572,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, isEmployee
         </div>
         
         <CommandDialog open={openCommandMenu} onOpenChange={setOpenCommandMenu}>
+          <DialogTitle className="sr-only">Recherche globale</DialogTitle>
           <CommandInput 
             placeholder="Tapez pour rechercher..." 
             value={searchQuery}
