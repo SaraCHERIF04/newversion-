@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, createContext, useContext } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import ResponsableSidebar from './ResponsableSidebar';
 import Header from './Header';
 
@@ -21,15 +21,6 @@ export const useSearchQuery = () => {
 
 const ResponsableLayout: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const navigate = useNavigate();
-  
-  // Verify user is logged in as responsable, if not redirect to login
-  useEffect(() => {
-    const userRole = localStorage.getItem('userRole');
-    if (userRole !== 'responsable') {
-      navigate('/login');
-    }
-  }, [navigate]);
   
   return (
     <SearchContext.Provider value={{ searchQuery, setSearchQuery }}>
@@ -37,7 +28,7 @@ const ResponsableLayout: React.FC = () => {
         <ResponsableSidebar />
         <div className="flex flex-1 flex-col overflow-hidden">
           <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} isResponsable={true} />
-          <main className="flex-1 overflow-y-auto bg-gray-50 p-6">
+          <main className="flex-1 overflow-y-auto bg-gray-50">
             <Outlet />
           </main>
         </div>

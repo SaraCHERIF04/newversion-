@@ -31,7 +31,7 @@ const LoginPage = () => {
           title: "Connexion réussie",
           description: "Bienvenue sur le tableau de bord chef de projet",
         });
-        navigate('/employee'); // Changed from '/project' to '/employee' as that's a valid route
+        navigate('/project');
         setLoading(false);
       }, 1000);
     } else if (role === 'employee' && email === 'jeandupont@sonelgaz.dz' && password === 'employee123') {
@@ -57,7 +57,7 @@ const LoginPage = () => {
           title: "Connexion réussie",
           description: "Bienvenue sur le tableau de bord responsable",
         });
-        navigate('/responsable'); // Changed to just '/responsable' which is the base route
+        navigate('/responsable/dashboard');
         setLoading(false);
       }, 1000);
     } else if (role === 'admin' && email === 'admin@sonelgaz.dz' && password === 'admin123') {

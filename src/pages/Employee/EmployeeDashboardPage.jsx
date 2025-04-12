@@ -5,13 +5,12 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
-// Pour le pie chart
+// For the pie chart
 const COLORS = ['#008080', '#1e40af', '#3b82f6', '#93c5fd'];
 
 const EmployeeDashboardPage = () => {
   const [subProjects, setSubProjects] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [projects, setProjects] = useState([]);
   
   useEffect(() => {
     const fetchData = async () => {
@@ -30,13 +29,6 @@ const EmployeeDashboardPage = () => {
           // In a real app, this would filter based on actual user assignments
           // Here we're just showing all subprojects for demo purposes
           setSubProjects(allSubProjects);
-        }
-
-        // Fetch projects
-        const projectsString = localStorage.getItem('projects');
-        if (projectsString) {
-          let allProjects = JSON.parse(projectsString);
-          setProjects(allProjects);
         }
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -85,46 +77,6 @@ const EmployeeDashboardPage = () => {
       { month: 'Jun', progress: 88 }
     ];
   };
-
-  // Calculer la progression par projet
-  const getProjectsProgress = () => {
-    if (!projects.length || !subProjects.length) return [];
-    
-    const projectProgress = {};
-    
-    // Initialiser tous les projets avec 0%
-    projects.forEach(project => {
-      projectProgress[project.id] = {
-        id: project.id,
-        name: project.name,
-        totalSubProjects: 0,
-        completedSubProjects: 0,
-        progress: 0
-      };
-    });
-    
-    // Calculer le nombre de sous-projets par projet et le nombre de sous-projets terminés
-    subProjects.forEach(subProject => {
-      if (subProject.projectId && projectProgress[subProject.projectId]) {
-        projectProgress[subProject.projectId].totalSubProjects++;
-        
-        if (subProject.status === 'Terminé') {
-          projectProgress[subProject.projectId].completedSubProjects++;
-        }
-      }
-    });
-    
-    // Calculer le pourcentage de progression
-    Object.values(projectProgress).forEach(project => {
-      if (project.totalSubProjects > 0) {
-        project.progress = Math.round((project.completedSubProjects / project.totalSubProjects) * 100);
-      }
-    });
-    
-    return Object.values(projectProgress)
-      .filter(project => project.totalSubProjects > 0)
-      .sort((a, b) => b.progress - a.progress);
-  };
   
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen">Chargement...</div>;
@@ -132,7 +84,7 @@ const EmployeeDashboardPage = () => {
   
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+      <h1 className="text-2xl font-bold mb-6">Tableau de bord</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <Card>
@@ -225,37 +177,6 @@ const EmployeeDashboardPage = () => {
           </CardContent>
         </Card>
       </div>
-      
-      {/* État d'avancement des projets */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="text-lg">État d'avancement des projets</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            {getProjectsProgress().length > 0 ? (
-              getProjectsProgress().map((project) => (
-                <div key={project.id} className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h3 className="text-md font-medium">{project.name}</h3>
-                      <p className="text-sm text-gray-500">
-                        {project.completedSubProjects} sur {project.totalSubProjects} sous-projets terminés
-                      </p>
-                    </div>
-                    <span className="text-sm font-medium">{project.progress}%</span>
-                  </div>
-                  <Progress value={project.progress} className="h-2" />
-                </div>
-              ))
-            ) : (
-              <div className="text-center py-6 text-gray-500">
-                Aucun projet trouvé ou aucun sous-projet associé.
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
       
       {/* Liste des sous-projets avec progression */}
       <Card>
