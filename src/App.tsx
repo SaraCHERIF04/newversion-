@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -65,6 +64,7 @@ import EmployeMarcheDetailsPage from "./pages/Employee/EmployeMarcheDetailsPage"
 import EmployeeProjectDashboardPage from "./pages/Employee/EmployeeProjectDashboardPage";
 import EmployeeSubProjectDashboardPage from "./pages/Employee/EmployeeSubProjectDashboardPage";
 import EmployeeParametresPage from "./pages/Employee/EmployeeParametresPage";
+import EmployeeAboutPage from "./pages/Employee/EmployeeAboutPage";
 
 // Responsable Pages Imports
 import ResponsableLayout from "./components/Layout/ResponsableLayout";
@@ -251,6 +251,7 @@ function App() {
               <Route path="maitre-ouvrage" element={<EmployeeMarcheAndMaitreOuvragePage />} />
               <Route path="profile" element={<EmployeeProfilePage />} />
               <Route path="parametres" element={<EmployeeParametresPage />} />
+              <Route path="about" element={<EmployeeAboutPage />} />
             </Route>
             
             <Route path="*" element={<NotFound />} />
