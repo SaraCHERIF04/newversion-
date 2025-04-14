@@ -1,4 +1,3 @@
-
 export interface User {
   id: string;
   name: string;
@@ -25,7 +24,6 @@ export interface Notification {
   link?: string;
 }
 
-// Add a helper function to create and save notifications
 export const addNotification = (
   targetUserIds: string[],
   title: string,
@@ -62,7 +60,6 @@ export const addNotification = (
       
       localStorage.setItem('users', JSON.stringify(updatedUsers));
       
-      // Return the number of notifications added
       return targetUserIds.length;
     } catch (error) {
       console.error('Error updating notifications:', error);
@@ -72,7 +69,6 @@ export const addNotification = (
   return 0;
 };
 
-// Function to get unread notifications count for a user
 export const getUnreadNotificationsCount = (userId: string): number => {
   const usersString = localStorage.getItem('users');
   
@@ -92,7 +88,6 @@ export const getUnreadNotificationsCount = (userId: string): number => {
   return 0;
 };
 
-// Function to mark a notification as read
 export const markNotificationAsRead = (userId: string, notificationId: string): void => {
   const usersString = localStorage.getItem('users');
   
@@ -118,7 +113,6 @@ export const markNotificationAsRead = (userId: string, notificationId: string): 
   }
 };
 
-// Function to add project assignment notification
 export const addProjectAssignmentNotification = (
   employeeId: string,
   projectName: string,

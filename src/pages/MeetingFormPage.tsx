@@ -71,10 +71,8 @@ const MeetingFormPage = () => {
       }
 
       if (isEditing) {
-        // Update existing meeting
         meetings = meetings.map(m => m.id === id ? meetingData : m);
       } else {
-        // Add new meeting to the beginning of the array
         meetings.unshift(meetingData);
       }
 

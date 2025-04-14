@@ -5,15 +5,22 @@ import { ArrowLeft, Upload, X, Check, Download } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { Project } from './ProjectCard';
 import { notifyNewProject } from '@/utils/notificationHelpers';
+import { algerianWilayas } from '@/utils/algerianWilayas';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type ProjectFormProps = {
   project?: Project & {
     chef?: string;
-    region?: string;
+    wilaya?: string;
     budget?: string;
     startDate?: string;
     endDate?: string;
-    city?: string;
     documents?: Array<{ id: string; title: string; url?: string }>;
   };
   isEdit?: boolean;
@@ -36,11 +43,10 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
     (project?.status as any) || 'En attente'
   );
   const [chef, setChef] = useState(project?.chef || '');
-  const [region, setRegion] = useState(project?.region || '');
+  const [wilaya, setWilaya] = useState(project?.wilaya || '');
   const [budget, setBudget] = useState(project?.budget || '');
   const [startDate, setStartDate] = useState(project?.startDate || '');
   const [endDate, setEndDate] = useState(project?.endDate || '');
-  const [city, setCity] = useState(project?.city || '');
   const [documents, setDocuments] = useState<ProjectDocument[]>(project?.documents || []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,11 +95,10 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
 
     const updatedProject: Project & {
       chef?: string;
-      region?: string;
+      wilaya?: string;
       budget?: string;
       startDate?: string;
       endDate?: string;
-      city?: string;
       documents?: Array<{ id: string; title: string; url?: string }>;
     } = {
       id: project?.id || `proj-${Date.now()}`,
@@ -104,11 +109,10 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
       members: project?.members || [],
       documentsCount: documents.length,
       chef,
-      region,
+      wilaya,
       budget,
       startDate,
       endDate,
-      city,
       documents: documents.map(doc => ({
         id: doc.id,
         title: doc.title,
@@ -223,17 +227,21 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
           </div>
 
           <div>
-            <label htmlFor="region" className="block text-sm font-medium text-gray-700 mb-1">
-              Region
+            <label htmlFor="wilaya" className="block text-sm font-medium text-gray-700 mb-1">
+              Wilaya
             </label>
-            <input
-              type="text"
-              id="region"
-              value={region}
-              onChange={(e) => setRegion(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Entrez la région"
-            />
+            <Select value={wilaya} onValueChange={setWilaya}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Sélectionnez une wilaya" />
+              </SelectTrigger>
+              <SelectContent>
+                {algerianWilayas.map((wilaya) => (
+                  <SelectItem key={wilaya} value={wilaya}>
+                    {wilaya}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -252,19 +260,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
             />
           </div>
 
-          <div>
-            <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
-              City
-            </label>
-            <input
-              type="text"
-              id="city"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Entrez la ville"
-            />
-          </div>
+          
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
