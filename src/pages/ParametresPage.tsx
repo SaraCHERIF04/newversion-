@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -8,12 +8,129 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Settings, BellRing, Mail, Shield, Palette } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+
+interface ParametersState {
+  theme: string;
+  notifications: boolean;
+  emailNotifications: boolean;
+  language: string;
+  timezone: string;
+  notifFrequency: string;
+  fontSize: string;
+  twoFactor: boolean;
+}
 
 const ParametresPage: React.FC = () => {
-  const [theme, setTheme] = useState('light');
-  const [notifications, setNotifications] = useState(true);
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [language, setLanguage] = useState('fr');
+  const { toast } = useToast();
+  
+  // Load saved settings from localStorage or use defaults
+  const loadSavedSettings = (): ParametersState => {
+    const savedSettings = localStorage.getItem('parameterSettings');
+    if (savedSettings) {
+      return JSON.parse(savedSettings);
+    }
+    return {
+      theme: 'light',
+      notifications: true,
+      emailNotifications: true,
+      language: 'fr',
+      timezone: 'africa_algiers',
+      notifFrequency: 'daily',
+      fontSize: 'medium',
+      twoFactor: false
+    };
+  };
+  
+  const [state, setState] = useState<ParametersState>(loadSavedSettings());
+  const [password, setPassword] = useState({
+    current: '',
+    new: '',
+    confirm: ''
+  });
+  
+  // Save settings to localStorage whenever they change
+  const saveSettings = () => {
+    localStorage.setItem('parameterSettings', JSON.stringify(state));
+    toast({
+      title: "Paramètres enregistrés",
+      description: "Vos paramètres ont été sauvegardés avec succès.",
+    });
+  };
+  
+  const handleLanguageChange = (value: string) => {
+    setState(prev => ({ ...prev, language: value }));
+  };
+  
+  const handleTimezoneChange = (value: string) => {
+    setState(prev => ({ ...prev, timezone: value }));
+  };
+  
+  const handleNotificationChange = (checked: boolean) => {
+    setState(prev => ({ ...prev, notifications: checked }));
+  };
+  
+  const handleEmailNotificationChange = (checked: boolean) => {
+    setState(prev => ({ ...prev, emailNotifications: checked }));
+  };
+  
+  const handleNotifFrequencyChange = (value: string) => {
+    setState(prev => ({ ...prev, notifFrequency: value }));
+  };
+  
+  const handleThemeChange = (theme: string) => {
+    setState(prev => ({ ...prev, theme }));
+    // Apply theme class to body/html
+    document.documentElement.className = theme === 'dark' ? 'dark' : '';
+  };
+  
+  const handleFontSizeChange = (value: string) => {
+    setState(prev => ({ ...prev, fontSize: value }));
+  };
+  
+  const handleTwoFactorChange = (checked: boolean) => {
+    setState(prev => ({ ...prev, twoFactor: checked }));
+  };
+  
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setPassword(prev => ({
+      ...prev,
+      [id.replace('password-', '')]: value
+    }));
+  };
+  
+  const handlePasswordUpdate = () => {
+    if (password.new !== password.confirm) {
+      toast({
+        title: "Erreur",
+        description: "Le nouveau mot de passe et la confirmation ne correspondent pas.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (password.current !== 'password123') { // Simulated check
+      toast({
+        title: "Erreur",
+        description: "Le mot de passe actuel est incorrect.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Reset password fields
+    setPassword({
+      current: '',
+      new: '',
+      confirm: ''
+    });
+    
+    toast({
+      title: "Mot de passe mis à jour",
+      description: "Votre mot de passe a été modifié avec succès."
+    });
+  };
   
   return (
     <div className="container mx-auto py-8 px-4">
@@ -38,7 +155,7 @@ const ParametresPage: React.FC = () => {
             <CardContent className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="language">Langue</Label>
-                <Select value={language} onValueChange={setLanguage}>
+                <Select value={state.language} onValueChange={handleLanguageChange}>
                   <SelectTrigger id="language">
                     <SelectValue placeholder="Sélectionner une langue" />
                   </SelectTrigger>
@@ -52,7 +169,7 @@ const ParametresPage: React.FC = () => {
               
               <div className="space-y-2">
                 <Label htmlFor="timezone">Fuseau horaire</Label>
-                <Select defaultValue="africa_algiers">
+                <Select value={state.timezone} onValueChange={handleTimezoneChange}>
                   <SelectTrigger id="timezone">
                     <SelectValue placeholder="Sélectionner un fuseau horaire" />
                   </SelectTrigger>
@@ -64,7 +181,7 @@ const ParametresPage: React.FC = () => {
                 </Select>
               </div>
               
-              <Button>Enregistrer les modifications</Button>
+              <Button onClick={saveSettings}>Enregistrer les modifications</Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -82,8 +199,8 @@ const ParametresPage: React.FC = () => {
                 </div>
                 <Switch
                   id="notifications"
-                  checked={notifications}
-                  onCheckedChange={setNotifications}
+                  checked={state.notifications}
+                  onCheckedChange={handleNotificationChange}
                 />
               </div>
               
@@ -94,14 +211,14 @@ const ParametresPage: React.FC = () => {
                 </div>
                 <Switch
                   id="email-notifications"
-                  checked={emailNotifications}
-                  onCheckedChange={setEmailNotifications}
+                  checked={state.emailNotifications}
+                  onCheckedChange={handleEmailNotificationChange}
                 />
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="notif-frequency">Fréquence de notifications</Label>
-                <Select defaultValue="daily">
+                <Select value={state.notifFrequency} onValueChange={handleNotifFrequencyChange}>
                   <SelectTrigger id="notif-frequency">
                     <SelectValue placeholder="Sélectionner la fréquence" />
                   </SelectTrigger>
@@ -113,7 +230,7 @@ const ParametresPage: React.FC = () => {
                 </Select>
               </div>
               
-              <Button>Enregistrer les modifications</Button>
+              <Button onClick={saveSettings}>Enregistrer les modifications</Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -125,18 +242,33 @@ const ParametresPage: React.FC = () => {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="current-password">Mot de passe actuel</Label>
-                <Input id="current-password" type="password" />
+                <Label htmlFor="password-current">Mot de passe actuel</Label>
+                <Input 
+                  id="password-current" 
+                  type="password" 
+                  value={password.current}
+                  onChange={handlePasswordChange}
+                />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="new-password">Nouveau mot de passe</Label>
-                <Input id="new-password" type="password" />
+                <Label htmlFor="password-new">Nouveau mot de passe</Label>
+                <Input 
+                  id="password-new" 
+                  type="password"
+                  value={password.new}
+                  onChange={handlePasswordChange}
+                />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="confirm-password">Confirmer le mot de passe</Label>
-                <Input id="confirm-password" type="password" />
+                <Label htmlFor="password-confirm">Confirmer le mot de passe</Label>
+                <Input 
+                  id="password-confirm" 
+                  type="password"
+                  value={password.confirm}
+                  onChange={handlePasswordChange}
+                />
               </div>
               
               <div className="flex items-center justify-between">
@@ -144,10 +276,14 @@ const ParametresPage: React.FC = () => {
                   <Shield className="h-5 w-5 text-gray-500" />
                   <Label htmlFor="two-factor" className="flex-1">Authentification à deux facteurs</Label>
                 </div>
-                <Switch id="two-factor" />
+                <Switch 
+                  id="two-factor" 
+                  checked={state.twoFactor}
+                  onCheckedChange={handleTwoFactorChange}
+                />
               </div>
               
-              <Button>Mettre à jour le mot de passe</Button>
+              <Button onClick={handlePasswordUpdate}>Mettre à jour le mot de passe</Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -164,27 +300,27 @@ const ParametresPage: React.FC = () => {
                   <div
                     className={`
                       cursor-pointer w-20 h-20 rounded-md flex items-center justify-center bg-white border 
-                      ${theme === 'light' ? 'border-blue-600 ring-2 ring-blue-400' : 'border-gray-200'}
+                      ${state.theme === 'light' ? 'border-blue-600 ring-2 ring-blue-400' : 'border-gray-200'}
                     `}
-                    onClick={() => setTheme('light')}
+                    onClick={() => handleThemeChange('light')}
                   >
                     <Palette className="h-8 w-8 text-gray-900" />
                   </div>
                   <div
                     className={`
                       cursor-pointer w-20 h-20 rounded-md flex items-center justify-center bg-gray-900 border 
-                      ${theme === 'dark' ? 'border-blue-600 ring-2 ring-blue-400' : 'border-gray-700'}
+                      ${state.theme === 'dark' ? 'border-blue-600 ring-2 ring-blue-400' : 'border-gray-700'}
                     `}
-                    onClick={() => setTheme('dark')}
+                    onClick={() => handleThemeChange('dark')}
                   >
                     <Palette className="h-8 w-8 text-white" />
                   </div>
                   <div
                     className={`
                       cursor-pointer w-20 h-20 rounded-md flex items-center justify-center bg-gradient-to-r from-gray-800 to-gray-900 border 
-                      ${theme === 'system' ? 'border-blue-600 ring-2 ring-blue-400' : 'border-gray-700'}
+                      ${state.theme === 'system' ? 'border-blue-600 ring-2 ring-blue-400' : 'border-gray-700'}
                     `}
-                    onClick={() => setTheme('system')}
+                    onClick={() => handleThemeChange('system')}
                   >
                     <div className="flex flex-col items-center">
                       <Palette className="h-6 w-6 text-white" />
@@ -196,7 +332,7 @@ const ParametresPage: React.FC = () => {
               
               <div className="space-y-2">
                 <Label htmlFor="font-size">Taille de police</Label>
-                <Select defaultValue="medium">
+                <Select value={state.fontSize} onValueChange={handleFontSizeChange}>
                   <SelectTrigger id="font-size">
                     <SelectValue placeholder="Sélectionner la taille" />
                   </SelectTrigger>
@@ -208,7 +344,7 @@ const ParametresPage: React.FC = () => {
                 </Select>
               </div>
               
-              <Button>Appliquer les modifications</Button>
+              <Button onClick={saveSettings}>Appliquer les modifications</Button>
             </CardContent>
           </Card>
         </TabsContent>
