@@ -1,4 +1,3 @@
-
 import { addNotification } from '@/types/User';
 import { toast } from "@/hooks/use-toast";
 
@@ -81,10 +80,7 @@ export const notifyNewIncident = (incidentTitle: string) => {
       "Nouvel incident",
       `Un nouvel incident "${incidentTitle}" a été signalé`,
       'warning',
-      (userId: string) => {
-        const userRole = localStorage.getItem('userRole');
-        return userRole === 'responsable' ? '/responsable/incidents' : '/employee/incidents';
-      }
+      '/incidents'
     );
     
     toast({
@@ -147,4 +143,3 @@ export const notifyNewSubProject = (subProjectName: string, projectName: string)
     });
   }
 };
-

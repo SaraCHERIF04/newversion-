@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -6,6 +5,7 @@ import { ArrowLeft, Upload, X, Check } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { SubProject } from './SubProjectCard';
 import { Project } from './ProjectCard';
+import { notifyNewSubProject } from '@/utils/notificationHelpers';
 
 type SubProjectFormProps = {
   subProject?: SubProject;
@@ -237,7 +237,12 @@ const SubProjectForm: React.FC<SubProjectFormProps> = ({ subProject, isEdit = fa
           localStorage.setItem('projects', JSON.stringify(projects));
         }
       }
-      
+
+      if (!isEdit) {
+        const projectName = availableProjects.find(p => p.id === projectId)?.name || '';
+        notifyNewSubProject(name, projectName);
+      }
+
       toast({
         title: isEdit ? "Sous-projet modifié" : "Sous-projet créé",
         description: isEdit ? "Les modifications ont été enregistrées." : "Le sous-projet a été créé avec succès.",

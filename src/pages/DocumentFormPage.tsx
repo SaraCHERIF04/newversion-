@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -12,6 +11,7 @@ import { Project } from '@/components/ProjectCard';
 import { SubProject } from '@/components/SubProjectCard';
 import { toast } from '@/components/ui/use-toast';
 import { addNotification } from '@/types/User';
+import { notifyNewDocument } from '@/utils/notificationHelpers';
 
 interface FileInfo {
   url: string;
@@ -150,7 +150,7 @@ const DocumentFormPage: React.FC = () => {
     setExistingFiles(newExistingFiles);
   };
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!title.trim()) {
@@ -278,6 +278,12 @@ const DocumentFormPage: React.FC = () => {
           `/employee/documents/${documentData.id}`
         );
       }
+    }
+    
+    try {
+      notifyNewDocument(title);
+    } catch (error) {
+      console.error('Error notifying new document:', error);
     }
     
     toast({

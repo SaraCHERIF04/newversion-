@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Upload, X, Check, Download } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { Project } from './ProjectCard';
+import { notifyNewProject } from '@/utils/notificationHelpers';
 
 type ProjectFormProps = {
   project?: Project & {
@@ -137,6 +138,10 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
       }
 
       localStorage.setItem('projects', JSON.stringify(projects));
+
+      if (!isEdit) {
+        notifyNewProject(name);
+      }
 
       toast({
         title: isEdit ? "Projet modifié" : "Projet créé",
