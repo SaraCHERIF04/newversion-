@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Upload, Trash2 } from 'lucide-react';
 import { Incident } from '@/types/Incident';
 import { v4 as uuidv4 } from 'uuid';
+import { notifyNewIncident } from '@/utils/notificationHelpers';
 
 const IncidentFormPage = () => {
   const navigate = useNavigate();
@@ -108,6 +109,9 @@ const IncidentFormPage = () => {
         subProject.projectId === projects.find(p => p.name === incident.projectName)?.id)
     : subProjects;
 
+  // Check if the selected project has any subprojects
+  const hasSubProjects = filteredSubProjects.length > 0;
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setIncident(prev => ({ ...prev, [name]: value }));
@@ -134,6 +138,20 @@ const IncidentFormPage = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Form validation - le sous-projet est optionnel seulement si aucun sous-projet n'existe
+    if (!incident.type || !incident.signaledBy || !incident.date || !incident.time || 
+        !incident.location || !incident.projectName || 
+        (hasSubProjects && !incident.subProjectName) || !incident.description) {
+      
+      // Message personnalisé sur le sous-projet
+      if (hasSubProjects && !incident.subProjectName) {
+        alert("Veuillez sélectionner un sous-projet pour ce projet");
+      } else {
+        alert("Veuillez remplir tous les champs obligatoires");
+      }
+      return;
+    }
+    
     const storedIncidents = localStorage.getItem('incidents');
     let incidents = storedIncidents ? JSON.parse(storedIncidents) : [];
     
@@ -151,6 +169,9 @@ const IncidentFormPage = () => {
         createdAt: new Date().toISOString()
       };
       incidents.push(newIncident);
+      
+      // Notify users about the new incident
+      notifyNewIncident(incident.type);
     }
     
     localStorage.setItem('incidents', JSON.stringify(incidents));
@@ -226,15 +247,15 @@ const IncidentFormPage = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nom sous projet
+                Nom sous projet {!hasSubProjects && incident.projectName && "(Aucun sous-projet disponible)"}
               </label>
               <select
                 name="subProjectName"
                 value={incident.subProjectName}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md"
-                required
-                disabled={!incident.projectName}
+                required={hasSubProjects}
+                disabled={!incident.projectName || !hasSubProjects}
               >
                 <option value="">Sélectionner un sous-projet</option>
                 {filteredSubProjects.map(subProject => (
@@ -243,6 +264,9 @@ const IncidentFormPage = () => {
                   </option>
                 ))}
               </select>
+              {!hasSubProjects && incident.projectName && (
+                <p className="text-xs text-gray-500 mt-1">Ce projet n'a pas de sous-projets associés</p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">

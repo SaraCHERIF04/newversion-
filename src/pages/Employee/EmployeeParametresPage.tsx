@@ -7,11 +7,114 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Settings, BellRing, Mail, User } from 'lucide-react';
+import { Settings, BellRing, Mail, User, Save } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 
 const EmployeeParametresPage: React.FC = () => {
   const [notifications, setNotifications] = useState(true);
   const [emailNotifications, setEmailNotifications] = useState(true);
+  const [projectNotifs, setProjectNotifs] = useState(true);
+  const [taskNotifs, setTaskNotifs] = useState(true);
+  const [incidentNotifs, setIncidentNotifs] = useState(true);
+  const [meetingNotifs, setMeetingNotifs] = useState(true);
+  
+  // Informations du profil
+  const [profileData, setProfileData] = useState({
+    name: 'Dupont',
+    firstName: 'Jean',
+    email: 'jean.dupont@sonelgaz.dz',
+    phone: '+213 555 123 456',
+    department: 'it',
+    position: 'Ingénieur'
+  });
+  
+  // Mot de passe
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+  
+  const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setProfileData(prev => ({ ...prev, [id]: value }));
+  };
+  
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setPasswordData(prev => ({ ...prev, [id.replace('-', '')]: value }));
+  };
+  
+  const handleSaveProfile = () => {
+    // Stocker les changements du profil
+    localStorage.setItem('userProfileEmployee', JSON.stringify({
+      name: profileData.name,
+      firstName: profileData.firstName,
+      email: profileData.email,
+      phone: profileData.phone,
+      department: profileData.department,
+      position: profileData.position
+    }));
+    
+    toast({
+      title: "Profil mis à jour",
+      description: "Vos informations de profil ont été enregistrées",
+      variant: "success"
+    });
+  };
+  
+  const handleSaveNotifications = () => {
+    // Stocker les paramètres de notification
+    localStorage.setItem('notificationSettings', JSON.stringify({
+      notifications,
+      emailNotifications,
+      projectNotifs,
+      taskNotifs,
+      incidentNotifs,
+      meetingNotifs
+    }));
+    
+    toast({
+      title: "Paramètres de notification mis à jour",
+      description: "Vos préférences de notification ont été enregistrées",
+      variant: "success"
+    });
+  };
+  
+  const handleUpdatePassword = () => {
+    // Vérifier que le nouveau mot de passe correspond à la confirmation
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      toast({
+        title: "Erreur",
+        description: "Le nouveau mot de passe et la confirmation ne correspondent pas",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Vérifier que le mot de passe actuel est correct (exemple simple)
+    if (passwordData.currentPassword !== 'password123') {
+      toast({
+        title: "Erreur",
+        description: "Le mot de passe actuel est incorrect",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Réinitialiser les champs après mise à jour
+    setPasswordData({
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    });
+    
+    toast({
+      title: "Mot de passe mis à jour",
+      description: "Votre mot de passe a été modifié avec succès",
+      variant: "success"
+    });
+  };
   
   return (
     <div className="container mx-auto py-8 px-4">
@@ -37,33 +140,41 @@ const EmployeeParametresPage: React.FC = () => {
                 <div className="h-16 w-16 rounded-full bg-blue-100 flex items-center justify-center">
                   <User className="h-8 w-8 text-blue-600" />
                 </div>
-                <Button size="sm">Changer la photo</Button>
+                <Button size="sm" onClick={() => {
+                  toast({
+                    title: "Fonctionnalité en développement",
+                    description: "Le changement de photo sera disponible prochainement"
+                  });
+                }}>Changer la photo</Button>
               </div>
               
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Nom</Label>
-                  <Input id="name" defaultValue="Dupont" />
+                  <Input id="name" value={profileData.name} onChange={handleProfileChange} />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="firstname">Prénom</Label>
-                  <Input id="firstname" defaultValue="Jean" />
+                  <Label htmlFor="firstName">Prénom</Label>
+                  <Input id="firstName" value={profileData.firstName} onChange={handleProfileChange} />
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" defaultValue="jean.dupont@sonelgaz.dz" />
+                  <Input id="email" type="email" value={profileData.email} onChange={handleProfileChange} />
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="phone">Téléphone</Label>
-                  <Input id="phone" defaultValue="+213 555 123 456" />
+                  <Input id="phone" value={profileData.phone} onChange={handleProfileChange} />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="department">Département</Label>
-                  <Select defaultValue="it">
+                  <Select 
+                    value={profileData.department}
+                    onValueChange={(value) => setProfileData(prev => ({ ...prev, department: value }))}
+                  >
                     <SelectTrigger id="department">
                       <SelectValue placeholder="Sélectionner un département" />
                     </SelectTrigger>
@@ -78,11 +189,14 @@ const EmployeeParametresPage: React.FC = () => {
                 
                 <div className="space-y-2">
                   <Label htmlFor="position">Poste</Label>
-                  <Input id="position" defaultValue="Ingénieur" />
+                  <Input id="position" value={profileData.position} onChange={handleProfileChange} />
                 </div>
               </div>
               
-              <Button>Enregistrer les modifications</Button>
+              <Button onClick={handleSaveProfile} className="flex items-center">
+                <Save className="h-4 w-4 mr-2" />
+                Enregistrer les modifications
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -122,26 +236,45 @@ const EmployeeParametresPage: React.FC = () => {
                 
                 <div className="flex items-center justify-between">
                   <Label htmlFor="project-notifs" className="flex-1">Modifications de projets</Label>
-                  <Switch id="project-notifs" defaultChecked />
+                  <Switch 
+                    id="project-notifs" 
+                    checked={projectNotifs}
+                    onCheckedChange={setProjectNotifs}
+                  />
                 </div>
                 
                 <div className="flex items-center justify-between">
                   <Label htmlFor="task-notifs" className="flex-1">Tâches assignées</Label>
-                  <Switch id="task-notifs" defaultChecked />
+                  <Switch 
+                    id="task-notifs" 
+                    checked={taskNotifs}
+                    onCheckedChange={setTaskNotifs}
+                  />
                 </div>
                 
                 <div className="flex items-center justify-between">
                   <Label htmlFor="incident-notifs" className="flex-1">Nouveaux incidents</Label>
-                  <Switch id="incident-notifs" defaultChecked />
+                  <Switch 
+                    id="incident-notifs" 
+                    checked={incidentNotifs}
+                    onCheckedChange={setIncidentNotifs}
+                  />
                 </div>
                 
                 <div className="flex items-center justify-between">
                   <Label htmlFor="meeting-notifs" className="flex-1">Réunions planifiées</Label>
-                  <Switch id="meeting-notifs" defaultChecked />
+                  <Switch 
+                    id="meeting-notifs" 
+                    checked={meetingNotifs}
+                    onCheckedChange={setMeetingNotifs}
+                  />
                 </div>
               </div>
               
-              <Button>Enregistrer les modifications</Button>
+              <Button onClick={handleSaveNotifications} className="flex items-center">
+                <Save className="h-4 w-4 mr-2" />
+                Enregistrer les modifications
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -154,20 +287,38 @@ const EmployeeParametresPage: React.FC = () => {
             <CardContent className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="current-password">Mot de passe actuel</Label>
-                <Input id="current-password" type="password" />
+                <Input 
+                  id="current-password" 
+                  type="password" 
+                  value={passwordData.currentPassword}
+                  onChange={handlePasswordChange}
+                />
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="new-password">Nouveau mot de passe</Label>
-                <Input id="new-password" type="password" />
+                <Input 
+                  id="new-password" 
+                  type="password"
+                  value={passwordData.newPassword}
+                  onChange={handlePasswordChange}
+                />
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="confirm-password">Confirmer le mot de passe</Label>
-                <Input id="confirm-password" type="password" />
+                <Input 
+                  id="confirm-password" 
+                  type="password"
+                  value={passwordData.confirmPassword}
+                  onChange={handlePasswordChange}
+                />
               </div>
               
-              <Button>Mettre à jour le mot de passe</Button>
+              <Button onClick={handleUpdatePassword} className="flex items-center">
+                <Save className="h-4 w-4 mr-2" />
+                Mettre à jour le mot de passe
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>

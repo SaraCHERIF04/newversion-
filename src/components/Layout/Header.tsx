@@ -2,13 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bell, BellRing, Search } from 'lucide-react';
+import { Bell, BellRing, Search, CheckCheck } from 'lucide-react';
 import { 
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Notification } from '@/types/User';
+import { 
+  Notification, 
+  getUnreadNotificationsCount, 
+  getUserNotifications,
+  markNotificationAsRead,
+  markAllNotificationsAsRead
+} from '@/types/User';
+import { Button } from '@/components/ui/button';
+import { toast } from '@/hooks/use-toast';
 import { 
   CommandDialog, 
   CommandEmpty, 
@@ -27,129 +35,42 @@ type HeaderProps = {
   isResponsable?: boolean;
 };
 
-const getSampleNotifications = (role: string): Notification[] => {
-  const baseNotifications: Notification[] = [
-    {
-      id: '1',
-      userId: '1',
-      title: 'Bienvenue',
-      message: 'Bienvenue sur la plateforme de gestion de projets Sonelgaz',
-      type: 'info',
-      read: false,
-      createdAt: new Date().toISOString(),
-      link: '#'
-    }
-  ];
-
-  if (role === 'admin') {
-    return [
-      ...baseNotifications,
-      {
-        id: '2',
-        userId: '1',
-        title: 'Nouvel utilisateur',
-        message: 'Un nouvel utilisateur a été créé et attend validation',
-        type: 'info',
-        read: false,
-        createdAt: new Date().toISOString(),
-        link: '/admin/users'
-      },
-      {
-        id: '3',
-        userId: '1',
-        title: 'Mise à jour système',
-        message: 'Une mise à jour du système est disponible',
-        type: 'warning',
-        read: false,
-        createdAt: new Date().toISOString(),
-        link: '/admin/parametres'
-      }
-    ];
-  } else if (role === 'chef') {
-    return [
-      ...baseNotifications,
-      {
-        id: '2',
-        userId: '1',
-        title: 'Nouveau document',
-        message: 'Un nouveau document a été ajouté au projet "Projet X"',
-        type: 'info',
-        read: false,
-        createdAt: new Date().toISOString(),
-        link: '/documents'
-      },
-      {
-        id: '3',
-        userId: '1',
-        title: 'Nouvel incident',
-        message: 'Un nouvel incident a été signalé et nécessite votre attention',
-        type: 'warning',
-        read: false,
-        createdAt: new Date().toISOString(),
-        link: '/incidents'
-      },
-      {
-        id: '4',
-        userId: '1',
-        title: 'Réunion',
-        message: 'Rappel: Réunion de projet demain à 10h',
-        type: 'info',
-        read: false,
-        createdAt: new Date().toISOString(),
-        link: '/reunion'
-      }
-    ];
-  } else if (role === 'responsable') {
-    return [
-      ...baseNotifications,
-      {
-        id: '2',
-        userId: '1',
-        title: 'Incident critique',
-        message: 'Un incident critique a été signalé et nécessite une intervention immédiate',
-        type: 'error',
-        read: false,
-        createdAt: new Date().toISOString(),
-        link: '/responsable/incidents'
-      },
-      {
-        id: '3',
-        userId: '1',
-        title: 'Suivi d\'incident',
-        message: 'Un suivi d\'incident a été ajouté',
-        type: 'info',
-        read: false,
-        createdAt: new Date().toISOString(),
-        link: '/responsable/incidents'
-      }
-    ];
-  } else if (role === 'employee') {
-    return [
-      ...baseNotifications,
-      {
-        id: '2',
-        userId: '1',
-        title: 'Nouveau projet',
-        message: 'Vous avez été assigné à un nouveau projet',
-        type: 'info',
-        read: false,
-        createdAt: new Date().toISOString(),
-        link: '/employee/projects'
-      },
-      {
-        id: '3',
-        userId: '1',
-        title: 'Document à valider',
-        message: 'Un document nécessite votre validation',
-        type: 'warning',
-        read: false,
-        createdAt: new Date().toISOString(),
-        link: '/employee/documents'
-      }
-    ];
+const getTypeIcon = (type: string) => {
+  switch (type) {
+    case 'project':
+      return '📁';
+    case 'subproject':
+      return '📋';
+    case 'reunion':
+      return '🗓️';
+    case 'document':
+      return '📄';
+    case 'incident':
+      return '⚠️';
+    case 'user':
+      return '👤';
+    default:
+      return '🔍';
   }
+};
 
-  return baseNotifications;
+const getTypeLabel = (type: string) => {
+  switch (type) {
+    case 'project':
+      return 'Projet';
+    case 'subproject':
+      return 'Sous-projet';
+    case 'reunion':
+      return 'Réunion';
+    case 'document':
+      return 'Document';
+    case 'incident':
+      return 'Incident';
+    case 'user':
+      return 'Utilisateur';
+    default:
+      return 'Résultat';
+  }
 };
 
 const getNotificationColor = (type: string) => {
@@ -181,6 +102,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, isEmployee
   const [unreadCount, setUnreadCount] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
+  const [userId, setUserId] = useState<string>('');
   const [userProfile, setUserProfile] = useState({
     name: '',
     firstName: '',
@@ -190,8 +112,40 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, isEmployee
   const [openCommandMenu, setOpenCommandMenu] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
 
+  const loadUserNotifications = () => {
+    if (userId) {
+      const userNotifications = getUserNotifications(userId);
+      setNotifications(userNotifications);
+      setUnreadCount(getUnreadNotificationsCount(userId));
+    }
+  };
+
+  useEffect(() => {
+    const handleNotificationsUpdated = (event: CustomEvent) => {
+      const { detail } = event;
+      if (detail.userId === userId || (detail.targetUserIds && detail.targetUserIds.includes(userId))) {
+        loadUserNotifications();
+      }
+    };
+
+    window.addEventListener('notificationsUpdated', handleNotificationsUpdated as EventListener);
+    
+    return () => {
+      window.removeEventListener('notificationsUpdated', handleNotificationsUpdated as EventListener);
+    };
+  }, [userId]);
+
   useEffect(() => {
     const userRole = localStorage.getItem('userRole') || '';
+    
+    let currentUserId = localStorage.getItem('currentUserId') || '1';
+    if (isEmployee) {
+      currentUserId = localStorage.getItem('employeeUserId') || '2';
+    } else if (isResponsable) {
+      currentUserId = localStorage.getItem('responsableUserId') || '3';
+    }
+    
+    setUserId(currentUserId);
     
     let profileInfo = {
       name: 'Rowles',
@@ -248,29 +202,67 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, isEmployee
 
     setUserProfile(profileInfo);
 
-    let currentRole = userRole;
-    if (isEmployee) currentRole = 'employee';
-    if (isResponsable) currentRole = 'responsable';
-    
-    const savedNotifications = localStorage.getItem('notifications');
-    if (savedNotifications) {
-      try {
-        const parsedNotifications = JSON.parse(savedNotifications);
-        setNotifications(parsedNotifications);
-        setUnreadCount(parsedNotifications.filter((n: Notification) => !n.read).length);
-      } catch (error) {
-        console.error("Error parsing notifications:", error);
-        const sampleNotifications = getSampleNotifications(currentRole);
-        setNotifications(sampleNotifications);
-        setUnreadCount(sampleNotifications.length);
-      }
-    } else {
-      const sampleNotifications = getSampleNotifications(currentRole);
-      setNotifications(sampleNotifications);
-      setUnreadCount(sampleNotifications.length);
-      localStorage.setItem('notifications', JSON.stringify(sampleNotifications));
+    if (currentUserId) {
+      loadUserNotifications();
     }
+
+    initializeUsers();
   }, [isEmployee, isResponsable]);
+
+  const initializeUsers = () => {
+    const usersString = localStorage.getItem('users');
+    
+    if (!usersString) {
+      const defaultUsers = [
+        {
+          id: '1',
+          name: 'Rowles',
+          firstName: 'Alexa',
+          email: 'alexa.rowles@sonelgaz.dz',
+          role: 'chef',
+          status: 'En poste',
+          createdAt: new Date().toISOString(),
+          notifications: []
+        },
+        {
+          id: '2',
+          name: 'Dupont',
+          firstName: 'Jean',
+          email: 'jean.dupont@sonelgaz.dz',
+          role: 'employee',
+          status: 'En poste',
+          createdAt: new Date().toISOString(),
+          notifications: []
+        },
+        {
+          id: '3',
+          name: 'Benali',
+          firstName: 'Ahmed',
+          email: 'ahmed.benali@sonelgaz.dz',
+          role: 'responsable',
+          status: 'En poste',
+          createdAt: new Date().toISOString(),
+          notifications: []
+        },
+        {
+          id: '4',
+          name: 'Booles',
+          firstName: 'Alexa',
+          email: 'alexa.booles@sonelgaz.dz',
+          role: 'admin',
+          status: 'En poste',
+          createdAt: new Date().toISOString(),
+          notifications: []
+        }
+      ];
+      
+      localStorage.setItem('users', JSON.stringify(defaultUsers));
+      localStorage.setItem('currentUserId', '1');
+      localStorage.setItem('employeeUserId', '2');
+      localStorage.setItem('responsableUserId', '3');
+      localStorage.setItem('adminUserId', '4');
+    }
+  };
 
   const performGlobalSearch = (query: string) => {
     if (!query.trim()) {
@@ -482,64 +474,30 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, isEmployee
     navigate(link);
   };
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'project':
-        return '📁';
-      case 'subproject':
-        return '📋';
-      case 'reunion':
-        return '🗓️';
-      case 'document':
-        return '📄';
-      case 'incident':
-        return '⚠️';
-      case 'user':
-        return '👤';
-      default:
-        return '🔍';
-    }
-  };
-
-  const getTypeLabel = (type: string) => {
-    switch (type) {
-      case 'project':
-        return 'Projet';
-      case 'subproject':
-        return 'Sous-projet';
-      case 'reunion':
-        return 'Réunion';
-      case 'document':
-        return 'Document';
-      case 'incident':
-        return 'Incident';
-      case 'user':
-        return 'Utilisateur';
-      default:
-        return 'Résultat';
-    }
-  };
-
-  const handleNotificationClick = (notification: Notification, index: number) => {
-    const updatedNotifications = [...notifications];
-    updatedNotifications[index].read = true;
-    setNotifications(updatedNotifications);
-    setUnreadCount(unreadCount - 1);
-    localStorage.setItem('notifications', JSON.stringify(updatedNotifications));
-    
-    if (notification.link) {
-      navigate(notification.link);
+  const handleNotificationClick = (notification: Notification) => {
+    if (userId) {
+      markNotificationAsRead(userId, notification.id);
+      
+      toast({
+        title: "Notification marquée comme lue",
+        description: notification.title,
+      });
+      
+      if (notification.link) {
+        navigate(notification.link);
+      }
     }
   };
 
   const handleMarkAllAsRead = () => {
-    const updatedNotifications = notifications.map(notification => ({
-      ...notification,
-      read: true
-    }));
-    setNotifications(updatedNotifications);
-    setUnreadCount(0);
-    localStorage.setItem('notifications', JSON.stringify(updatedNotifications));
+    if (userId) {
+      markAllNotificationsAsRead(userId);
+      
+      toast({
+        title: "Toutes les notifications ont été marquées comme lues",
+        description: `${unreadCount} notifications ont été traitées`,
+      });
+    }
   };
 
   const handleLogout = () => {
@@ -622,39 +580,43 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, isEmployee
           <PopoverTrigger asChild>
             <button className="relative text-gray-500 hover:text-gray-700">
               {unreadCount > 0 ? (
-                <BellRing className="h-6 w-6" />
+                <BellRing className="h-6 w-6 text-blue-600" />
               ) : (
                 <Bell className="h-6 w-6" />
               )}
               {unreadCount > 0 && (
-                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-                  {unreadCount}
+                <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
+                  {unreadCount > 99 ? '99+' : unreadCount}
                 </span>
               )}
             </button>
           </PopoverTrigger>
-          <PopoverContent className="w-80 p-0 max-h-80 overflow-y-auto">
+          <PopoverContent className="w-96 p-0 max-h-96 overflow-y-auto">
             <div className="flex justify-between items-center p-3 border-b">
               <h3 className="font-medium">Notifications</h3>
               {unreadCount > 0 && (
-                <button 
+                <Button 
+                  variant="ghost" 
+                  size="sm"
                   onClick={handleMarkAllAsRead}
-                  className="text-xs text-blue-600 hover:text-blue-800"
+                  className="flex items-center text-xs text-blue-600 hover:text-blue-800"
                 >
+                  <CheckCheck className="h-4 w-4 mr-1" />
                   Tout marquer comme lu
-                </button>
+                </Button>
               )}
             </div>
             <div className="divide-y divide-gray-100">
               {notifications.length > 0 ? (
-                notifications.map((notification, index) => (
+                notifications.map((notification) => (
                   <div 
                     key={notification.id}
                     className={cn(
-                      "p-3 cursor-pointer hover:bg-gray-50",
-                      !notification.read && "bg-blue-50"
+                      "p-3 cursor-pointer hover:bg-gray-50 border-l-4",
+                      !notification.read ? "border-blue-500" : "border-transparent",
+                      getNotificationColor(notification.type)
                     )}
-                    onClick={() => handleNotificationClick(notification, index)}
+                    onClick={() => handleNotificationClick(notification)}
                   >
                     <div className="flex justify-between items-start">
                       <p className="font-medium text-sm">{notification.title}</p>
@@ -663,15 +625,23 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, isEmployee
                         notification.read ? "bg-gray-300" : "bg-blue-500"
                       )}></span>
                     </div>
-                    <p className="text-xs text-gray-600 mt-1">{notification.message}</p>
-                    <p className="text-xs text-gray-400 mt-1">
-                      {new Date(notification.createdAt).toLocaleDateString()}
+                    <p className="text-sm text-gray-700 mt-1 whitespace-pre-wrap">
+                      {notification.message}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-1 flex justify-between">
+                      <span>
+                        {new Date(notification.createdAt).toLocaleDateString()} - 
+                        {new Date(notification.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                      </span>
+                      {notification.link && <span className="text-blue-500">Cliquer pour voir</span>}
                     </p>
                   </div>
                 ))
               ) : (
-                <div className="p-4 text-center text-gray-500 text-sm">
-                  Aucune notification
+                <div className="p-6 text-center text-gray-500 text-sm">
+                  <BellRing className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+                  <p>Aucune notification</p>
+                  <p className="text-xs mt-1">Les nouvelles notifications apparaîtront ici</p>
                 </div>
               )}
             </div>

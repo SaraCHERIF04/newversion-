@@ -1,3 +1,4 @@
+
 export interface User {
   id: string;
   name: string;
@@ -60,6 +61,10 @@ export const addNotification = (
       
       localStorage.setItem('users', JSON.stringify(updatedUsers));
       
+      // Déclencher un événement pour notifier les composants
+      const event = new CustomEvent('notificationsUpdated', { detail: { targetUserIds } });
+      window.dispatchEvent(event);
+      
       return targetUserIds.length;
     } catch (error) {
       console.error('Error updating notifications:', error);
@@ -106,9 +111,59 @@ export const markNotificationAsRead = (userId: string, notificationId: string): 
         
         users[userIndex].notifications = updatedNotifications;
         localStorage.setItem('users', JSON.stringify(users));
+        
+        // Déclencher un événement pour notifier les composants
+        const event = new CustomEvent('notificationsUpdated', { detail: { userId } });
+        window.dispatchEvent(event);
       }
     } catch (error) {
       console.error('Error marking notification as read:', error);
+    }
+  }
+};
+
+export const getUserNotifications = (userId: string): Notification[] => {
+  const usersString = localStorage.getItem('users');
+  
+  if (usersString && userId) {
+    try {
+      const users: User[] = JSON.parse(usersString);
+      const user = users.find(u => u.id === userId);
+      
+      if (user && user.notifications) {
+        return user.notifications;
+      }
+    } catch (error) {
+      console.error('Error getting user notifications:', error);
+    }
+  }
+  
+  return [];
+};
+
+export const markAllNotificationsAsRead = (userId: string): void => {
+  const usersString = localStorage.getItem('users');
+  
+  if (usersString && userId) {
+    try {
+      const users: User[] = JSON.parse(usersString);
+      const userIndex = users.findIndex(u => u.id === userId);
+      
+      if (userIndex !== -1 && users[userIndex].notifications) {
+        const updatedNotifications = users[userIndex].notifications.map(notification => ({
+          ...notification,
+          read: true
+        }));
+        
+        users[userIndex].notifications = updatedNotifications;
+        localStorage.setItem('users', JSON.stringify(users));
+        
+        // Déclencher un événement pour notifier les composants
+        const event = new CustomEvent('notificationsUpdated', { detail: { userId } });
+        window.dispatchEvent(event);
+      }
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
     }
   }
 };
