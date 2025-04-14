@@ -111,11 +111,13 @@ const MarcheFormPage = () => {
       }
 
       if (isEditing) {
-        // Update existing marché
         marches = marches.map(m => m.id === id ? marcheData : m);
       } else {
-        // Add new marché to the beginning of the array
         marches.unshift(marcheData);
+        
+        // Send notification for new marché
+        const { notifyNewMaitreOuvrage } = require('@/utils/notificationHelpers');
+        notifyNewMaitreOuvrage(nom);
       }
 
       localStorage.setItem('marches', JSON.stringify(marches));
