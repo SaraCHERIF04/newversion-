@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -17,6 +18,7 @@ const EmployeeParametresPage: React.FC = () => {
   const [incidentNotifs, setIncidentNotifs] = useState(true);
   const [meetingNotifs, setMeetingNotifs] = useState(true);
   
+  // Informations du profil
   const [profileData, setProfileData] = useState({
     name: 'Dupont',
     firstName: 'Jean',
@@ -26,6 +28,7 @@ const EmployeeParametresPage: React.FC = () => {
     position: 'Ingénieur'
   });
   
+  // Mot de passe
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -43,6 +46,7 @@ const EmployeeParametresPage: React.FC = () => {
   };
   
   const handleSaveProfile = () => {
+    // Stocker les changements du profil
     localStorage.setItem('userProfileEmployee', JSON.stringify({
       name: profileData.name,
       firstName: profileData.firstName,
@@ -55,11 +59,12 @@ const EmployeeParametresPage: React.FC = () => {
     toast({
       title: "Profil mis à jour",
       description: "Vos informations de profil ont été enregistrées",
-      variant: "default"
+      variant: "success"
     });
   };
   
   const handleSaveNotifications = () => {
+    // Stocker les paramètres de notification
     localStorage.setItem('notificationSettings', JSON.stringify({
       notifications,
       emailNotifications,
@@ -72,11 +77,12 @@ const EmployeeParametresPage: React.FC = () => {
     toast({
       title: "Paramètres de notification mis à jour",
       description: "Vos préférences de notification ont été enregistrées",
-      variant: "default"
+      variant: "success"
     });
   };
   
   const handleUpdatePassword = () => {
+    // Vérifier que le nouveau mot de passe correspond à la confirmation
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       toast({
         title: "Erreur",
@@ -86,6 +92,7 @@ const EmployeeParametresPage: React.FC = () => {
       return;
     }
     
+    // Vérifier que le mot de passe actuel est correct (exemple simple)
     if (passwordData.currentPassword !== 'password123') {
       toast({
         title: "Erreur",
@@ -95,6 +102,7 @@ const EmployeeParametresPage: React.FC = () => {
       return;
     }
     
+    // Réinitialiser les champs après mise à jour
     setPasswordData({
       currentPassword: '',
       newPassword: '',
@@ -104,7 +112,7 @@ const EmployeeParametresPage: React.FC = () => {
     toast({
       title: "Mot de passe mis à jour",
       description: "Votre mot de passe a été modifié avec succès",
-      variant: "default"
+      variant: "success"
     });
   };
   

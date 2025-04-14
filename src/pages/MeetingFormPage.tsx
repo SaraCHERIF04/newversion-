@@ -9,7 +9,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { v4 as uuidv4 } from 'uuid';
 import { notifyNewMeeting } from '@/utils/notificationHelpers';
-import { addNotification } from '@/types/User';
 
 const MeetingFormPage = () => {
   const { id } = useParams();
@@ -76,31 +75,15 @@ const MeetingFormPage = () => {
         meetings = meetings.map(m => m.id === id ? meetingData : m);
       } else {
         meetings.unshift(meetingData);
-        
-        // Notify all employees about the new meeting
-        // Get all employees
-        const usersString = localStorage.getItem('users');
-        if (usersString) {
-          const users = JSON.parse(usersString);
-          const employeeIds = users
-            .filter((user: any) => user.role === 'employee')
-            .map((user: any) => user.id);
-            
-          if (employeeIds.length > 0) {
-            addNotification(
-              employeeIds,
-              "Nouvelle réunion",
-              `Une nouvelle réunion "${meetingData.title}" a été planifiée`,
-              'info',
-              `/employee/reunions/${meetingData.id}`
-            );
-          }
-        }
-        
-        notifyNewMeeting(meetingData.title);
       }
 
       localStorage.setItem('meetings', JSON.stringify(meetings));
+
+      if (!isEditing) {
+        // Only notify for new meetings
+        notifyNewMeeting(meetingData.title);
+      }
+
       navigate('/meetings');
     } catch (error) {
       console.error('Error saving meeting:', error);
