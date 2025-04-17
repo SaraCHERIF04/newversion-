@@ -85,6 +85,11 @@ import AdminUserFormPage from "./pages/Admin/AdminUserFormPage";
 import AdminUserDetailsPage from "./pages/Admin/AdminUserDetailsPage";
 import AdminParametresPage from "./pages/Admin/AdminParametresPage";
 
+// Financier Pages Imports
+import FinancierLayout from "./components/Layout/FinancierLayout";
+import FinancierFacturesPage from "./pages/Financier/FinancierFacturesPage";
+import FinancierFactureFormPage from "./pages/Financier/FinancierFactureFormPage";
+
 // Route protection component
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -250,6 +255,24 @@ function App() {
               <Route path="marche/:id" element={<EmployeMarcheDetailsPage />} />
               <Route path="maitre-ouvrage" element={<EmployeeMarcheAndMaitreOuvragePage />} />
               <Route path="profile" element={<EmployeeProfilePage />} />
+              <Route path="parametres" element={<EmployeeParametresPage />} />
+              <Route path="about" element={<EmployeeAboutPage />} />
+            </Route>
+            
+            <Route path="/financier" element={
+              <ProtectedRoute allowedRole="financier">
+                <FinancierLayout />
+              </ProtectedRoute>
+            }>
+              <Route index element={<Navigate to="/financier/factures" replace />} />
+              <Route path="dashboard" element={<div>Dashboard Financier</div>} />
+              <Route path="projects" element={<EmployeeProjectsPage />} />
+              <Route path="documents" element={<EmployeeDocumentsPage />} />
+              <Route path="factures" element={<FinancierFacturesPage />} />
+              <Route path="factures/new" element={<FinancierFactureFormPage />} />
+              <Route path="factures/edit/:id" element={<FinancierFactureFormPage />} />
+              <Route path="marche" element={<EmployeeMarchePage />} />
+              <Route path="reunions" element={<EmployeeReunionsPage />} />
               <Route path="parametres" element={<EmployeeParametresPage />} />
               <Route path="about" element={<EmployeeAboutPage />} />
             </Route>

@@ -73,6 +73,19 @@ const LoginPage = () => {
         navigate('/admin/users');
         setLoading(false);
       }, 1000);
+    } else if (role === 'financier' && email === 'finance@sonelgaz.dz' && password === 'finance123') {
+      setTimeout(() => {
+        localStorage.setItem('userRole', 'financier');
+        localStorage.setItem('userId', '5');
+        localStorage.setItem('userName', 'Finance Manager');
+        localStorage.setItem('userEmail', email);
+        toast({
+          title: "Connexion réussie",
+          description: "Bienvenue sur le tableau de bord financier",
+        });
+        navigate('/financier/factures');
+        setLoading(false);
+      }, 1000);
     } else {
       setTimeout(() => {
         toast({
@@ -118,6 +131,7 @@ const LoginPage = () => {
                     <SelectItem value="chef">Chef de projet</SelectItem>
                     <SelectItem value="responsable">Responsable</SelectItem>
                     <SelectItem value="employee">Employé</SelectItem>
+                    <SelectItem value="financier">Financier</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -166,6 +180,8 @@ const LoginPage = () => {
               <strong>Responsable:</strong> ahmed.benali@sonelgaz.dz / responsable123
               <br />
               <strong>Employee:</strong> jeandupont@sonelgaz.dz / employee123
+              <br />
+              <strong>Financier:</strong> finance@sonelgaz.dz / finance123
             </p>
           </CardFooter>
         </Card>
