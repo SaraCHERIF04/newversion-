@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -59,7 +58,7 @@ const EmployeeParametresPage: React.FC = () => {
     toast({
       title: "Profil mis à jour",
       description: "Vos informations de profil ont été enregistrées",
-      variant: "success"
+      variant: "default"
     });
   };
   
@@ -77,7 +76,7 @@ const EmployeeParametresPage: React.FC = () => {
     toast({
       title: "Paramètres de notification mis à jour",
       description: "Vos préférences de notification ont été enregistrées",
-      variant: "success"
+      variant: "default"
     });
   };
   
@@ -112,7 +111,7 @@ const EmployeeParametresPage: React.FC = () => {
     toast({
       title: "Mot de passe mis à jour",
       description: "Votre mot de passe a été modifié avec succès",
-      variant: "success"
+      variant: "default"
     });
   };
   

@@ -1,175 +1,406 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
-import { Meeting } from '@/types/Meeting';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { toast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
-import { notifyNewMeeting } from '@/utils/notificationHelpers';
+import { Meeting } from '@/types/Meeting';
+
+const formSchema = z.object({
+  title: z.string().min(2, {
+    message: 'Le titre doit contenir au moins 2 caractères.',
+  }),
+  date: z.string().min(1, {
+    message: 'La date est requise.',
+  }),
+  time: z.string().min(1, {
+    message: 'L\'heure est requise.',
+  }),
+  location: z.string().min(2, {
+    message: 'Le lieu doit contenir au moins 2 caractères.',
+  }),
+  description: z.string().optional(),
+  projectId: z.string().optional(),
+  subProjectId: z.string().optional(),
+  attendees: z.string().optional(),
+  pvNumber: z.string().optional(),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 const MeetingFormPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const isEditing = Boolean(id);
+  const [projects, setProjects] = useState<any[]>([]);
+  const [subProjects, setSubProjects] = useState<any[]>([]);
+  const [filteredSubProjects, setFilteredSubProjects] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const isEditMode = !!id;
 
-  const [title, setTitle] = useState('');
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
-  const [location, setLocation] = useState('');
-  const [description, setDescription] = useState('');
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: '',
+      date: new Date().toISOString().split('T')[0],
+      time: '10:00',
+      location: '',
+      description: '',
+      projectId: '',
+      subProjectId: '',
+      attendees: '',
+      pvNumber: '',
+    },
+  });
 
   useEffect(() => {
-    if (isEditing) {
-      // Load existing meeting data
-      const meetingsString = localStorage.getItem('meetings');
-      if (meetingsString) {
+    // Load projects
+    const projectsData = localStorage.getItem('projects');
+    if (projectsData) {
+      try {
+        const parsedProjects = JSON.parse(projectsData);
+        setProjects(parsedProjects);
+      } catch (error) {
+        console.error('Error parsing projects:', error);
+      }
+    }
+
+    // Load subprojects
+    const subProjectsData = localStorage.getItem('subProjects');
+    if (subProjectsData) {
+      try {
+        const parsedSubProjects = JSON.parse(subProjectsData);
+        setSubProjects(parsedSubProjects);
+      } catch (error) {
+        console.error('Error parsing subProjects:', error);
+      }
+    }
+
+    // If editing, load meeting data
+    if (isEditMode) {
+      const meetingsData = localStorage.getItem('meetings');
+      if (meetingsData) {
         try {
-          const meetings = JSON.parse(meetingsString);
+          const meetings = JSON.parse(meetingsData);
           const meeting = meetings.find((m: Meeting) => m.id === id);
+          
           if (meeting) {
-            setTitle(meeting.title);
-            setDate(meeting.date);
-            setTime(meeting.time);
-            setLocation(meeting.location);
-            setDescription(meeting.description);
+            form.reset({
+              title: meeting.title || '',
+              date: meeting.date || new Date().toISOString().split('T')[0],
+              time: meeting.time || '10:00',
+              location: meeting.location || '',
+              description: meeting.description || '',
+              projectId: meeting.projectId || '',
+              subProjectId: meeting.subProjectId || '',
+              attendees: meeting.attendees || '',
+              pvNumber: meeting.pvNumber || '',
+            });
+
+            if (meeting.projectId) {
+              filterSubProjects(meeting.projectId);
+            }
           }
         } catch (error) {
           console.error('Error loading meeting data:', error);
         }
       }
     }
-  }, [id, isEditing]);
+  }, [id, form, isEditMode]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Form validation
-    if (!title.trim() || !date.trim() || !time.trim()) {
-      alert("Le titre, la date et l'heure sont obligatoires");
+  const filterSubProjects = (projectId: string) => {
+    if (!projectId) {
+      setFilteredSubProjects([]);
       return;
     }
+    
+    const filtered = subProjects.filter(sp => sp.projectId === projectId);
+    setFilteredSubProjects(filtered);
+  };
 
-    // Prepare the meeting data
-    const meetingData: Meeting = {
-      id: isEditing ? id! : uuidv4(),
-      title,
-      date,
-      time,
-      location,
-      description
-    };
-
-    // Save to localStorage
-    const meetingsString = localStorage.getItem('meetings');
-    let meetings: Meeting[] = [];
-
+  const onSubmit = async (formData: FormValues) => {
+    setIsLoading(true);
+    
     try {
-      if (meetingsString) {
-        meetings = JSON.parse(meetingsString);
-      }
-
-      if (isEditing) {
-        meetings = meetings.map(m => m.id === id ? meetingData : m);
+      const meetingsData = localStorage.getItem('meetings');
+      let meetings = meetingsData ? JSON.parse(meetingsData) : [];
+      
+      if (isEditMode) {
+        // Update existing meeting
+        meetings = meetings.map((meeting: Meeting) => {
+          if (meeting.id === id) {
+            return {
+              ...meeting,
+              title: formData.title,
+              date: formData.date,
+              time: formData.time,
+              location: formData.location,
+              description: formData.description,
+              projectId: formData.projectId,
+              subProjectId: formData.subProjectId,
+              attendees: formData.attendees,
+              pvNumber: formData.pvNumber,
+              updatedAt: new Date().toISOString(),
+            };
+          }
+          return meeting;
+        });
+        
+        toast({
+          title: 'Réunion mise à jour',
+          description: 'La réunion a été mise à jour avec succès.',
+        });
       } else {
-        meetings.unshift(meetingData);
+        // Create new meeting
+        const newMeeting: Meeting = {
+          id: uuidv4(),
+          title: formData.title,
+          date: formData.date,
+          time: formData.time,
+          location: formData.location,
+          description: formData.description || '',
+          projectId: formData.projectId || '',
+          subProjectId: formData.subProjectId || '',
+          attendees: formData.attendees || '',
+          pvNumber: formData.pvNumber || '',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        
+        meetings.push(newMeeting);
+        
+        toast({
+          title: 'Réunion créée',
+          description: 'La réunion a été créée avec succès.',
+        });
       }
-
+      
       localStorage.setItem('meetings', JSON.stringify(meetings));
-
-      if (!isEditing) {
-        // Only notify for new meetings
-        notifyNewMeeting(meetingData.title);
-      }
-
-      navigate('/meetings');
+      navigate('/reunion');
     } catch (error) {
       console.error('Error saving meeting:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Une erreur est survenue lors de l\'enregistrement de la réunion.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="max-w-4xl mx-auto p-4">
-      <div className="flex items-center mb-6">
-        <Button
-          variant="ghost"
-          onClick={() => navigate('/meetings')}
-          className="mr-2"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <h1 className="text-2xl font-bold">
-          {isEditing ? 'Modifier' : 'Créer'} Réunion
-        </h1>
-      </div>
-
-      <div className="bg-white rounded-lg shadow p-6">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <Label htmlFor="title" className="mb-2 block">Titre de la réunion</Label>
-            <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Entrez le titre"
-              required
-            />
-          </div>
-
+      <h1 className="text-2xl font-bold mb-6">
+        {isEditMode ? 'Modifier la réunion' : 'Créer une nouvelle réunion'}
+      </h1>
+      
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <Label htmlFor="date" className="mb-2 block">Date</Label>
-              <Input
-                id="date"
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                required
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="time" className="mb-2 block">Heure</Label>
-              <Input
-                id="time"
-                type="time"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                required
-              />
-            </div>
-          </div>
-
-          <div>
-            <Label htmlFor="location" className="mb-2 block">Lieu</Label>
-            <Input
-              id="location"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              placeholder="Entrez le lieu"
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Titre de la réunion</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Titre de la réunion" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="pvNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Numéro de PV</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Numéro de PV" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
           </div>
-
-          <div>
-            <Label htmlFor="description" className="mb-2 block">Description</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Entrez la description"
-              rows={4}
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <FormField
+              control={form.control}
+              name="date"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Date</FormLabel>
+                  <FormControl>
+                    <Input type="date" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="time"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Heure</FormLabel>
+                  <FormControl>
+                    <Input type="time" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="location"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Lieu</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Lieu de la réunion" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
           </div>
-
-          <div className="flex justify-end">
-            <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
-              Enregistrer
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField
+              control={form.control}
+              name="projectId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Projet associé</FormLabel>
+                  <Select
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      filterSubProjects(value);
+                      form.setValue('subProjectId', '');
+                    }}
+                    value={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionner un projet" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="">Aucun</SelectItem>
+                      {projects.map((project) => (
+                        <SelectItem key={project.id} value={project.id}>
+                          {project.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="subProjectId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Sous-projet associé</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    disabled={!form.getValues('projectId')}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionner un sous-projet" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="">Aucun</SelectItem>
+                      {filteredSubProjects.map((subProject) => (
+                        <SelectItem key={subProject.id} value={subProject.id}>
+                          {subProject.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          
+          <FormField
+            control={form.control}
+            name="attendees"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Participants</FormLabel>
+                <FormControl>
+                  <Input placeholder="Liste des participants (séparés par des virgules)" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description / Ordre du jour</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Description ou ordre du jour de la réunion"
+                    className="min-h-[120px]"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <div className="flex justify-end space-x-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate('/reunion')}
+              disabled={isLoading}
+            >
+              Annuler
+            </Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? 'Enregistrement...' : isEditMode ? 'Mettre à jour' : 'Créer'}
             </Button>
           </div>
         </form>
-      </div>
+      </Form>
     </div>
   );
 };

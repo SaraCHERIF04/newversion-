@@ -89,6 +89,7 @@ import AdminParametresPage from "./pages/Admin/AdminParametresPage";
 import FinancierLayout from "./components/Layout/FinancierLayout";
 import FinancierFacturesPage from "./pages/Financier/FinancierFacturesPage";
 import FinancierFactureFormPage from "./pages/Financier/FinancierFactureFormPage";
+import FinancierMarchePage from "./pages/Financier/FinancierMarchePage";
 
 // Route protection component
 interface ProtectedRouteProps {
@@ -115,7 +116,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRole }
   return <>{children}</>;
 };
 
-// Create a new query client instance inside the component
 function App() {
   const queryClient = new QueryClient();
   const [isLoading, setIsLoading] = useState(true);
@@ -271,7 +271,7 @@ function App() {
               <Route path="factures" element={<FinancierFacturesPage />} />
               <Route path="factures/new" element={<FinancierFactureFormPage />} />
               <Route path="factures/edit/:id" element={<FinancierFactureFormPage />} />
-              <Route path="marche" element={<EmployeeMarchePage />} />
+              <Route path="marche" element={<FinancierMarchePage />} />
               <Route path="reunions" element={<EmployeeReunionsPage />} />
               <Route path="parametres" element={<EmployeeParametresPage />} />
               <Route path="about" element={<EmployeeAboutPage />} />
