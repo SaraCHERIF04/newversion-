@@ -8,11 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { Settings, Key, Languages } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useLanguage, Language } from '@/contexts/LanguageContext';
 
 const ParametresPage: React.FC = () => {
   const { toast } = useToast();
-  const { language, setLanguage, t } = useLanguage();
+  const [language, setLanguage] = useState('fr');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -22,8 +21,8 @@ const ParametresPage: React.FC = () => {
     
     if (newPassword.length < 8) {
       toast({
-        title: t('error'),
-        description: t('passwordTooShort'),
+        title: "Erreur",
+        description: "Le mot de passe doit contenir au moins 8 caractères",
         variant: "destructive",
       });
       return;
@@ -31,8 +30,8 @@ const ParametresPage: React.FC = () => {
     
     if (newPassword !== confirmPassword) {
       toast({
-        title: t('error'),
-        description: t('passwordsDontMatch'),
+        title: "Erreur",
+        description: "Les mots de passe ne correspondent pas",
         variant: "destructive",
       });
       return;
@@ -42,8 +41,8 @@ const ParametresPage: React.FC = () => {
     localStorage.setItem('userPassword', newPassword);
     
     toast({
-      title: t('success'),
-      description: t('passwordUpdated'),
+      title: "Succès",
+      description: "Votre mot de passe a été mis à jour",
     });
     
     setCurrentPassword('');
@@ -51,11 +50,11 @@ const ParametresPage: React.FC = () => {
     setConfirmPassword('');
   };
 
-  const handleLanguageChange = (value: Language) => {
+  const handleLanguageChange = (value: string) => {
     setLanguage(value);
     toast({
-      title: t('languageUpdated'),
-      description: t('languageChangeSuccess'),
+      title: "Langue mise à jour",
+      description: "La langue a été changée avec succès",
     });
   };
   
@@ -63,7 +62,7 @@ const ParametresPage: React.FC = () => {
     <div className="container mx-auto py-8 px-4">
       <div className="flex items-center mb-6">
         <Settings className="h-6 w-6 mr-2 text-blue-600" />
-        <h1 className="text-2xl font-bold">{t('settings')}</h1>
+        <h1 className="text-2xl font-bold">Paramètres</h1>
       </div>
       
       <Tabs defaultValue="language" className="w-full">
@@ -71,13 +70,13 @@ const ParametresPage: React.FC = () => {
           <TabsTrigger value="language">
             <div className="flex items-center gap-2">
               <Languages className="h-4 w-4" />
-              {t('language')}
+              Langue
             </div>
           </TabsTrigger>
           <TabsTrigger value="password">
             <div className="flex items-center gap-2">
               <Key className="h-4 w-4" />
-              {t('password')}
+              Mot de passe
             </div>
           </TabsTrigger>
         </TabsList>
@@ -85,19 +84,19 @@ const ParametresPage: React.FC = () => {
         <TabsContent value="language">
           <Card>
             <CardHeader>
-              <CardTitle>{t('language')}</CardTitle>
+              <CardTitle>Paramètres de langue</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="language">{t('appLanguage')}</Label>
+                <Label htmlFor="language">Langue de l'application</Label>
                 <Select value={language} onValueChange={handleLanguageChange}>
                   <SelectTrigger id="language">
-                    <SelectValue placeholder={t('selectLanguage')} />
+                    <SelectValue placeholder="Sélectionner une langue" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="fr">{t('french')}</SelectItem>
-                    <SelectItem value="en">{t('english')}</SelectItem>
-                    <SelectItem value="ar">{t('arabic')}</SelectItem>
+                    <SelectItem value="fr">Français</SelectItem>
+                    <SelectItem value="en">Anglais</SelectItem>
+                    <SelectItem value="ar">Arabe</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -108,12 +107,12 @@ const ParametresPage: React.FC = () => {
         <TabsContent value="password">
           <Card>
             <CardHeader>
-              <CardTitle>{t('password')}</CardTitle>
+              <CardTitle>Changer le mot de passe</CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handlePasswordChange} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="current-password">{t('currentPassword')}</Label>
+                  <Label htmlFor="current-password">Mot de passe actuel</Label>
                   <Input
                     id="current-password"
                     type="password"
@@ -124,7 +123,7 @@ const ParametresPage: React.FC = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="new-password">{t('newPassword')}</Label>
+                  <Label htmlFor="new-password">Nouveau mot de passe</Label>
                   <Input
                     id="new-password"
                     type="password"
@@ -135,7 +134,7 @@ const ParametresPage: React.FC = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="confirm-password">{t('confirmPassword')}</Label>
+                  <Label htmlFor="confirm-password">Confirmer le mot de passe</Label>
                   <Input
                     id="confirm-password"
                     type="password"
@@ -146,7 +145,7 @@ const ParametresPage: React.FC = () => {
                 </div>
                 
                 <Button type="submit" className="w-full">
-                  {t('updatePassword')}
+                  Mettre à jour le mot de passe
                 </Button>
               </form>
             </CardContent>
