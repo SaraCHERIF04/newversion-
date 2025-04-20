@@ -7,7 +7,12 @@ export interface Meeting {
   location: string;
   description?: string;
   pvNumber?: string;
-  attendees: string[];
+  attendees: Array<{
+    id: string;
+    name: string;
+    role?: string;
+    avatar?: string;
+  }>;
   createdAt: string;
   updatedAt?: string;
   projectId?: string;
@@ -15,9 +20,9 @@ export interface Meeting {
   status?: string;
   startTime?: string;
   endTime?: string;
-  documents?: {
+  documents?: Array<{
     id: string;
     title: string;
     url: string;
-  }[];
+  }>;
 }

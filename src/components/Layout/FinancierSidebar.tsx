@@ -3,7 +3,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from "@/lib/utils";
 import { 
-  FileText, Home, File, Users, Calendar,
+  FileText, Home, File, Calendar,
   Settings, HelpCircle, Receipt, Building2
 } from 'lucide-react';
 

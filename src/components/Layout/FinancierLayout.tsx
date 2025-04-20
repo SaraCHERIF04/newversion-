@@ -39,7 +39,7 @@ const FinancierLayout = () => {
         <div className="flex-1">
           <Header 
             searchQuery={searchQuery} 
-            setSearchQuery={setSearchQuery} 
+            setSearchQuery={setSearchQuery}
           />
           <main className="px-6 py-6">
             <Outlet />
