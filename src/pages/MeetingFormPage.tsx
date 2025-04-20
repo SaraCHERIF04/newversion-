@@ -72,7 +72,6 @@ const MeetingFormPage = () => {
   });
 
   useEffect(() => {
-    // Load projects
     const projectsData = localStorage.getItem('projects');
     if (projectsData) {
       try {
@@ -83,7 +82,6 @@ const MeetingFormPage = () => {
       }
     }
 
-    // Load subprojects
     const subProjectsData = localStorage.getItem('subProjects');
     if (subProjectsData) {
       try {
@@ -94,7 +92,6 @@ const MeetingFormPage = () => {
       }
     }
 
-    // If editing, load meeting data
     if (isEditMode) {
       const meetingsData = localStorage.getItem('meetings');
       if (meetingsData) {
@@ -144,7 +141,6 @@ const MeetingFormPage = () => {
       let meetings = meetingsData ? JSON.parse(meetingsData) : [];
       
       if (isEditMode) {
-        // Update existing meeting
         meetings = meetings.map((meeting: Meeting) => {
           if (meeting.id === id) {
             return {
@@ -156,7 +152,7 @@ const MeetingFormPage = () => {
               description: formData.description,
               projectId: formData.projectId,
               subProjectId: formData.subProjectId,
-              attendees: formData.attendees,
+              attendees: formData.attendees || '',
               pvNumber: formData.pvNumber,
               updatedAt: new Date().toISOString(),
             };
@@ -169,7 +165,6 @@ const MeetingFormPage = () => {
           description: 'La réunion a été mise à jour avec succès.',
         });
       } else {
-        // Create new meeting
         const newMeeting: Meeting = {
           id: uuidv4(),
           title: formData.title,

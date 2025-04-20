@@ -87,6 +87,7 @@ import AdminParametresPage from "./pages/Admin/AdminParametresPage";
 
 // Financier Pages Imports
 import FinancierLayout from "./components/Layout/FinancierLayout";
+import FinancierDashboardPage from "./pages/Financier/FinancierDashboardPage";
 import FinancierFacturesPage from "./pages/Financier/FinancierFacturesPage";
 import FinancierFactureFormPage from "./pages/Financier/FinancierFactureFormPage";
 import FinancierMarchePage from "./pages/Financier/FinancierMarchePage";
