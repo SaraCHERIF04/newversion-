@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Upload, X, Check, Download } from 'lucide-react';
+import { ArrowLeft, Upload, X, Check, Download, Plus } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { Project } from './ProjectCard';
 import { notifyNewProject } from '@/utils/notificationHelpers';
 import { algerianWilayas } from '@/utils/algerianWilayas';
+import ProjectMembersList from './ProjectMembersList';
 import {
   Select,
   SelectContent,
@@ -13,6 +14,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
 type ProjectFormProps = {
   project?: Project & {
@@ -48,6 +57,23 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
   const [startDate, setStartDate] = useState(project?.startDate || '');
   const [endDate, setEndDate] = useState(project?.endDate || '');
   const [documents, setDocuments] = useState<ProjectDocument[]>(project?.documents || []);
+  const [newWilaya, setNewWilaya] = useState('');
+  const [customWilayas, setCustomWilayas] = useState<string[]>([]);
+  const [members, setMembers] = useState([
+    { id: '1', name: 'Ahmed Benali', role: 'Ingénieur', avatar: 'https://randomuser.me/api/portraits/men/1.jpg' },
+    { id: '2', name: 'Sarah Mansouri', role: 'Architecte', avatar: 'https://randomuser.me/api/portraits/women/2.jpg' },
+    { id: '3', name: 'Karim Hadj', role: 'Technicien', avatar: 'https://randomuser.me/api/portraits/men/3.jpg' },
+  ]);
+  const [selectedMembers, setSelectedMembers] = useState<Array<{ id: string; name: string; role?: string; avatar: string }>>(
+    project?.members || []
+  );
+
+  useEffect(() => {
+    const savedCustomWilayas = localStorage.getItem('customWilayas');
+    if (savedCustomWilayas) {
+      setCustomWilayas(JSON.parse(savedCustomWilayas));
+    }
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -81,6 +107,24 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
     }
   };
 
+  const handleAddWilaya = () => {
+    if (newWilaya.trim()) {
+      const updatedWilayas = [...customWilayas, newWilaya.trim()];
+      setCustomWilayas(updatedWilayas);
+      localStorage.setItem('customWilayas', JSON.stringify(updatedWilayas));
+      setNewWilaya('');
+    }
+  };
+
+  const handleMemberSelect = (member: { id: string; name: string; role?: string; avatar: string }) => {
+    const isSelected = selectedMembers.some((m) => m.id === member.id);
+    if (isSelected) {
+      setSelectedMembers(selectedMembers.filter((m) => m.id !== member.id));
+    } else {
+      setSelectedMembers([...selectedMembers, member]);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -93,20 +137,13 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
       return;
     }
 
-    const updatedProject: Project & {
-      chef?: string;
-      wilaya?: string;
-      budget?: string;
-      startDate?: string;
-      endDate?: string;
-      documents?: Array<{ id: string; title: string; url?: string }>;
-    } = {
+    const updatedProject = {
       id: project?.id || `proj-${Date.now()}`,
       name,
       description,
       status,
       deadline: project?.deadline || '23 JUIN 2023',
-      members: project?.members || [],
+      members: selectedMembers,
       documentsCount: documents.length,
       chef,
       wilaya,
@@ -230,18 +267,42 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
             <label htmlFor="wilaya" className="block text-sm font-medium text-gray-700 mb-1">
               Wilaya
             </label>
-            <Select value={wilaya} onValueChange={setWilaya}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Sélectionnez une wilaya" />
-              </SelectTrigger>
-              <SelectContent>
-                {algerianWilayas.map((wilaya) => (
-                  <SelectItem key={wilaya} value={wilaya}>
-                    {wilaya}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex gap-2">
+              <Select value={wilaya} onValueChange={setWilaya}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Sélectionnez une wilaya" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[...algerianWilayas, ...customWilayas].map((wilaya) => (
+                    <SelectItem key={wilaya} value={wilaya}>
+                      {wilaya}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button type="button" variant="outline" size="icon">
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Ajouter une nouvelle wilaya</DialogTitle>
+                  </DialogHeader>
+                  <div className="flex gap-2 mt-4">
+                    <Input
+                      value={newWilaya}
+                      onChange={(e) => setNewWilaya(e.target.value)}
+                      placeholder="Nom de la wilaya"
+                    />
+                    <Button type="button" onClick={handleAddWilaya}>
+                      Ajouter
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
         </div>
 
@@ -260,10 +321,6 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
             />
           </div>
 
-          
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
             <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-1">
               Date début
@@ -288,6 +345,39 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
               onChange={(e) => setEndDate(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+          </div>
+        </div>
+
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-3">
+            Membres du projet
+          </label>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            {members.map((member) => (
+              <div
+                key={member.id}
+                onClick={() => handleMemberSelect(member)}
+                className={`p-4 border rounded-lg cursor-pointer flex items-center gap-3 ${
+                  selectedMembers.some((m) => m.id === member.id)
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-gray-200'
+                }`}
+              >
+                <img
+                  src={member.avatar}
+                  alt={member.name}
+                  className="w-10 h-10 rounded-full"
+                />
+                <div>
+                  <p className="font-medium">{member.name}</p>
+                  <p className="text-sm text-gray-500">{member.role}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-6">
+            <h3 className="text-sm font-medium text-gray-700 mb-3">Membres sélectionnés</h3>
+            <ProjectMembersList members={selectedMembers} />
           </div>
         </div>
 
