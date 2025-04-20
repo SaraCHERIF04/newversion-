@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,14 @@ const ParametresPage: React.FC = () => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+
+  // Charger la langue actuelle au chargement de la page
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem('userLanguage');
+    if (savedLanguage) {
+      setLanguage(savedLanguage);
+    }
+  }, []);
 
   const handlePasswordChange = (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,17 +60,40 @@ const ParametresPage: React.FC = () => {
 
   const handleLanguageChange = (value: string) => {
     setLanguage(value);
+    
+    // Enregistrer la langue dans localStorage
+    localStorage.setItem('userLanguage', value);
+    
+    // Afficher un message de confirmation basé sur la langue sélectionnée
+    let message = "La langue a été changée avec succès";
+    let title = "Langue mise à jour";
+    
+    if (value === 'en') {
+      message = "Language has been successfully changed";
+      title = "Language updated";
+    } else if (value === 'ar') {
+      message = "تم تغيير اللغة بنجاح";
+      title = "تم تحديث اللغة";
+    }
+    
     toast({
-      title: "Langue mise à jour",
-      description: "La langue a été changée avec succès",
+      title: title,
+      description: message,
     });
+    
+    // Recharger la page pour appliquer les changements de langue
+    setTimeout(() => {
+      window.location.reload();
+    }, 1500);
   };
   
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="flex items-center mb-6">
         <Settings className="h-6 w-6 mr-2 text-blue-600" />
-        <h1 className="text-2xl font-bold">Paramètres</h1>
+        <h1 className="text-2xl font-bold">
+          {language === 'fr' ? 'Paramètres' : language === 'en' ? 'Settings' : 'الإعدادات'}
+        </h1>
       </div>
       
       <Tabs defaultValue="language" className="w-full">
@@ -70,13 +101,13 @@ const ParametresPage: React.FC = () => {
           <TabsTrigger value="language">
             <div className="flex items-center gap-2">
               <Languages className="h-4 w-4" />
-              Langue
+              {language === 'fr' ? 'Langue' : language === 'en' ? 'Language' : 'اللغة'}
             </div>
           </TabsTrigger>
           <TabsTrigger value="password">
             <div className="flex items-center gap-2">
               <Key className="h-4 w-4" />
-              Mot de passe
+              {language === 'fr' ? 'Mot de passe' : language === 'en' ? 'Password' : 'كلمة المرور'}
             </div>
           </TabsTrigger>
         </TabsList>
@@ -84,19 +115,31 @@ const ParametresPage: React.FC = () => {
         <TabsContent value="language">
           <Card>
             <CardHeader>
-              <CardTitle>Paramètres de langue</CardTitle>
+              <CardTitle>
+                {language === 'fr' ? 'Paramètres de langue' : 
+                 language === 'en' ? 'Language settings' : 
+                 'إعدادات اللغة'}
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="language">Langue de l'application</Label>
+                <Label htmlFor="language">
+                  {language === 'fr' ? "Langue de l'application" : 
+                   language === 'en' ? "Application language" : 
+                   "لغة التطبيق"}
+                </Label>
                 <Select value={language} onValueChange={handleLanguageChange}>
                   <SelectTrigger id="language">
-                    <SelectValue placeholder="Sélectionner une langue" />
+                    <SelectValue placeholder={
+                      language === 'fr' ? "Sélectionner une langue" : 
+                      language === 'en' ? "Select a language" : 
+                      "اختر لغة"
+                    } />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="fr">Français</SelectItem>
-                    <SelectItem value="en">Anglais</SelectItem>
-                    <SelectItem value="ar">Arabe</SelectItem>
+                    <SelectItem value="en">English</SelectItem>
+                    <SelectItem value="ar">العربية</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -107,12 +150,20 @@ const ParametresPage: React.FC = () => {
         <TabsContent value="password">
           <Card>
             <CardHeader>
-              <CardTitle>Changer le mot de passe</CardTitle>
+              <CardTitle>
+                {language === 'fr' ? 'Changer le mot de passe' : 
+                 language === 'en' ? 'Change password' : 
+                 'تغيير كلمة المرور'}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handlePasswordChange} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="current-password">Mot de passe actuel</Label>
+                  <Label htmlFor="current-password">
+                    {language === 'fr' ? 'Mot de passe actuel' : 
+                     language === 'en' ? 'Current password' : 
+                     'كلمة المرور الحالية'}
+                  </Label>
                   <Input
                     id="current-password"
                     type="password"
@@ -123,7 +174,11 @@ const ParametresPage: React.FC = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="new-password">Nouveau mot de passe</Label>
+                  <Label htmlFor="new-password">
+                    {language === 'fr' ? 'Nouveau mot de passe' : 
+                     language === 'en' ? 'New password' : 
+                     'كلمة المرور الجديدة'}
+                  </Label>
                   <Input
                     id="new-password"
                     type="password"
@@ -134,7 +189,11 @@ const ParametresPage: React.FC = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="confirm-password">Confirmer le mot de passe</Label>
+                  <Label htmlFor="confirm-password">
+                    {language === 'fr' ? 'Confirmer le mot de passe' : 
+                     language === 'en' ? 'Confirm password' : 
+                     'تأكيد كلمة المرور'}
+                  </Label>
                   <Input
                     id="confirm-password"
                     type="password"
@@ -145,7 +204,9 @@ const ParametresPage: React.FC = () => {
                 </div>
                 
                 <Button type="submit" className="w-full">
-                  Mettre à jour le mot de passe
+                  {language === 'fr' ? 'Mettre à jour le mot de passe' : 
+                   language === 'en' ? 'Update password' : 
+                   'تحديث كلمة المرور'}
                 </Button>
               </form>
             </CardContent>
