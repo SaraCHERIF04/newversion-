@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,11 @@ import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Supplier } from '@/types/Supplier';
 
-export function SupplierDialog() {
+interface SupplierDialogProps {
+  onSuppliersUpdate?: (suppliers: Supplier[]) => void;
+}
+
+export function SupplierDialog({ onSuppliersUpdate }: SupplierDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [suppliers, setSuppliers] = useState<Supplier[]>(() => {
     const saved = localStorage.getItem('suppliers');
@@ -20,6 +23,9 @@ export function SupplierDialog() {
   const saveSuppliers = (updatedSuppliers: Supplier[]) => {
     localStorage.setItem('suppliers', JSON.stringify(updatedSuppliers));
     setSuppliers(updatedSuppliers);
+    if (onSuppliersUpdate) {
+      onSuppliersUpdate(updatedSuppliers);
+    }
   };
 
   const handleAddSupplier = () => {

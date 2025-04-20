@@ -107,6 +107,10 @@ const FinancierFactureFormPage = () => {
     navigate(-1);
   };
 
+  const handleSuppliersUpdate = (updatedSuppliers: Supplier[]) => {
+    setSuppliers(updatedSuppliers);
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-6">
       <FactureFormHeader isEditing={isEditing} onBack={handleBack} />
@@ -123,7 +127,7 @@ const FinancierFactureFormPage = () => {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="supplier">Fournisseur</Label>
-              <SupplierDialog />
+              <SupplierDialog onSuppliersUpdate={handleSuppliersUpdate} />
             </div>
             <Select
               value={formData.supplier}
