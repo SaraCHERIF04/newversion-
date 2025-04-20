@@ -1,10 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Check, Plus } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { X } from 'lucide-react';
 import { User } from '@/types/User';
 
 interface MemberSearchProps {
@@ -13,145 +10,143 @@ interface MemberSearchProps {
 }
 
 const MemberSearch: React.FC<MemberSearchProps> = ({ onSelect, selectedMembers }) => {
-  const [open, setOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState('');
-  const [users, setUsers] = useState<User[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [searchMember, setSearchMember] = useState('');
+  const [availableMembers, setAvailableMembers] = useState<User[]>([]);
 
-  // Load users when component mounts
   useEffect(() => {
-    setIsLoading(true);
-    const defaultUsers: User[] = [
-      {
-        id: "1",
-        name: "John Doe",
-        email: "john@example.com",
-        role: "employee",
-        status: "En poste",
-        createdAt: new Date().toISOString(),
-        prenom: "John"
-      },
-      {
-        id: "2",
-        name: "Jane Smith",
-        email: "jane@example.com",
-        role: "chef",
-        status: "En poste",
-        createdAt: new Date().toISOString(),
-        prenom: "Jane"
-      }
-    ];
-
-    try {
-      const usersString = localStorage.getItem('users');
-      if (usersString) {
-        const parsedUsers = JSON.parse(usersString);
-        if (Array.isArray(parsedUsers) && parsedUsers.length > 0) {
-          setUsers(parsedUsers);
-        } else {
-          // Store default users if none exist or invalid data
-          localStorage.setItem('users', JSON.stringify(defaultUsers));
-          setUsers(defaultUsers);
+    const loadUsers = () => {
+      try {
+        const usersString = localStorage.getItem('users');
+        if (usersString) {
+          const users = JSON.parse(usersString);
+          if (Array.isArray(users)) {
+            const selectedMemberIds = new Set(selectedMembers.map(m => m.id));
+            const availableUsers = users.filter(user => !selectedMemberIds.has(user.id));
+            setAvailableMembers(availableUsers);
+          }
         }
-      } else {
-        // Store default users if none exist
-        localStorage.setItem('users', JSON.stringify(defaultUsers));
-        setUsers(defaultUsers);
+      } catch (error) {
+        console.error('Error loading users:', error);
+        setAvailableMembers([]);
       }
-    } catch (error) {
-      console.error('Error loading users:', error);
-      setUsers(defaultUsers);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    };
 
-  // Filter users based on search value - ensure we never filter an undefined array
-  const filteredUsers = users && users.length > 0 
-    ? users.filter((user) =>
-        user.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-        (user.prenom && user.prenom.toLowerCase().includes(searchValue.toLowerCase()))
-      )
-    : [];
+    loadUsers();
+  }, [selectedMembers]);
 
-  // Ensure we have a valid selectedMembers array
-  const validSelectedMembers = Array.isArray(selectedMembers) ? selectedMembers : [];
+  const handleSelectMember = (member: User) => {
+    onSelect(member);
+  };
+
+  const filteredMembers = availableMembers.filter(member =>
+    member.name.toLowerCase().includes(searchMember.toLowerCase()) ||
+    (member.prenom && member.prenom.toLowerCase().includes(searchMember.toLowerCase()))
+  );
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" className="gap-2">
-          <Plus className="h-4 w-4" />
-          Ajouter un membre
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[475px]">
-        <DialogHeader>
-          <DialogTitle>Ajouter un membre au projet</DialogTitle>
-          <DialogDescription>
-            Recherchez et sélectionnez les membres à ajouter au projet
-          </DialogDescription>
-        </DialogHeader>
-        {isLoading ? (
-          <div className="py-6 text-center">Chargement des utilisateurs...</div>
-        ) : (
-          <Command className="rounded-lg border shadow-md">
-            <CommandInput 
-              placeholder="Rechercher un membre..." 
-              value={searchValue}
-              onValueChange={setSearchValue}
-            />
-            <CommandEmpty>Aucun membre trouvé</CommandEmpty>
-            <CommandGroup className="max-h-60 overflow-auto">
-              {filteredUsers.length === 0 ? (
-                <div className="px-4 py-3 text-sm text-muted-foreground">
-                  Aucun utilisateur ne correspond à votre recherche
-                </div>
-              ) : (
-                filteredUsers.map((user) => {
-                  const isSelected = validSelectedMembers.some((member) => member.id === user.id);
-                  return (
-                    <CommandItem
-                      key={user.id}
-                      onSelect={() => {
-                        onSelect(user);
-                        setOpen(false);
-                        setSearchValue('');
-                      }}
-                      className="flex items-center gap-2 py-2"
-                    >
-                      <div className={cn(
-                        "flex h-5 w-5 items-center justify-center rounded border",
-                        isSelected ? "bg-primary border-primary" : "border-input"
-                      )}>
-                        {isSelected && <Check className="h-4 w-4 text-primary-foreground" />}
+    <div className="w-full space-y-4">
+      <div>
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Rechercher membres..."
+            value={searchMember}
+            onChange={(e) => setSearchMember(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div className="border border-gray-200 rounded-md max-h-64 overflow-y-auto">
+        <table className="min-w-full">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Membre de projet
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Action
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {filteredMembers.length > 0 ? (
+              filteredMembers.map(member => (
+                <tr key={member.id}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0 h-8 w-8">
+                        <img 
+                          src={member.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}`}
+                          alt="" 
+                          className="h-8 w-8 rounded-full"
+                        />
                       </div>
-                      <div className="flex items-center gap-2">
-                        {user.avatar ? (
-                          <img 
-                            src={user.avatar} 
-                            alt={user.name} 
-                            className="h-8 w-8 rounded-full object-cover"
-                          />
-                        ) : (
-                          <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
-                            <span className="text-xs font-medium">{user.name.charAt(0)}</span>
-                          </div>
-                        )}
-                        <div>
-                          <p className="text-sm font-medium">{user.name} {user.prenom || ''}</p>
-                          <p className="text-xs text-muted-foreground">{user.role}</p>
+                      <div className="ml-4">
+                        <div className="text-sm font-medium text-gray-900">
+                          {member.name} {member.prenom}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {member.role}
                         </div>
                       </div>
-                    </CommandItem>
-                  );
-                })
-              )}
-            </CommandGroup>
-          </Command>
-        )}
-      </DialogContent>
-    </Dialog>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <Button
+                      onClick={() => handleSelectMember(member)}
+                      variant="ghost"
+                      className="text-[#192759] hover:text-blue-700"
+                    >
+                      Ajouter
+                    </Button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={2} className="px-6 py-4 text-center text-sm text-gray-500">
+                  Aucun membre disponible
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {selectedMembers.length > 0 && (
+        <div className="mt-4">
+          <h3 className="text-sm font-medium text-gray-700 mb-2">Membres sélectionnés</h3>
+          <div className="flex flex-wrap gap-2">
+            {selectedMembers.map(member => (
+              <div
+                key={member.id}
+                className="flex items-center bg-blue-50 text-blue-700 rounded-full px-3 py-1"
+              >
+                <img
+                  src={member.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}`}
+                  alt={member.name}
+                  className="h-6 w-6 rounded-full mr-2"
+                />
+                <span className="text-sm">{member.name} {member.prenom}</span>
+                <button
+                  type="button"
+                  onClick={() => onSelect(member)}
+                  className="ml-2 text-blue-400 hover:text-blue-600"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
