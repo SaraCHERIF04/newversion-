@@ -1,100 +1,60 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { login } from '@/services/authService';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('chef');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    // Check credentials for each role
-    if (role === 'chef' && email === 'alexarowles@sonelgaz.dz' && password === 'admin123') {
-      setTimeout(() => {
-        localStorage.setItem('userRole', 'chef');
-        localStorage.setItem('userId', '1');
-        localStorage.setItem('userName', 'Alexis Rowles');
-        localStorage.setItem('userEmail', email);
-        toast({
-          title: "Connexion réussie",
-          description: "Bienvenue sur le tableau de bord chef de projet",
-        });
-        navigate('/project');
-        setLoading(false);
-      }, 1000);
-    } else if (role === 'employee' && email === 'jeandupont@sonelgaz.dz' && password === 'employee123') {
-      setTimeout(() => {
-        localStorage.setItem('userRole', 'employee');
-        localStorage.setItem('userId', '2');
-        localStorage.setItem('userName', 'Jean Dupont');
-        localStorage.setItem('userEmail', email);
-        toast({
-          title: "Connexion réussie",
-          description: "Bienvenue sur le tableau de bord employé",
-        });
-        navigate('/employee/projects');
-        setLoading(false);
-      }, 1000);
-    } else if (role === 'responsable' && email === 'ahmed.benali@sonelgaz.dz' && password === 'responsable123') {
-      setTimeout(() => {
-        localStorage.setItem('userRole', 'responsable');
-        localStorage.setItem('userId', '4');
-        localStorage.setItem('userName', 'Ahmed Benali');
-        localStorage.setItem('userEmail', email);
-        toast({
-          title: "Connexion réussie",
-          description: "Bienvenue sur le tableau de bord responsable",
-        });
-        navigate('/responsable/dashboard');
-        setLoading(false);
-      }, 1000);
-    } else if (role === 'admin' && email === 'admin@sonelgaz.dz' && password === 'admin123') {
-      setTimeout(() => {
-        localStorage.setItem('userRole', 'admin');
-        localStorage.setItem('userId', '3');
-        localStorage.setItem('userName', 'Admin Sonelgaz');
-        localStorage.setItem('userEmail', email);
-        toast({
-          title: "Connexion réussie",
-          description: "Bienvenue sur le tableau de bord administrateur",
-        });
-        navigate('/admin/users');
-        setLoading(false);
-      }, 1000);
-    } else if (role === 'financier' && email === 'finance@sonelgaz.dz' && password === 'finance123') {
-      setTimeout(() => {
-        localStorage.setItem('userRole', 'financier');
-        localStorage.setItem('userId', '5');
-        localStorage.setItem('userName', 'Finance Manager');
-        localStorage.setItem('userEmail', email);
-        toast({
-          title: "Connexion réussie",
-          description: "Bienvenue sur le tableau de bord financier",
-        });
-        navigate('/financier/factures');
-        setLoading(false);
-      }, 1000);
-    } else {
-      setTimeout(() => {
-        toast({
-          title: "Erreur de connexion",
-          description: "Email ou mot de passe incorrect",
-          variant: "destructive",
-        });
-        setLoading(false);
-      }, 1000);
+    try {
+      await login({ email, password });
+      
+      toast({
+        title: "Connexion réussie",
+        description: "Bienvenue sur votre tableau de bord",
+      });
+
+      // Navigate based on user role
+      const userRole = localStorage.getItem('userRole');
+      switch (userRole) {
+        case 'chef':
+          navigate('/project');
+          break;
+        case 'employee':
+          navigate('/employee/projects');
+          break;
+        case 'responsable':
+          navigate('/responsable/dashboard');
+          break;
+        case 'admin':
+          navigate('/admin/users');
+          break;
+        case 'financier':
+          navigate('/financier/factures');
+          break;
+        default:
+          navigate('/');
+      }
+    } catch (error) {
+      toast({
+        title: "Erreur de connexion",
+        description: "Email ou mot de passe incorrect",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -120,22 +80,6 @@ const LoginPage = () => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="role">Rôle</Label>
-                <Select value={role} onValueChange={setRole}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner un rôle" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="admin">Administrateur</SelectItem>
-                    <SelectItem value="chef">Chef de projet</SelectItem>
-                    <SelectItem value="responsable">Responsable</SelectItem>
-                    <SelectItem value="employee">Employé</SelectItem>
-                    <SelectItem value="financier">Financier</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input

@@ -27,6 +27,7 @@ import {
   CommandSeparator 
 } from "@/components/ui/command";
 import { DialogTitle } from "@/components/ui/dialog";
+import { logout } from '@/services/authService';
 
 type HeaderProps = {
   searchQuery: string;
@@ -501,11 +502,15 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, isEmployee
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('userProfile');
-    localStorage.removeItem('userProfileEmployee');
-    localStorage.removeItem('userProfileResponsable');
+    logout();
     
+    // Show success message
+    toast({
+      title: "Déconnexion réussie",
+      description: "Vous avez été déconnecté avec succès.",
+    });
+    
+    // Navigate to login page
     navigate('/login');
   };
 
