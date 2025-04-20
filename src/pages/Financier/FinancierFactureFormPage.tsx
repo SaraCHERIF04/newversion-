@@ -5,6 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Invoice } from '@/types/Invoice';
+import { Supplier } from '@/types/Supplier';
 import { v4 as uuidv4 } from 'uuid';
 import {
   Select,
@@ -17,20 +18,21 @@ import FactureFormHeader from '@/components/Facture/FactureFormHeader';
 import ContractSection from '@/components/Facture/ContractSection';
 import DateSection from '@/components/Facture/DateSection';
 import AmountSection from '@/components/Facture/AmountSection';
+import { SupplierDialog } from '@/components/Supplier/SupplierDialog';
 
 const FinancierFactureFormPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const isEditing = Boolean(id);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
 
-  // Mock suppliers list - this should be replaced with actual data
-  const suppliers = [
-    "Supplier 1",
-    "Supplier 2",
-    "Supplier 3",
-    "Supplier 4",
-  ];
+  useEffect(() => {
+    const savedSuppliers = localStorage.getItem('suppliers');
+    if (savedSuppliers) {
+      setSuppliers(JSON.parse(savedSuppliers));
+    }
+  }, []);
 
   const [formData, setFormData] = useState({
     contractName: '',
@@ -119,7 +121,10 @@ const FinancierFactureFormPage = () => {
           />
 
           <div className="space-y-2">
-            <Label htmlFor="supplier">Fournisseur</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="supplier">Fournisseur</Label>
+              <SupplierDialog />
+            </div>
             <Select
               value={formData.supplier}
               onValueChange={(value) => setFormData(prev => ({ ...prev, supplier: value }))}
@@ -129,8 +134,8 @@ const FinancierFactureFormPage = () => {
               </SelectTrigger>
               <SelectContent>
                 {suppliers.map((supplier) => (
-                  <SelectItem key={supplier} value={supplier}>
-                    {supplier}
+                  <SelectItem key={supplier.id} value={supplier.name}>
+                    {supplier.name}
                   </SelectItem>
                 ))}
               </SelectContent>
