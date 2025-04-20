@@ -1,14 +1,12 @@
 
 export interface Meeting {
   id: string;
-  pvNumber: string;
-  location: string;
-  projectId: string;
+  title: string;
   date: string;
-  startTime: string;
-  endTime: string;
-  description: string;
-  attendees: Array<{id: string, name: string, avatar: string, role?: string}>;
-  documents?: Array<{id: string, title: string, url: string}>;
-  status?: 'annulé' | 'terminé' | 'à venir';
+  time: string;
+  location: string;
+  description?: string;
+  pvNumber?: string;
+  attendees: string;
+  createdAt: string;
 }

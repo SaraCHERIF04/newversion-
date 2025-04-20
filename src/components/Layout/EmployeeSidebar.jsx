@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { FileText, AlertTriangle, ShoppingBag, BarChart, Info } from 'lucide-react';
+import { FileText, AlertTriangle, ShoppingBag, BarChart, Info, Receipt } from 'lucide-react';
 
 const SidebarMenuItem = ({ item, active }) => {
   return (
@@ -96,6 +95,13 @@ const EmployeeSidebar = () => {
       path: '/employee/about',
       icon: (
         <Info size={20} />
+      ),
+    },
+    {
+      name: 'Factures',
+      path: '/employee/factures',
+      icon: (
+        <Receipt size={20} />
       ),
     },
   ];

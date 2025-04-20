@@ -96,6 +96,9 @@ import FinancierSubProjectDetailsPage from "./pages/Financier/FinancierSubProjec
 import FinancierReunionDetailsPage from "./pages/Financier/FinancierReunionDetailsPage";
 import FinancierFactureDetailsPage from "./pages/Financier/FinancierFactureDetailsPage";
 
+// Add new imports
+import EmployeeFacturesPage from "./pages/Employee/EmployeeFacturesPage";
+
 // Route protection component
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -259,6 +262,8 @@ function App() {
               <Route path="marche" element={<EmployeeMarchePage />} />
               <Route path="marche/:id" element={<EmployeMarcheDetailsPage />} />
               <Route path="maitre-ouvrage" element={<EmployeeMarcheAndMaitreOuvragePage />} />
+              <Route path="factures" element={<EmployeeFacturesPage />} />
+              <Route path="factures/:id" element={<FinancierFactureDetailsPage />} />
               <Route path="profile" element={<EmployeeProfilePage />} />
               <Route path="parametres" element={<EmployeeParametresPage />} />
               <Route path="about" element={<EmployeeAboutPage />} />
