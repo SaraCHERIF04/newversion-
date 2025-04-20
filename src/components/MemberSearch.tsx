@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Check, Plus, Search } from 'lucide-react';
+import { Check, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { User } from '@/types/User';
 
@@ -55,10 +55,12 @@ const MemberSearch: React.FC<MemberSearchProps> = ({ onSelect, selectedMembers }
   };
 
   const users = getUsers();
-  const filteredUsers = users.filter((user) =>
+  
+  // Make sure we always filter a valid array
+  const filteredUsers = users ? users.filter((user) =>
     user.name.toLowerCase().includes(searchValue.toLowerCase()) ||
     (user.prenom && user.prenom.toLowerCase().includes(searchValue.toLowerCase()))
-  );
+  ) : [];
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -83,40 +85,46 @@ const MemberSearch: React.FC<MemberSearchProps> = ({ onSelect, selectedMembers }
           />
           <CommandEmpty>Aucun membre trouvé</CommandEmpty>
           <CommandGroup className="max-h-60 overflow-auto">
-            {filteredUsers.map((user) => {
-              const isSelected = selectedMembers.some((member) => member.id === user.id);
-              return (
-                <CommandItem
-                  key={user.id}
-                  onSelect={() => {
-                    onSelect(user);
-                    setOpen(false);
-                    setSearchValue('');
-                  }}
-                  className="flex items-center gap-2 py-2"
-                >
-                  <div className={cn(
-                    "flex h-5 w-5 items-center justify-center rounded border",
-                    isSelected ? "bg-primary border-primary" : "border-input"
-                  )}>
-                    {isSelected && <Check className="h-4 w-4 text-primary-foreground" />}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {user.avatar && (
-                      <img 
-                        src={user.avatar} 
-                        alt={user.name} 
-                        className="h-8 w-8 rounded-full object-cover"
-                      />
-                    )}
-                    <div>
-                      <p className="text-sm font-medium">{user.name} {user.prenom}</p>
-                      <p className="text-xs text-muted-foreground">{user.role}</p>
+            {filteredUsers.length > 0 ? (
+              filteredUsers.map((user) => {
+                const isSelected = selectedMembers.some((member) => member.id === user.id);
+                return (
+                  <CommandItem
+                    key={user.id}
+                    onSelect={() => {
+                      onSelect(user);
+                      setOpen(false);
+                      setSearchValue('');
+                    }}
+                    className="flex items-center gap-2 py-2"
+                  >
+                    <div className={cn(
+                      "flex h-5 w-5 items-center justify-center rounded border",
+                      isSelected ? "bg-primary border-primary" : "border-input"
+                    )}>
+                      {isSelected && <Check className="h-4 w-4 text-primary-foreground" />}
                     </div>
-                  </div>
-                </CommandItem>
-              );
-            })}
+                    <div className="flex items-center gap-2">
+                      {user.avatar && (
+                        <img 
+                          src={user.avatar} 
+                          alt={user.name} 
+                          className="h-8 w-8 rounded-full object-cover"
+                        />
+                      )}
+                      <div>
+                        <p className="text-sm font-medium">{user.name} {user.prenom}</p>
+                        <p className="text-xs text-muted-foreground">{user.role}</p>
+                      </div>
+                    </div>
+                  </CommandItem>
+                );
+              })
+            ) : (
+              <div className="px-2 py-4 text-center text-sm text-muted-foreground">
+                Aucun utilisateur trouvé
+              </div>
+            )}
           </CommandGroup>
         </Command>
       </DialogContent>
