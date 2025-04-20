@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -41,6 +42,8 @@ import IncidentFollowUpsPage from "./pages/IncidentFollowUpsPage";
 import IncidentFollowUpFormPage from "./pages/IncidentFollowUpFormPage";
 import IncidentFollowUpDetailsPage from "./pages/IncidentFollowUpDetailsPage";
 import ParametresPage from "./pages/ParametresPage";
+import FacturesPage from "./pages/FacturesPage";
+import FactureDetailsPage from "./pages/FactureDetailsPage";
 
 // Employee Pages Imports
 import EmployeeLayout from "./components/Layout/EmployeeLayout";
@@ -234,6 +237,11 @@ function App() {
               <Route path="incidents/suivis/new/:incidentId" element={<IncidentFollowUpFormPage />} />
               <Route path="incidents/suivis/edit/:incidentId/:followUpId" element={<IncidentFollowUpFormPage />} />
               <Route path="incidents/suivis/:incidentId/:followUpId" element={<IncidentFollowUpDetailsPage />} />
+              
+              <Route path="factures" element={<FacturesPage />} />
+              <Route path="factures/:id" element={<FactureDetailsPage />} />
+              <Route path="factures/new" element={<FinancierFactureFormPage />} />
+              <Route path="factures/edit/:id" element={<FinancierFactureFormPage />} />
               
               <Route path="parametres" element={<ParametresPage />} />
               <Route path="about" element={<div>About Us Page</div>} />

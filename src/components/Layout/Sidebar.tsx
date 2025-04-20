@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -67,6 +68,11 @@ const Sidebar = () => {
       icon: <ShoppingBag size={20} />,
     },
     {
+      name: 'Factures',
+      path: '/factures',
+      icon: <Receipt size={20} />,
+    },
+    {
       name: 'Paramètres',
       path: '/parametres',
       icon: <Settings size={20} />,
@@ -75,12 +81,7 @@ const Sidebar = () => {
       name: 'About US',
       path: '/about',
       icon: <Info size={20} />,
-    },
-    {
-      name: "Factures",
-      path: "/factures",
-      icon: <Receipt size={20} />
-    },
+    }
   ];
 
   const isActive = (item) => {
