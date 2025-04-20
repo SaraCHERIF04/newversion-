@@ -7,6 +7,8 @@ import { Project } from './ProjectCard';
 import { notifyNewProject } from '@/utils/notificationHelpers';
 import { algerianWilayas } from '@/utils/algerianWilayas';
 import ProjectMembersList from './ProjectMembersList';
+import MemberSearch from './MemberSearch';
+import { User } from '@/types/User';
 import {
   Select,
   SelectContent,
@@ -59,13 +61,13 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
   const [documents, setDocuments] = useState<ProjectDocument[]>(project?.documents || []);
   const [newWilaya, setNewWilaya] = useState('');
   const [customWilayas, setCustomWilayas] = useState<string[]>([]);
-  const [members, setMembers] = useState([
-    { id: '1', name: 'Ahmed Benali', role: 'Ingénieur', avatar: 'https://randomuser.me/api/portraits/men/1.jpg' },
-    { id: '2', name: 'Sarah Mansouri', role: 'Architecte', avatar: 'https://randomuser.me/api/portraits/women/2.jpg' },
-    { id: '3', name: 'Karim Hadj', role: 'Technicien', avatar: 'https://randomuser.me/api/portraits/men/3.jpg' },
-  ]);
-  const [selectedMembers, setSelectedMembers] = useState<Array<{ id: string; name: string; role?: string; avatar: string }>>(
-    project?.members || []
+  const [selectedMembers, setSelectedMembers] = useState<User[]>(
+    project?.members ? project.members.map(member => ({
+      ...member,
+      role: member.role || 'Membre',
+      status: 'En poste',
+      createdAt: new Date().toISOString(),
+    })) : []
   );
 
   useEffect(() => {
@@ -116,7 +118,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
     }
   };
 
-  const handleMemberSelect = (member: { id: string; name: string; role?: string; avatar: string }) => {
+  const handleMemberSelect = (member: User) => {
     const isSelected = selectedMembers.some((m) => m.id === member.id);
     if (isSelected) {
       setSelectedMembers(selectedMembers.filter((m) => m.id !== member.id));
@@ -352,31 +354,11 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
           <label className="block text-sm font-medium text-gray-700 mb-3">
             Membres du projet
           </label>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            {members.map((member) => (
-              <div
-                key={member.id}
-                onClick={() => handleMemberSelect(member)}
-                className={`p-4 border rounded-lg cursor-pointer flex items-center gap-3 ${
-                  selectedMembers.some((m) => m.id === member.id)
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200'
-                }`}
-              >
-                <img
-                  src={member.avatar}
-                  alt={member.name}
-                  className="w-10 h-10 rounded-full"
-                />
-                <div>
-                  <p className="font-medium">{member.name}</p>
-                  <p className="text-sm text-gray-500">{member.role}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="mt-6">
-            <h3 className="text-sm font-medium text-gray-700 mb-3">Membres sélectionnés</h3>
+          <div className="space-y-4">
+            <MemberSearch
+              onSelect={handleMemberSelect}
+              selectedMembers={selectedMembers}
+            />
             <ProjectMembersList members={selectedMembers} />
           </div>
         </div>

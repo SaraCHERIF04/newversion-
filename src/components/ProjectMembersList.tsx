@@ -1,15 +1,9 @@
 
 import React from 'react';
-
-type Member = {
-  id: string;
-  name: string;
-  role?: string;
-  avatar: string;
-};
+import { User } from '@/types/User';
 
 type ProjectMembersListProps = {
-  members: Member[];
+  members: User[];
 };
 
 const ProjectMembersList: React.FC<ProjectMembersListProps> = ({ members }) => {
@@ -19,12 +13,12 @@ const ProjectMembersList: React.FC<ProjectMembersListProps> = ({ members }) => {
         members.map(member => (
           <div key={member.id} className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex flex-col items-center">
             <img 
-              src={member.avatar} 
+              src={member.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg'} 
               alt={member.name} 
               className="h-20 w-20 rounded-full mb-4 object-cover"
             />
-            <h3 className="text-lg font-medium">{member.name}</h3>
-            <p className="text-sm text-gray-500">{member.role || 'Membre'}</p>
+            <h3 className="text-lg font-medium">{member.name} {member.prenom}</h3>
+            <p className="text-sm text-gray-500">{member.role}</p>
           </div>
         ))
       ) : (
