@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -68,7 +67,20 @@ const FinancierReunionDetailsPage = () => {
             </div>
             <div>
               <p className="text-sm text-gray-500">Participants</p>
-              <p>{meeting.attendees || 'Aucun participant'}</p>
+              {Array.isArray(meeting.attendees) ? 
+                meeting.attendees.map(attendee => (
+                  <div key={attendee.id} className="flex items-center space-x-2">
+                    <img 
+                      src={attendee.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg'} 
+                      alt={attendee.name} 
+                      className="h-8 w-8 rounded-full"
+                    />
+                    <span>{attendee.name}</span>
+                    {attendee.role && <span className="text-sm text-gray-500">({attendee.role})</span>}
+                  </div>
+                ))
+                : meeting.attendees
+              }
             </div>
           </CardContent>
         </Card>

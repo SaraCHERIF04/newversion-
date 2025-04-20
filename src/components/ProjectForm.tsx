@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -62,12 +63,18 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
   const [newWilaya, setNewWilaya] = useState('');
   const [customWilayas, setCustomWilayas] = useState<string[]>([]);
   const [selectedMembers, setSelectedMembers] = useState<User[]>(
-    project?.members ? project.members.map(member => ({
-      ...member,
-      role: member.role || 'Membre',
-      status: 'En poste',
-      createdAt: new Date().toISOString(),
-    })) : []
+    project?.members ? project.members.map(member => {
+      // Ensure all required User properties are present
+      return {
+        id: member.id,
+        name: member.name,
+        email: member.email || `${member.id}@example.com`, // Default email if missing
+        role: member.role as 'admin' | 'chef' | 'employee' | 'responsable',
+        status: 'En poste',
+        createdAt: new Date().toISOString(),
+        avatar: member.avatar
+      };
+    }) : []
   );
 
   useEffect(() => {
@@ -145,7 +152,12 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
       description,
       status,
       deadline: project?.deadline || '23 JUIN 2023',
-      members: selectedMembers,
+      members: selectedMembers.map(member => ({
+        id: member.id,
+        name: member.name,
+        role: member.role,
+        avatar: member.avatar
+      })),
       documentsCount: documents.length,
       chef,
       wilaya,

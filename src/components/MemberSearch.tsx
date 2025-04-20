@@ -16,17 +16,42 @@ const MemberSearch: React.FC<MemberSearchProps> = ({ onSelect, selectedMembers }
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
 
-  // Simulating users from localStorage
+  // Simulating users from localStorage with default empty array to avoid undefined
   const getUsers = (): User[] => {
     try {
       const usersString = localStorage.getItem('users');
       if (usersString) {
-        return JSON.parse(usersString);
+        const parsedUsers = JSON.parse(usersString);
+        return Array.isArray(parsedUsers) ? parsedUsers : [];
       }
     } catch (error) {
       console.error('Error parsing users:', error);
     }
-    return [];
+    // If we reach this point, create some default users for testing
+    const defaultUsers: User[] = [
+      {
+        id: "1",
+        name: "John Doe",
+        email: "john@example.com",
+        role: "employee",
+        status: "En poste",
+        createdAt: new Date().toISOString(),
+        prenom: "John"
+      },
+      {
+        id: "2",
+        name: "Jane Smith",
+        email: "jane@example.com",
+        role: "chef",
+        status: "En poste",
+        createdAt: new Date().toISOString(),
+        prenom: "Jane"
+      }
+    ];
+    
+    // Store default users if none exist
+    localStorage.setItem('users', JSON.stringify(defaultUsers));
+    return defaultUsers;
   };
 
   const users = getUsers();
