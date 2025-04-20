@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from "@/lib/utils";
 import { 
   FileText, Home, File, Calendar,
-  Settings, HelpCircle, Receipt, Building2
+  Settings, HelpCircle, Receipt
 } from 'lucide-react';
 
 const FinancierSidebar = () => {
@@ -19,7 +18,6 @@ const FinancierSidebar = () => {
     { icon: FileText, label: 'Projects', path: '/financier/projects' },
     { icon: File, label: 'Documents', path: '/financier/documents' },
     { icon: Receipt, label: 'Factures', path: '/financier/factures' },
-    { icon: Building2, label: 'Marché', path: '/financier/marche' },
     { icon: Calendar, label: 'Réunions', path: '/financier/reunions' },
     { icon: Settings, label: 'Paramètres', path: '/financier/parametres' },
     { icon: HelpCircle, label: 'About', path: '/financier/about' },

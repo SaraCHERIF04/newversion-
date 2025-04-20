@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Plus } from 'lucide-react';
@@ -26,16 +25,27 @@ const MarcheFormPage = () => {
   const [prixDevise, setPrixDevise] = useState('');
   const [description, setDescription] = useState('');
   const [selectedMaitreOeuvre, setSelectedMaitreOeuvre] = useState('');
+  const [selectedMaitreOuvrage, setSelectedMaitreOuvrage] = useState('');
   const [maitresOeuvre, setMaitresOeuvre] = useState<MaitreOuvrage[]>([]);
+  const [maitresOuvrage, setMaitresOuvrage] = useState<MaitreOuvrage[]>([]);
 
   useEffect(() => {
-    // Load maîtres d'oeuvre from localStorage
     const storedMaitresOeuvre = localStorage.getItem('maitresOeuvre');
+    const storedMaitresOuvrage = localStorage.getItem('maitresOuvrage');
+    
     if (storedMaitresOeuvre) {
       try {
         setMaitresOeuvre(JSON.parse(storedMaitresOeuvre));
       } catch (error) {
         console.error('Error loading maitres d\'oeuvre:', error);
+      }
+    }
+
+    if (storedMaitresOuvrage) {
+      try {
+        setMaitresOuvrage(JSON.parse(storedMaitresOuvrage));
+      } catch (error) {
+        console.error('Error loading maitres d\'ouvrage:', error);
       }
     }
 
@@ -56,6 +66,7 @@ const MarcheFormPage = () => {
             setPrixDinar(marche.prixDinar);
             setPrixDevise(marche.prixDevise);
             setSelectedMaitreOeuvre(marche.fournisseur);
+            setSelectedMaitreOuvrage(marche.fournisseur);
             setDescription(marche.description);
           }
         } catch (error) {
@@ -169,6 +180,32 @@ const MarcheFormPage = () => {
                 <Button
                   type="button"
                   onClick={() => navigate('/maitre-oeuvre')}
+                  variant="outline"
+                  size="icon"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="maitreOuvrage" className="mb-2 block">Maître d'ouvrage</Label>
+              <div className="flex gap-2">
+                <Select value={selectedMaitreOuvrage} onValueChange={setSelectedMaitreOuvrage}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Sélectionner un maître d'ouvrage" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {maitresOuvrage.map((mo) => (
+                      <SelectItem key={mo.id} value={mo.id}>
+                        {mo.nom}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  type="button"
+                  onClick={() => navigate('/maitre-ouvrage')}
                   variant="outline"
                   size="icon"
                 >

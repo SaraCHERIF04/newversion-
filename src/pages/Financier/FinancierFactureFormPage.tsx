@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,10 +6,8 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Invoice } from '@/types/Invoice';
 import { v4 as uuidv4 } from 'uuid';
-import { User } from '@/types/User';
 import FactureFormHeader from '@/components/Facture/FactureFormHeader';
 import ContractSection from '@/components/Facture/ContractSection';
-import ProjectManagerSection from '@/components/Facture/ProjectManagerSection';
 import DateSection from '@/components/Facture/DateSection';
 import AmountSection from '@/components/Facture/AmountSection';
 
@@ -35,12 +32,8 @@ const FinancierFactureFormPage = () => {
     paymentOrderDate: '',
     paymentOrderNumber: '',
     marche: '',
-    designation: '',
-    maitreOeuvre: '',
-    maitreOuvrage: ''
+    designation: ''
   });
-
-  const [selectedChef, setSelectedChef] = useState<User[]>([]);
 
   useEffect(() => {
     if (isEditing) {
@@ -93,18 +86,6 @@ const FinancierFactureFormPage = () => {
     navigate(-1);
   };
 
-  const handleChefSelect = (member: User) => {
-    if (selectedChef.length === 0 || selectedChef[0].id !== member.id) {
-      setSelectedChef([member]);
-    } else {
-      setSelectedChef([]);
-    }
-  };
-
-  const handleBack = () => {
-    navigate(-1);
-  };
-
   return (
     <div className="max-w-4xl mx-auto p-6">
       <FactureFormHeader isEditing={isEditing} onBack={handleBack} />
@@ -116,15 +97,6 @@ const FinancierFactureFormPage = () => {
             contractNumber={formData.contractNumber}
             onChangeContractName={(value) => setFormData(prev => ({ ...prev, contractName: value }))}
             onChangeContractNumber={(value) => setFormData(prev => ({ ...prev, contractNumber: value }))}
-          />
-
-          <ProjectManagerSection
-            selectedChef={selectedChef}
-            maitreOuvrage={formData.maitreOuvrage}
-            maitreOeuvre={formData.maitreOeuvre}
-            onChefSelect={handleChefSelect}
-            onMaitreOuvrageChange={(value) => setFormData(prev => ({ ...prev, maitreOuvrage: value }))}
-            onMaitreOeuvreChange={(value) => setFormData(prev => ({ ...prev, maitreOeuvre: value }))}
           />
 
           <DateSection
