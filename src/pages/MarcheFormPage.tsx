@@ -1,7 +1,6 @@
-
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Plus } from 'lucide-react';
 import { Marche } from '@/types/Marche';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,17 +8,12 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { v4 as uuidv4 } from 'uuid';
-
-interface Project {
-  id: string;
-  name: string;
-}
+import { MaitreOuvrage } from '@/types/MaitreOuvrage';
 
 const MarcheFormPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const isEditing = Boolean(id);
-
   const [nom, setNom] = useState('');
   const [numeroMarche, setNumeroMarche] = useState('');
   const [type, setType] = useState('');
@@ -29,26 +23,22 @@ const MarcheFormPage = () => {
   const [numeroAppelOffre, setNumeroAppelOffre] = useState('');
   const [prixDinar, setPrixDinar] = useState('');
   const [prixDevise, setPrixDevise] = useState('');
-  const [fournisseur, setFournisseur] = useState('');
-  const [projetId, setProjetId] = useState('');
   const [description, setDescription] = useState('');
-  
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [selectedMaitreOeuvre, setSelectedMaitreOeuvre] = useState('');
+  const [maitresOeuvre, setMaitresOeuvre] = useState<MaitreOuvrage[]>([]);
 
   useEffect(() => {
-    // Load projects for the dropdown
-    const projectsString = localStorage.getItem('projects');
-    if (projectsString) {
+    // Load maîtres d'oeuvre from localStorage
+    const storedMaitresOeuvre = localStorage.getItem('maitresOeuvre');
+    if (storedMaitresOeuvre) {
       try {
-        const projectsData = JSON.parse(projectsString);
-        setProjects(projectsData);
+        setMaitresOeuvre(JSON.parse(storedMaitresOeuvre));
       } catch (error) {
-        console.error('Error loading projects:', error);
+        console.error('Error loading maitres d\'oeuvre:', error);
       }
     }
 
     if (isEditing) {
-      // Load existing marché data
       const marchesString = localStorage.getItem('marches');
       if (marchesString) {
         try {
@@ -64,8 +54,7 @@ const MarcheFormPage = () => {
             setNumeroAppelOffre(marche.numeroAppelOffre);
             setPrixDinar(marche.prixDinar);
             setPrixDevise(marche.prixDevise);
-            setFournisseur(marche.fournisseur);
-            setProjetId(marche.projetId || '');
+            setSelectedMaitreOeuvre(marche.fournisseur);
             setDescription(marche.description);
           }
         } catch (error) {
@@ -78,13 +67,11 @@ const MarcheFormPage = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Form validation
     if (!nom.trim() || !numeroMarche.trim()) {
       alert("Le nom et le numéro du marché sont obligatoires");
       return;
     }
 
-    // Prepare the marché data
     const marcheData: Marche = {
       id: isEditing ? id! : uuidv4(),
       nom,
@@ -96,12 +83,10 @@ const MarcheFormPage = () => {
       numeroAppelOffre,
       prixDinar,
       prixDevise,
-      fournisseur,
-      projetId: projetId || undefined,
+      fournisseur: selectedMaitreOeuvre,
       description
     };
 
-    // Save to localStorage
     const marchesString = localStorage.getItem('marches');
     let marches: Marche[] = [];
 
@@ -114,10 +99,6 @@ const MarcheFormPage = () => {
         marches = marches.map(m => m.id === id ? marcheData : m);
       } else {
         marches.unshift(marcheData);
-        
-        // Send notification for new marché
-        const { notifyNewMaitreOuvrage } = require('@/utils/notificationHelpers');
-        notifyNewMaitreOuvrage(nom);
       }
 
       localStorage.setItem('marches', JSON.stringify(marches));
@@ -128,20 +109,22 @@ const MarcheFormPage = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
+    <div className="container mx-auto p-4">
       <div className="flex items-center mb-6">
         <Button
-          variant="ghost"
+          variant="outline"
+          size="sm"
           onClick={() => navigate('/marche')}
-          className="mr-2"
+          className="mr-4"
         >
-          <ArrowLeft className="h-5 w-5" />
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Retour
         </Button>
         <h1 className="text-2xl font-bold">
           {isEditing ? 'Modifier' : 'Créer'} marché
         </h1>
       </div>
-
+      
       <div className="bg-white rounded-lg shadow p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -168,6 +151,32 @@ const MarcheFormPage = () => {
             </div>
 
             <div>
+              <Label htmlFor="maitreOeuvre" className="mb-2 block">Maître d'oeuvre</Label>
+              <div className="flex gap-2">
+                <Select value={selectedMaitreOeuvre} onValueChange={setSelectedMaitreOeuvre}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Sélectionner un maître d'oeuvre" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {maitresOeuvre.map((mo) => (
+                      <SelectItem key={mo.id} value={mo.id}>
+                        {mo.nom}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  type="button"
+                  onClick={() => navigate('/maitre-ouvrage')}
+                  variant="outline"
+                  size="icon"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
+            <div>
               <Label htmlFor="type" className="mb-2 block">Type du marché</Label>
               <Input
                 id="type"
@@ -178,36 +187,12 @@ const MarcheFormPage = () => {
             </div>
 
             <div>
-              <Label htmlFor="projet" className="mb-2 block">Projet associé</Label>
-              <Select value={projetId} onValueChange={setProjetId}>
-                <SelectTrigger id="projet">
-                  <SelectValue placeholder="sélectionnez un projet" />
-                </SelectTrigger>
-                <SelectContent>
-                  {projects.map((project) => (
-                    <SelectItem key={project.id} value={project.id}>{project.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
               <Label htmlFor="numeroAppelOffre" className="mb-2 block">Numéro d'Appel d'Offre</Label>
               <Input
                 id="numeroAppelOffre"
                 value={numeroAppelOffre}
                 onChange={(e) => setNumeroAppelOffre(e.target.value)}
                 placeholder="Entrez le numéro"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="fournisseur" className="mb-2 block">Nom du fournisseur</Label>
-              <Input
-                id="fournisseur"
-                value={fournisseur}
-                onChange={(e) => setFournisseur(e.target.value)}
-                placeholder="Entrez le nom du fournisseur"
               />
             </div>
 
