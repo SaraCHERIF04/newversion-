@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
@@ -22,7 +21,6 @@ const MaitreOuvrageFormPage = () => {
 
   useEffect(() => {
     if (isEditing) {
-      // Load existing maître d'ouvrage data
       const maitreOuvragesString = localStorage.getItem('maitreOuvrages');
       if (maitreOuvragesString) {
         try {
@@ -45,13 +43,11 @@ const MaitreOuvrageFormPage = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Form validation
     if (!nom.trim()) {
       alert("Le nom est obligatoire");
       return;
     }
 
-    // Prepare the maître d'ouvrage data
     const maitreOuvrageData: MaitreOuvrage = {
       id: isEditing ? id! : uuidv4(),
       nom,
@@ -61,24 +57,22 @@ const MaitreOuvrageFormPage = () => {
       adresse
     };
 
-    // Save to localStorage
-    const maitreOuvragesString = localStorage.getItem('maitreOuvrages');
-    let maitreOuvrages: MaitreOuvrage[] = [];
-
     try {
+      const maitreOuvragesString = localStorage.getItem('maitreOuvrages');
+      let maitreOuvrages: MaitreOuvrage[] = [];
+
       if (maitreOuvragesString) {
         maitreOuvrages = JSON.parse(maitreOuvragesString);
       }
 
       if (isEditing) {
-        // Update existing maître d'ouvrage
         maitreOuvrages = maitreOuvrages.map(mo => mo.id === id ? maitreOuvrageData : mo);
       } else {
-        // Add new maître d'ouvrage to the beginning of the array
         maitreOuvrages.unshift(maitreOuvrageData);
       }
 
       localStorage.setItem('maitreOuvrages', JSON.stringify(maitreOuvrages));
+      window.dispatchEvent(new Event('maitreOuvragesUpdated'));
       navigate('/maitre-ouvrage');
     } catch (error) {
       console.error('Error saving maître d\'ouvrage:', error);

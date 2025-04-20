@@ -1,11 +1,19 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import MemberSearch from '@/components/MemberSearch';
 import { User } from '@/types/User';
+import { MaitreOuvrage } from '@/types/MaitreOuvrage';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface ProjectManagerSectionProps {
   selectedChef: User[];
@@ -24,6 +32,25 @@ const ProjectManagerSection = ({
   onMaitreOuvrageChange,
   onMaitreOeuvreChange,
 }: ProjectManagerSectionProps) => {
+  const [maitreOuvrages, setMaitreOuvrages] = useState<MaitreOuvrage[]>([]);
+
+  useEffect(() => {
+    const loadMaitreOuvrages = () => {
+      const saved = localStorage.getItem('maitreOuvrages');
+      if (saved) {
+        setMaitreOuvrages(JSON.parse(saved));
+      }
+    };
+
+    loadMaitreOuvrages();
+    // Add event listener for storage changes
+    window.addEventListener('maitreOuvragesUpdated', loadMaitreOuvrages);
+
+    return () => {
+      window.removeEventListener('maitreOuvragesUpdated', loadMaitreOuvrages);
+    };
+  }, []);
+
   return (
     <div className="grid grid-cols-2 gap-6">
       <div>
@@ -51,12 +78,18 @@ const ProjectManagerSection = ({
       <div>
         <Label>Maître d'ouvrage</Label>
         <div className="flex gap-2">
-          <Input
-            value={maitreOuvrage}
-            onChange={(e) => onMaitreOuvrageChange(e.target.value)}
-            placeholder="Rechercher ou saisir..."
-            className="mb-2"
-          />
+          <Select value={maitreOuvrage} onValueChange={onMaitreOuvrageChange}>
+            <SelectTrigger>
+              <SelectValue placeholder="Sélectionner un maître d'ouvrage" />
+            </SelectTrigger>
+            <SelectContent>
+              {maitreOuvrages.map((mo) => (
+                <SelectItem key={mo.id} value={mo.nom}>
+                  {mo.nom}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Button
             type="button"
             variant="outline"

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, FileEdit, Trash2, Plus } from 'lucide-react';
@@ -13,7 +12,6 @@ const MaitreOuvragePage = () => {
   const navigate = useNavigate();
   
   useEffect(() => {
-    // Load maitreOuvrages from localStorage
     const maitreOuvragesString = localStorage.getItem('maitreOuvrages');
     if (maitreOuvragesString) {
       try {
@@ -23,7 +21,6 @@ const MaitreOuvragePage = () => {
         console.error('Error loading maitreOuvrages:', error);
       }
     } else {
-      // Initialize with sample data if none exists
       const sampleData: MaitreOuvrage[] = [
         {
           id: '1',
@@ -103,12 +100,17 @@ const MaitreOuvragePage = () => {
     navigate(`/maitre-ouvrage/edit/${mo.id}`);
   };
   
+  const notifyUpdate = () => {
+    window.dispatchEvent(new Event('maitreOuvragesUpdated'));
+  };
+  
   const handleDeleteMaitreOuvrage = (moId: string) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer ce maître d\'ouvrage?')) {
       try {
         const updatedMos = maitreOuvrages.filter(mo => mo.id !== moId);
         setMaitreOuvrages(updatedMos);
         localStorage.setItem('maitreOuvrages', JSON.stringify(updatedMos));
+        notifyUpdate();
       } catch (error) {
         console.error('Error deleting maître d\'ouvrage:', error);
       }
