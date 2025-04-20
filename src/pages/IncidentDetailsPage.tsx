@@ -10,15 +10,12 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { ArrowLeft, Download, Printer } from 'lucide-react';
-import { Incident, IncidentFollowUp } from '@/types/Incident';
+import { Incident } from '@/types/Incident';
 
 const IncidentDetailsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [incident, setIncident] = useState<Incident | null>(null);
-  const [followUps, setFollowUps] = useState<IncidentFollowUp[]>([]);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedFollowUp, setSelectedFollowUp] = useState<IncidentFollowUp | null>(null);
 
   useEffect(() => {
     // Load incident data
@@ -34,29 +31,10 @@ const IncidentDetailsPage = () => {
         console.error("Error loading incident:", error);
       }
     }
-
-    // Load follow-ups data
-    const storedFollowUps = localStorage.getItem('incidentFollowUps');
-    if (storedFollowUps) {
-      try {
-        const allFollowUps = JSON.parse(storedFollowUps);
-        const incidentFollowUps = allFollowUps.filter(
-          (followUp: IncidentFollowUp) => followUp.incidentId === id
-        );
-        setFollowUps(incidentFollowUps);
-      } catch (error) {
-        console.error("Error loading follow-ups:", error);
-      }
-    }
   }, [id]);
 
   const handlePrint = () => {
     window.print();
-  };
-
-  const openFollowUpDialog = (followUp: IncidentFollowUp | null = null) => {
-    setSelectedFollowUp(followUp);
-    setIsDialogOpen(true);
   };
 
   if (!incident) {
@@ -132,14 +110,7 @@ const IncidentDetailsPage = () => {
           </div>
         )}
         
-        <div className="flex justify-between mt-8">
-          <Button
-            variant="outline"
-            onClick={() => navigate(`/incidents/suivis/${id}`)}
-            className="border-blue-500 text-blue-500 hover:bg-blue-50"
-          >
-            Suivie d'incident
-          </Button>
+        <div className="flex justify-end mt-8">
           <Button
             variant="outline"
             onClick={handlePrint}

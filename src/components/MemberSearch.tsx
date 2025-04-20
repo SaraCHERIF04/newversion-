@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Check, Plus, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -71,6 +71,9 @@ const MemberSearch: React.FC<MemberSearchProps> = ({ onSelect, selectedMembers }
       <DialogContent className="sm:max-w-[475px]">
         <DialogHeader>
           <DialogTitle>Ajouter un membre au projet</DialogTitle>
+          <DialogDescription>
+            Recherchez et sélectionnez les membres à ajouter au projet
+          </DialogDescription>
         </DialogHeader>
         <Command className="rounded-lg border shadow-md">
           <CommandInput 

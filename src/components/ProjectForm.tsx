@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -64,12 +63,11 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
   const [customWilayas, setCustomWilayas] = useState<string[]>([]);
   const [selectedMembers, setSelectedMembers] = useState<User[]>(
     project?.members ? project.members.map(member => {
-      // Ensure all required User properties are present
       return {
         id: member.id,
         name: member.name,
-        email: member.email || `${member.id}@example.com`, // Default email if missing
-        role: member.role as 'admin' | 'chef' | 'employee' | 'responsable',
+        email: member.id + '@example.com',
+        role: 'employee' as 'admin' | 'chef' | 'employee' | 'responsable',
         status: 'En poste',
         createdAt: new Date().toISOString(),
         avatar: member.avatar

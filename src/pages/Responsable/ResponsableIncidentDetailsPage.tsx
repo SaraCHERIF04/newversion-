@@ -59,13 +59,6 @@ const ResponsableIncidentDetailsPage: React.FC = () => {
           Retour
         </Button>
         <h1 className="text-2xl font-bold">Détails de l'incident</h1>
-        <div className="ml-auto">
-          <Button
-            onClick={() => navigate(`/responsable/incidents/suivis/${incident.id}`)}
-          >
-            Voir les suivis
-          </Button>
-        </div>
       </div>
 
       <div className="bg-white rounded-lg shadow p-6">
