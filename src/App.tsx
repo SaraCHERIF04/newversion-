@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -44,6 +43,7 @@ import IncidentFollowUpDetailsPage from "./pages/IncidentFollowUpDetailsPage";
 import ParametresPage from "./pages/ParametresPage";
 import FacturesPage from "./pages/FacturesPage";
 import FactureDetailsPage from "./pages/FactureDetailsPage";
+import BudgetIntelligencePage from "./pages/BudgetIntelligencePage";
 
 // Employee Pages Imports
 import EmployeeLayout from "./components/Layout/EmployeeLayout";
@@ -206,11 +206,13 @@ function App() {
               <Route path="project/edit/:id" element={<ProjectEditPage />} />
               <Route path="project/:id" element={<ProjectDetailsPage />} />
               <Route path="project/dashboard/:id" element={<ProjectDashboardPage />} />
+              <Route path="project/budget/:id" element={<BudgetIntelligencePage />} />
               <Route path="sous-projet" element={<SubProjectsPage />} />
               <Route path="sous-projet/new" element={<SubProjectNewPage />} />
               <Route path="sous-projet/edit/:id" element={<SubProjectEditPage />} />
               <Route path="sous-projet/:id" element={<SubProjectDetailsPage />} />
               <Route path="sous-projet/dashboard/:id" element={<SubProjectDashboardPage />} />
+              <Route path="sous-projet/budget/:id" element={<BudgetIntelligencePage />} />
               <Route path="documents" element={<DocumentsPage />} />
               <Route path="documents/new" element={<DocumentFormPage />} />
               <Route path="documents/edit/:id" element={<DocumentFormPage />} />
