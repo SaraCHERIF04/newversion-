@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -24,6 +25,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 type ProjectFormProps = {
   project?: Project & {
@@ -53,7 +55,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
   const [status, setStatus] = useState<'En attente' | 'En cours' | 'Terminé'>(
     (project?.status as any) || 'En attente'
   );
-  const [chef, setChef] = useState(project?.chef || '');
+  const [chefId, setChefId] = useState(project?.chef || '');
   const [wilaya, setWilaya] = useState(project?.wilaya || '');
   const [budget, setBudget] = useState(project?.budget || '');
   const [startDate, setStartDate] = useState(project?.startDate || '');
@@ -74,13 +76,38 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
       };
     }) : []
   );
+  const [availableChefs, setAvailableChefs] = useState<User[]>([]);
+  const [selectedChef, setSelectedChef] = useState<User | null>(null);
 
   useEffect(() => {
     const savedCustomWilayas = localStorage.getItem('customWilayas');
     if (savedCustomWilayas) {
       setCustomWilayas(JSON.parse(savedCustomWilayas));
     }
-  }, []);
+
+    // Load available chefs from local storage
+    const usersString = localStorage.getItem('users');
+    if (usersString) {
+      try {
+        const users = JSON.parse(usersString);
+        // Filter users with 'chef' or 'admin' role
+        const chefs = users.filter((user: User) => 
+          user.role === 'chef' || user.role === 'admin'
+        );
+        setAvailableChefs(chefs);
+
+        // If we have a chef ID from the project, find the chef in the list
+        if (project?.chef) {
+          const foundChef = chefs.find((chef: User) => chef.id === project.chef);
+          if (foundChef) {
+            setSelectedChef(foundChef);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading chefs:', error);
+      }
+    }
+  }, [project?.chef]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -132,6 +159,11 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
     }
   };
 
+  const handleChefSelect = (chef: User) => {
+    setSelectedChef(chef);
+    setChefId(chef.id);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -157,7 +189,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
         avatar: member.avatar
       })),
       documentsCount: documents.length,
-      chef,
+      chef: selectedChef?.id || chefId,
       wilaya,
       budget,
       startDate,
@@ -260,21 +292,81 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div>
-            <label htmlFor="chef" className="block text-sm font-medium text-gray-700 mb-1">
-              Chef de projet
-            </label>
-            <input
-              type="text"
-              id="chef"
-              value={chef}
-              onChange={(e) => setChef(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Entrez le nom du chef de projet"
-            />
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Chef de projet
+          </label>
+          <div className="space-y-4">
+            {selectedChef && (
+              <div className="flex items-center bg-blue-50 text-blue-700 rounded-full px-3 py-1 w-fit">
+                <Avatar className="h-6 w-6 mr-2">
+                  <AvatarImage src={selectedChef.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedChef.name)}`} />
+                  <AvatarFallback>{selectedChef.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <span className="text-sm">{selectedChef.name}</span>
+                <button
+                  type="button"
+                  onClick={() => setSelectedChef(null)}
+                  className="ml-2 text-blue-400 hover:text-blue-600 focus:outline-none"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+            
+            {!selectedChef && (
+              <div className="border rounded-md overflow-hidden max-h-60 overflow-y-auto">
+                {availableChefs.length > 0 ? (
+                  <div className="divide-y divide-gray-200">
+                    {availableChefs.map((chef) => (
+                      <div
+                        key={chef.id}
+                        className="flex items-center justify-between p-4 hover:bg-gray-50"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <Avatar>
+                            <AvatarImage src={chef.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(chef.name)}`} />
+                            <AvatarFallback>{chef.name.charAt(0)}</AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <div className="font-medium">{chef.name} {chef.prenom}</div>
+                            <div className="text-sm text-gray-500">{chef.role}</div>
+                          </div>
+                        </div>
+                        <Button
+                          onClick={() => handleChefSelect(chef)}
+                          variant="ghost"
+                          className="text-[#192759] hover:text-blue-700"
+                        >
+                          Sélectionner
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-4 text-center text-gray-500">
+                    Aucun chef disponible
+                  </div>
+                )}
+              </div>
+            )}
+            
+            <div className="flex justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => window.location.href = '/employee/new'}
+                className="flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Nouveau chef
+              </Button>
+            </div>
           </div>
+        </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
             <label htmlFor="wilaya" className="block text-sm font-medium text-gray-700 mb-1">
               Wilaya
@@ -316,9 +408,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
               </Dialog>
             </div>
           </div>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
             <label htmlFor="budget" className="block text-sm font-medium text-gray-700 mb-1">
               Budget
@@ -368,6 +458,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, isEdit = false }) =>
             <MemberSearch
               onSelect={handleMemberSelect}
               selectedMembers={selectedMembers}
+              roles={['employee', 'financier']} 
             />
             <ProjectMembersList members={selectedMembers} />
           </div>

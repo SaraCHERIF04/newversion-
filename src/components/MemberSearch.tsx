@@ -7,9 +7,14 @@ import { User } from '@/types/User';
 interface MemberSearchProps {
   onSelect: (member: User) => void;
   selectedMembers: User[];
+  roles?: ('admin' | 'chef' | 'employee' | 'responsable' | 'financier')[];
 }
 
-const MemberSearch: React.FC<MemberSearchProps> = ({ onSelect, selectedMembers }) => {
+const MemberSearch: React.FC<MemberSearchProps> = ({ 
+  onSelect, 
+  selectedMembers,
+  roles 
+}) => {
   const [searchMember, setSearchMember] = useState('');
   const [availableMembers, setAvailableMembers] = useState<User[]>([]);
 
@@ -21,7 +26,13 @@ const MemberSearch: React.FC<MemberSearchProps> = ({ onSelect, selectedMembers }
           const users = JSON.parse(usersString);
           if (Array.isArray(users)) {
             const selectedMemberIds = new Set(selectedMembers.map(m => m.id));
-            const availableUsers = users.filter(user => !selectedMemberIds.has(user.id));
+            let availableUsers = users.filter(user => !selectedMemberIds.has(user.id));
+            
+            // Filter by roles if specified
+            if (roles && roles.length > 0) {
+              availableUsers = availableUsers.filter(user => roles.includes(user.role));
+            }
+            
             setAvailableMembers(availableUsers);
           }
         }
@@ -32,7 +43,7 @@ const MemberSearch: React.FC<MemberSearchProps> = ({ onSelect, selectedMembers }
     };
 
     loadUsers();
-  }, [selectedMembers]);
+  }, [selectedMembers, roles]);
 
   const filteredMembers = availableMembers.filter(member =>
     member.name.toLowerCase().includes(searchMember.toLowerCase()) ||

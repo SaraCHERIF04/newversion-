@@ -32,6 +32,7 @@ const ProjectManagerSection = ({
           <MemberSearch
             onSelect={onChefSelect}
             selectedMembers={selectedChef}
+            roles={['chef', 'admin']} 
           />
           <div className="flex justify-end">
             <Button
@@ -79,7 +80,7 @@ const ProjectManagerSection = ({
             type="button"
             variant="outline"
             size="icon"
-            onClick={() => window.location.href = '/maitre-ouvrage'}
+            onClick={() => window.location.href = '/maitre-oeuvre'}
           >
             <Plus className="h-4 w-4" />
           </Button>
