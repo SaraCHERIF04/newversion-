@@ -91,6 +91,10 @@ import FinancierDashboardPage from "./pages/Financier/FinancierDashboardPage";
 import FinancierFacturesPage from "./pages/Financier/FinancierFacturesPage";
 import FinancierFactureFormPage from "./pages/Financier/FinancierFactureFormPage";
 import FinancierMarchePage from "./pages/Financier/FinancierMarchePage";
+import FinancierProjectDetailsPage from "./pages/Financier/FinancierProjectDetailsPage";
+import FinancierSubProjectDetailsPage from "./pages/Financier/FinancierSubProjectDetailsPage";
+import FinancierReunionDetailsPage from "./pages/Financier/FinancierReunionDetailsPage";
+import FinancierFactureDetailsPage from "./pages/Financier/FinancierFactureDetailsPage";
 
 // Route protection component
 interface ProtectedRouteProps {
@@ -268,13 +272,18 @@ function App() {
               <Route index element={<Navigate to="/financier/dashboard" replace />} />
               <Route path="dashboard" element={<FinancierDashboardPage />} />
               <Route path="projects" element={<EmployeeProjectsPage />} />
+              <Route path="projects/:id" element={<FinancierProjectDetailsPage />} />
+              <Route path="sous-projets" element={<EmployeeSubProjectsPage />} />
+              <Route path="sous-projets/:id" element={<FinancierSubProjectDetailsPage />} />
               <Route path="documents" element={<EmployeeDocumentsPage />} />
               <Route path="factures" element={<FinancierFacturesPage />} />
               <Route path="factures/new" element={<FinancierFactureFormPage />} />
               <Route path="factures/edit/:id" element={<FinancierFactureFormPage />} />
+              <Route path="factures/:id" element={<FinancierFactureDetailsPage />} />
               <Route path="marche" element={<FinancierMarchePage />} />
               <Route path="marche/:id" element={<MarcheDetailsPage />} />
               <Route path="reunions" element={<EmployeeReunionsPage />} />
+              <Route path="reunions/:id" element={<FinancierReunionDetailsPage />} />
               <Route path="parametres" element={<EmployeeParametresPage />} />
               <Route path="about" element={<EmployeeAboutPage />} />
             </Route>
