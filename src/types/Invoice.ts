@@ -18,4 +18,6 @@ export interface Invoice {
   marche: string;
   designation: string;
   createdAt: string;
+  maitreOeuvre?: string;
+  maitreOuvrage?: string;
 }

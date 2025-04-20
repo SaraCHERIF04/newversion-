@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,10 +9,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Invoice } from '@/types/Invoice';
 import { v4 as uuidv4 } from 'uuid';
+import MemberSearch from '@/components/MemberSearch';
+import { User } from '@/types/User';
 
 const FinancierFactureFormPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const isEditing = Boolean(id);
 
@@ -32,8 +34,12 @@ const FinancierFactureFormPage = () => {
     paymentOrderDate: '',
     paymentOrderNumber: '',
     marche: '',
-    designation: ''
+    designation: '',
+    maitreOeuvre: '',
+    maitreOuvrage: ''
   });
+
+  const [selectedChef, setSelectedChef] = useState<User[]>([]);
 
   useEffect(() => {
     if (isEditing) {
@@ -41,21 +47,11 @@ const FinancierFactureFormPage = () => {
       const invoice = invoices.find((i: Invoice) => i.id === id);
       if (invoice) {
         setFormData({
-          contractName: invoice.contractName,
-          contractNumber: invoice.contractNumber,
-          projectId: invoice.projectId,
-          subProjectId: invoice.subProjectId || '',
-          supplier: invoice.supplier,
-          invoiceDate: invoice.invoiceDate,
-          receptionDate: invoice.receptionDate,
+          ...invoice,
           grossAmount: String(invoice.grossAmount),
           netAmount: String(invoice.netAmount),
           tvaAmount: String(invoice.tvaAmount),
           totalAmount: String(invoice.totalAmount),
-          paymentOrderDate: invoice.paymentOrderDate,
-          paymentOrderNumber: invoice.paymentOrderNumber,
-          marche: invoice.marche,
-          designation: invoice.designation
         });
       }
     }
@@ -64,6 +60,8 @@ const FinancierFactureFormPage = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    const invoiceNumber = isEditing ? id! : `FAC-${new Date().getFullYear()}-${String(Date.now()).slice(-4)}`;
+    
     const invoiceData: Invoice = {
       id: isEditing ? id! : uuidv4(),
       ...formData,
@@ -72,7 +70,7 @@ const FinancierFactureFormPage = () => {
       tvaAmount: Number(formData.tvaAmount),
       totalAmount: Number(formData.totalAmount),
       createdAt: new Date().toISOString(),
-      invoiceNumber: isEditing ? id! : uuidv4().substring(0, 8).toUpperCase()
+      invoiceNumber
     };
 
     const invoices = JSON.parse(localStorage.getItem('invoices') || '[]');
@@ -91,21 +89,33 @@ const FinancierFactureFormPage = () => {
       description: isEditing ? "La facture a été modifiée avec succès" : "La facture a été créée avec succès"
     });
 
-    navigate('/financier/factures');
+    navigate(-1);
+  };
+
+  const handleBack = () => {
+    navigate(-1);
+  };
+
+  const handleChefSelect = (member: User) => {
+    if (selectedChef.length === 0 || selectedChef[0].id !== member.id) {
+      setSelectedChef([member]);
+    } else {
+      setSelectedChef([]);
+    }
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
+    <div className="max-w-4xl mx-auto p-6">
       <div className="flex items-center mb-6">
         <Button
           variant="ghost"
-          onClick={() => navigate('/financier/factures')}
+          onClick={handleBack}
           className="mr-2"
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <h1 className="text-2xl font-bold">
-          {isEditing ? 'Modifier' : 'Créer'} Facture
+          {isEditing ? 'Modifier la facture' : 'Créer une nouvelle facture'}
         </h1>
       </div>
 
@@ -134,34 +144,29 @@ const FinancierFactureFormPage = () => {
 
           <div className="grid grid-cols-2 gap-6">
             <div>
-              <Label htmlFor="projectId">Projet associé</Label>
-              <Select 
-                value={formData.projectId} 
-                onValueChange={(value) => setFormData(prev => ({ ...prev, projectId: value }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner un projet" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="project1">Projet 1</SelectItem>
-                  <SelectItem value="project2">Projet 2</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label>Chef de projet</Label>
+              <MemberSearch
+                onSelect={handleChefSelect}
+                selectedMembers={selectedChef}
+              />
             </div>
             <div>
-              <Label htmlFor="subProjectId">Sous projet associé</Label>
-              <Select 
-                value={formData.subProjectId} 
-                onValueChange={(value) => setFormData(prev => ({ ...prev, subProjectId: value }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner un sous-projet" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="subproject1">Sous-projet 1</SelectItem>
-                  <SelectItem value="subproject2">Sous-projet 2</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label>Maître d'ouvrage</Label>
+              <Input
+                value={formData.maitreOuvrage}
+                onChange={(e) => setFormData(prev => ({ ...prev, maitreOuvrage: e.target.value }))}
+                placeholder="Rechercher ou saisir..."
+                className="mb-2"
+              />
+            </div>
+            <div>
+              <Label>Maître d'œuvre</Label>
+              <Input
+                value={formData.maitreOeuvre}
+                onChange={(e) => setFormData(prev => ({ ...prev, maitreOeuvre: e.target.value }))}
+                placeholder="Rechercher ou saisir..."
+                className="mb-2"
+              />
             </div>
           </div>
 
