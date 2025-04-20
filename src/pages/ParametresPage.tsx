@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Settings, Key, Translate } from 'lucide-react';
+import { Settings, Key, Languages } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const ParametresPage: React.FC = () => {
@@ -69,7 +69,7 @@ const ParametresPage: React.FC = () => {
         <TabsList className="mb-6">
           <TabsTrigger value="language">
             <div className="flex items-center gap-2">
-              <Translate className="h-4 w-4" />
+              <Languages className="h-4 w-4" />
               Langue
             </div>
           </TabsTrigger>
