@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -56,11 +55,6 @@ const Sidebar = () => {
       name: 'Réunion',
       path: '/reunion',
       icon: <CalendarDays size={20} />,
-    },
-    {
-      name: 'Maître d\'ouvrage',
-      path: '/maitre-ouvrage',
-      icon: <Building size={20} />,
     },
     {
       name: 'Marché',

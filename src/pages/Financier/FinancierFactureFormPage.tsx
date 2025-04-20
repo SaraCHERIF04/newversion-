@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -50,6 +51,10 @@ const FinancierFactureFormPage = () => {
       }
     }
   }, [id, isEditing]);
+
+  const handleBack = () => {
+    navigate(-1);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
