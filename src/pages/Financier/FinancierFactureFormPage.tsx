@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,13 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Invoice } from '@/types/Invoice';
 import { v4 as uuidv4 } from 'uuid';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import FactureFormHeader from '@/components/Facture/FactureFormHeader';
 import ContractSection from '@/components/Facture/ContractSection';
 import DateSection from '@/components/Facture/DateSection';
@@ -17,6 +23,14 @@ const FinancierFactureFormPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const isEditing = Boolean(id);
+
+  // Mock suppliers list - this should be replaced with actual data
+  const suppliers = [
+    "Supplier 1",
+    "Supplier 2",
+    "Supplier 3",
+    "Supplier 4",
+  ];
 
   const [formData, setFormData] = useState({
     contractName: '',
@@ -103,6 +117,25 @@ const FinancierFactureFormPage = () => {
             onChangeContractName={(value) => setFormData(prev => ({ ...prev, contractName: value }))}
             onChangeContractNumber={(value) => setFormData(prev => ({ ...prev, contractNumber: value }))}
           />
+
+          <div className="space-y-2">
+            <Label htmlFor="supplier">Fournisseur</Label>
+            <Select
+              value={formData.supplier}
+              onValueChange={(value) => setFormData(prev => ({ ...prev, supplier: value }))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Sélectionner un fournisseur" />
+              </SelectTrigger>
+              <SelectContent>
+                {suppliers.map((supplier) => (
+                  <SelectItem key={supplier} value={supplier}>
+                    {supplier}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
           <DateSection
             invoiceDate={formData.invoiceDate}
