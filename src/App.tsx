@@ -264,14 +264,15 @@ function App() {
                 <FinancierLayout />
               </ProtectedRoute>
             }>
-              <Route index element={<Navigate to="/financier/factures" replace />} />
-              <Route path="dashboard" element={<div>Dashboard Financier</div>} />
+              <Route index element={<Navigate to="/financier/dashboard" replace />} />
+              <Route path="dashboard" element={<FinancierDashboardPage />} />
               <Route path="projects" element={<EmployeeProjectsPage />} />
               <Route path="documents" element={<EmployeeDocumentsPage />} />
               <Route path="factures" element={<FinancierFacturesPage />} />
               <Route path="factures/new" element={<FinancierFactureFormPage />} />
               <Route path="factures/edit/:id" element={<FinancierFactureFormPage />} />
               <Route path="marche" element={<FinancierMarchePage />} />
+              <Route path="marche/:id" element={<MarcheDetailsPage />} />
               <Route path="reunions" element={<EmployeeReunionsPage />} />
               <Route path="parametres" element={<EmployeeParametresPage />} />
               <Route path="about" element={<EmployeeAboutPage />} />
