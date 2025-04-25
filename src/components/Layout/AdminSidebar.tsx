@@ -21,7 +21,7 @@ const AdminSidebar: React.FC = () => {
       </div>
       
       <nav className="p-4 space-y-2">
-        <NavLink 
+        {/* <NavLink 
           to="/admin/users/new" 
           className={({ isActive }) => 
             `flex items-center space-x-3 p-3 rounded-md transition-colors ${
@@ -32,8 +32,7 @@ const AdminSidebar: React.FC = () => {
           }
         >
           <User size={20} className="text-blue-800" />
-          <span>Gérer Compte</span>
-        </NavLink>
+        </NavLink> */}
         
         <NavLink 
           to="/admin/users" 

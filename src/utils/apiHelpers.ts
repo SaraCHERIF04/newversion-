@@ -6,6 +6,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true
 });
 
 // Add request interceptor to add auth token to requests
@@ -38,8 +39,15 @@ api.interceptors.response.use(
 // GET request
 export const get = async <T>(url: string, params?: Record<string, any>): Promise<T> => {
   try {
-    const response = await api.get<T>(url, { params });
-    return response.data;
+    // console.log('GET request:', url, params);
+    const response = await api.get<T>(`${url}`, { params });
+    // console.log('Response received:', response);
+
+    if (response.status === 200) {
+      return response.data;
+    } else {
+      throw new Error(response.statusText);
+    }
   } catch (error) {
     throw error;
   }
@@ -48,7 +56,7 @@ export const get = async <T>(url: string, params?: Record<string, any>): Promise
 // POST request
 export const post = async <T>(url: string, data?: any): Promise<T> => {
   try {
-    const response = await api.post<T>(url, data);
+    const response = await api.post<T>(`${url}`, data);
     return response.data;
   } catch (error) {
     throw error;
@@ -58,7 +66,7 @@ export const post = async <T>(url: string, data?: any): Promise<T> => {
 // PUT request
 export const put = async <T>(url: string, data?: any): Promise<T> => {
   try {
-    const response = await api.put<T>(url, data);
+    const response = await api.put<T>(`${url}`, data);
     return response.data;
   } catch (error) {
     throw error;
@@ -68,7 +76,7 @@ export const put = async <T>(url: string, data?: any): Promise<T> => {
 // DELETE request
 export const del = async <T>(url: string): Promise<T> => {
   try {
-    const response = await api.delete<T>(url);
+    const response = await api.delete<T>(`${url}`);
     return response.data;
   } catch (error) {
     throw error;

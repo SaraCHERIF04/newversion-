@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
@@ -60,7 +59,7 @@ export const UserFormFields: React.FC<UserFormFieldsProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
             control={form.control}
-            name="name"
+            name="nom"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Nom</FormLabel>
@@ -105,7 +104,7 @@ export const UserFormFields: React.FC<UserFormFieldsProps> = ({
           
           <FormField
             control={form.control}
-            name="telephone"
+            name="numero_de_tel"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Numéro de téléphone</FormLabel>
@@ -129,7 +128,7 @@ export const UserFormFields: React.FC<UserFormFieldsProps> = ({
           
           <FormField
             control={form.control}
-            name="gender"
+            name="sexe"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Sexe</FormLabel>
@@ -143,8 +142,8 @@ export const UserFormFields: React.FC<UserFormFieldsProps> = ({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="male">Homme</SelectItem>
-                    <SelectItem value="female">Femme</SelectItem>
+                    <SelectItem value="homme">Homme</SelectItem>
+                    <SelectItem value="femme">Femme</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -175,7 +174,7 @@ export const UserFormFields: React.FC<UserFormFieldsProps> = ({
           
           <FormField
             control={form.control}
-            name="status"
+            name="etat"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>État</FormLabel>
@@ -203,7 +202,7 @@ export const UserFormFields: React.FC<UserFormFieldsProps> = ({
           
           <FormField
             control={form.control}
-            name="role"
+            name="role_de_utilisateur"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Rôle</FormLabel>
@@ -229,7 +228,7 @@ export const UserFormFields: React.FC<UserFormFieldsProps> = ({
           
           <FormField
             control={form.control}
-            name="createdAt"
+            name="created_at"
             render={({ field }) => (
               <FormItem className="flex flex-col">
                 <FormLabel>Date création</FormLabel>

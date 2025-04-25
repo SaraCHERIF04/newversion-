@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
+import { initializeServiceWorker, setupMessageListener } from "@/services/firebase";
 import LoginPage from "./pages/LoginPage";
 
 // Chef Pages
@@ -101,6 +102,7 @@ import FinancierFactureDetailsPage from "./pages/Financier/FinancierFactureDetai
 
 // Add new imports
 import EmployeeFacturesPage from "./pages/Employee/EmployeeFacturesPage";
+import MakePassword from "./pages/MakePassword";
 
 // Route protection component
 interface ProtectedRouteProps {
@@ -132,6 +134,18 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
+    // Initialize Firebase service worker and message listener
+    const initializeFirebase = async () => {
+      try {
+        await initializeServiceWorker();
+        setupMessageListener();
+      } catch (error) {
+        console.error('Error initializing Firebase:', error);
+      }
+    };
+
+    initializeFirebase();
+
     setTimeout(() => {
       setIsLoading(false);
     }, 500);
@@ -149,6 +163,7 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/set-password/:token" element={<MakePassword />} />
             
             <Route path="/" element={
               <ProtectedRoute>

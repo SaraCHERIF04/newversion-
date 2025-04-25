@@ -6,33 +6,39 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { User as UserType } from '@/types/User';
 import { ArrowLeft } from 'lucide-react';
+import { userService } from '@/services/userService';
+import { UserInterface } from '@/interfaces/UserInterface';
 
 const AdminUserDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   
-  const [userData, setUserData] = useState<UserType | undefined>(undefined);
+  const [userData, setUserData] = useState<UserInterface>();
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
     // Get stored users from localStorage
-    const storedUsers = JSON.parse(localStorage.getItem('mockUsers') || '[]');
-    
-    // Find the user in our stored data
-    const user = storedUsers.find((u: UserType) => u.id === id);
-    
-    if (user) {
-      setUserData(user);
-    } else {
-      toast({
-        title: "Utilisateur non trouvé",
-        description: "L'utilisateur que vous essayez de consulter n'existe pas",
-        variant: "destructive",
-      });
-      navigate('/admin/users');
-    }
-    
+
+    const fetchUser = async () => {
+      try {
+        const user = await userService.getUserById(id);
+        if (user) {
+          setUserData(user.data);
+          console.log('User data:', user);
+        } else {
+          toast({
+            title: "Utilisateur non trouvé",
+            description: "L'utilisateur que vous essayez de consulter n'existe pas",
+            variant: "destructive",
+          });
+          navigate('/admin/users');
+        }
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      }
+    };
+    fetchUser();
     setLoading(false);
   }, [id, navigate, toast]);
   
@@ -80,8 +86,8 @@ const AdminUserDetailsPage: React.FC = () => {
             <div className="flex-shrink-0">
               <div className="h-24 w-24 rounded-full overflow-hidden border-4 border-gray-200 mx-auto">
                 <img 
-                  src={userData.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.name + ' ' + userData.prenom)}&background=random`} 
-                  alt={userData.name} 
+                  src={ `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.nom + ' ' + userData.prenom)}&background=random`} 
+                  alt={userData.nom} 
                   className="h-full w-full object-cover"
                 />
               </div>
@@ -92,7 +98,7 @@ const AdminUserDetailsPage: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Nom</label>
-                  <div className="mt-1 p-3 bg-gray-50 rounded-md">{userData.name}</div>
+                  <div className="mt-1 p-3 bg-gray-50 rounded-md">{userData.nom}</div>
                 </div>
                 
                 <div>
@@ -107,13 +113,13 @@ const AdminUserDetailsPage: React.FC = () => {
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Numéro de téléphone</label>
-                  <div className="mt-1 p-3 bg-gray-50 rounded-md">{userData.telephone || '-'}</div>
+                  <div className="mt-1 p-3 bg-gray-50 rounded-md">{userData.numero_de_tel || '-'}</div>
                 </div>
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Sexe</label>
                   <div className="mt-1 p-3 bg-gray-50 rounded-md">
-                    {userData.gender === 'male' ? 'Homme' : 'Femme'}
+                    {userData.sexe === 'male' ? 'Homme' : 'Femme'}
                   </div>
                 </div>
                 
@@ -122,25 +128,25 @@ const AdminUserDetailsPage: React.FC = () => {
                   <div className="mt-1 p-3 bg-gray-50 rounded-md">{userData.email}</div>
                 </div>
                 
-                <div>
+                {/* <div>
                   <label className="block text-sm font-medium text-gray-700">État</label>
                   <div className="mt-1 p-3 bg-gray-50 rounded-md">
                     {userData.status}
                   </div>
-                </div>
+                </div> */}
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Rôle</label>
                   <div className="mt-1 p-3 bg-gray-50 rounded-md">
-                    {userData.role === 'admin' ? 'Administrateur' : 
-                     userData.role === 'chef' ? 'Chef de projet' : 'Employé'}
+                    {userData.role_de_utilisateur === 'admin' ? 'Administrateur' : 
+                     userData.role_de_utilisateur === 'chef' ? 'Chef de projet' : 'Employé'}
                   </div>
                 </div>
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Date création</label>
                   <div className="mt-1 p-3 bg-gray-50 rounded-md">
-                    {new Date(userData.createdAt).toLocaleDateString('fr-FR')}
+                    {new Date(userData.created_at).toLocaleDateString('fr-FR')}
                   </div>
                 </div>
               </div>
