@@ -42,7 +42,7 @@ export const login = async (credentials: LoginCredentials): Promise<LoginRespons
     // Continue with login even if FCM token fails
     }
 
-    const response = await post<LoginResponse>('/auth', {
+    const response = await post<LoginResponse>('/auth/', {
       email: credentials.email,
       mot_de_passe: credentials.password,
       action: 'login',
