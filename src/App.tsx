@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { initializeServiceWorker, setupMessageListener } from "@/services/firebase";
+import { remoteConfigService } from "@/services/remoteConfigService";
+import MaintenanceMode from "@/components/MaintenanceMode";
 import LoginPage from "./pages/LoginPage";
 
 // Chef Pages
@@ -132,18 +134,31 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRole }
 function App() {
   const queryClient = new QueryClient();
   const [isLoading, setIsLoading] = useState(true);
+  const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
   
-  useEffect(() => {
-    // Initialize Firebase service worker and message listener
-    const initializeFirebase = async () => {
-      try {
-        await initializeServiceWorker();
-        setupMessageListener();
-      } catch (error) {
-        console.error('Error initializing Firebase:', error);
+  const initializeFirebase = async () => {
+    try {
+      await initializeServiceWorker();
+      setupMessageListener();
+      
+      // Initialize Remote Config
+      await remoteConfigService.initialize();
+      console.log('Remote Config initialized');
+      
+      // Check if app is in maintenance mode
+      const maintenanceMode = remoteConfigService.isMaintenanceModeEnabled();
+      setIsMaintenanceMode(maintenanceMode);
+      
+      if (maintenanceMode) {
+        console.log('App is in maintenance mode');
       }
-    };
+    } catch (error) {
+      console.error('Error initializing Firebase services:', error);
+    }
+  };
 
+  useEffect(() => {
+    // Initialize Firebase service worker, message listener, and remote config
     initializeFirebase();
 
     setTimeout(() => {
@@ -151,8 +166,20 @@ function App() {
     }, 500);
   }, []);
   
+  // Handler for retry button in maintenance mode
+  const handleRetry = () => {
+    setIsLoading(true);
+    initializeFirebase().then(() => {
+      setIsLoading(false);
+    });
+  };
+  
   if (isLoading) {
     return <div className="flex items-center justify-center h-screen">Chargement...</div>;
+  }
+  
+  if (isMaintenanceMode) {
+    return <MaintenanceMode onRetry={handleRetry} />;
   }
   
   return (

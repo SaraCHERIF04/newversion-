@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, Printer, Download, BarChart } from 'lucide-react';
+import { projetService } from '@/services/projetService';
 
 const EmployeeProjectDetailsPage = () => {
   const { id } = useParams();
@@ -18,40 +19,11 @@ const EmployeeProjectDetailsPage = () => {
   const [projectMeetings, setProjectMeetings] = useState([]);
   
   useEffect(() => {
-    const fetchProject = () => {
+    const fetchProject = async () => {
       setLoading(true);
       try {
-        const projectsString = localStorage.getItem('projects');
-        if (projectsString) {
-          const projects = JSON.parse(projectsString);
-          const foundProject = projects.find(p => p.id === id);
-          if (foundProject) {
-            setProject(foundProject);
-            
-            const subProjectsString = localStorage.getItem('subProjects');
-            if (subProjectsString) {
-              const allSubProjects = JSON.parse(subProjectsString);
-              const projectSubProjects = allSubProjects.filter(sp => sp.projectId === id);
-              setSubProjects(projectSubProjects);
-            }
-            
-            const documentsString = localStorage.getItem('documents');
-            if (documentsString) {
-              const allDocuments = JSON.parse(documentsString);
-              const projectDocs = allDocuments.filter(doc => doc.projectId === id);
-              setProjectDocuments(projectDocs);
-            }
-            
-            const meetingsString = localStorage.getItem('meetings');
-            if (meetingsString) {
-              const allMeetings = JSON.parse(meetingsString);
-              const projectMeetings = allMeetings.filter(meeting => meeting.projectId === id);
-              setProjectMeetings(projectMeetings);
-            }
-          } else {
-            console.error('Project not found');
-          }
-        }
+        const response = await projetService.getProjetById(id);
+        setProject(response.data);
       } catch (error) {
         console.error('Error fetching project:', error);
       } finally {
@@ -148,7 +120,7 @@ const EmployeeProjectDetailsPage = () => {
               {project.status}
             </Badge>
             <p className="mt-4 text-sm text-gray-500">
-              Échéance: {project.deadline || 'Non définie'}
+              Échéance: {project.date_fin_de_projet || 'Non définie'}
             </p>
           </CardContent>
         </Card>
@@ -172,11 +144,11 @@ const EmployeeProjectDetailsPage = () => {
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-gray-500">Date début:</span>
-              <span className="text-sm font-medium">{project.startDate || 'Non définie'}</span>
+              <span className="text-sm font-medium">{project.date_debut_de_projet || 'Non définie'}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-gray-500">Date fin:</span>
-              <span className="text-sm font-medium">{project.endDate || 'Non définie'}</span>
+              <span className="text-sm font-medium">{project.date_fin_de_projet || 'Non définie'}</span>
             </div>
           </CardContent>
         </Card>
@@ -191,10 +163,10 @@ const EmployeeProjectDetailsPage = () => {
                 project.members.map((member, index) => (
                   <div key={index} className="flex items-center space-x-2">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={member.avatar} alt={member.name} />
-                      <AvatarFallback>{member.name?.charAt(0) || '?'}</AvatarFallback>
+                      <AvatarImage src={member.avatar} alt={member.nom} />
+                      <AvatarFallback>{member.nom?.charAt(0) || '?'}</AvatarFallback>
                     </Avatar>
-                    <span className="text-sm">{member.name}</span>
+                    <span className="text-sm">{member.nom}</span>
                   </div>
                 ))
               ) : (
@@ -218,26 +190,26 @@ const EmployeeProjectDetailsPage = () => {
                 <h3 className="text-lg font-medium">Sous-projets associés</h3>
               </div>
               <div className="space-y-4">
-                {subProjects.length > 0 ? (
+                {project.subprojects.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {subProjects.map((subProject) => (
+                    {project.subprojects.map((subProject) => (
                       <div 
-                        key={subProject.id} 
+                        key={subProject.id_sous_projet} 
                         className="border rounded-md p-4 hover:bg-gray-50 cursor-pointer"
-                        onClick={() => navigate(`/employee/sous-projets/${subProject.id}`)}
+                        onClick={() => navigate(`/employee/sous-projets/${subProject.id_sous_projet}`)}
                       >
-                        <div className="font-medium">{subProject.name}</div>
-                        <div className="text-sm text-gray-500 truncate">{subProject.description}</div>
+                        <div className="font-medium">{subProject.nom_sous_projet}</div>
+                        <div className="text-sm text-gray-500 truncate">{subProject.description_sous_projet}</div>
                         <div className="mt-2">
                           <Badge 
                             className={`${
-                              subProject.status === 'Terminé' ? 'bg-green-100 text-green-800' :
-                              subProject.status === 'En cours' ? 'bg-blue-100 text-blue-800' :
-                              subProject.status === 'En attente' ? 'bg-yellow-100 text-yellow-800' :
+                              subProject.statut_sous_projet === 'Terminé' ? 'bg-green-100 text-green-800' :
+                              subProject.statut_sous_projet === 'En cours' ? 'bg-blue-100 text-blue-800' :
+                              subProject.statut_sous_projet === 'En attente' ? 'bg-yellow-100 text-yellow-800' :
                               'bg-gray-100 text-gray-800'
                             }`}
                           >
-                            {subProject.status}
+                            {subProject.statut_sous_projet}
                           </Badge>
                         </div>
                       </div>
@@ -257,9 +229,9 @@ const EmployeeProjectDetailsPage = () => {
                 <h3 className="text-lg font-medium">Documents du projet</h3>
               </div>
               <div className="space-y-4">
-                {projectDocuments.length > 0 ? (
+                {project.documents.length > 0 ? (
                   <div className="grid grid-cols-1 gap-2">
-                    {projectDocuments.map((doc) => (
+                    {project.documents.map((doc) => (
                       <div key={doc.id} className="flex items-center justify-between border rounded-md p-3">
                         <div className="flex items-center space-x-3">
                           <div className="flex-shrink-0">
@@ -281,7 +253,7 @@ const EmployeeProjectDetailsPage = () => {
                           </div>
                           <div>
                             <div className="font-medium">{doc.title}</div>
-                            <div className="text-sm text-gray-500">{doc.dateAdded || 'Date inconnue'}</div>
+                            <div className="text-sm text-gray-500">{doc.date_ajout || 'Date inconnue'}</div>
                           </div>
                         </div>
                         <Button 
@@ -310,17 +282,17 @@ const EmployeeProjectDetailsPage = () => {
                 <h3 className="text-lg font-medium">Réunions du projet</h3>
               </div>
               <div className="space-y-4">
-                {projectMeetings.length > 0 ? (
+                {project.reunions.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {projectMeetings.map((meeting) => (
+                    {project.reunions.map((meeting) => (
                       <div 
                         key={meeting.id} 
                         className="border rounded-md p-4 hover:bg-gray-50 cursor-pointer"
-                        onClick={() => navigate(`/employee/reunions/${meeting.id}`)}
+                        onClick={() => navigate(`/employee/reunions/${meeting.id_reunion}`)}
                       >
                         <div className="font-medium">{meeting.title}</div>
-                        <div className="text-sm text-gray-500">Date: {meeting.date}</div>
-                        <div className="text-sm text-gray-500">Lieu: {meeting.location}</div>
+                        <div className="text-sm text-gray-500">Date: {meeting.date_reunion}</div>
+                        <div className="text-sm text-gray-500">Lieu: {meeting.lieu_reunion}</div>
                       </div>
                     ))}
                   </div>

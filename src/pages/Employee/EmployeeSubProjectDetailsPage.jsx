@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ArrowLeft, Printer, Download, BarChart } from 'lucide-react';
-
+import { sousProjetService } from '@/services/sousProjetService';
 const EmployeeSubProjectDetailsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -16,41 +16,19 @@ const EmployeeSubProjectDetailsPage = () => {
   const [subProjectMeetings, setSubProjectMeetings] = useState([]);
   
   useEffect(() => {
-    const fetchSubProject = () => {
+    const fetchProject = async () => {
       setLoading(true);
       try {
-        const subProjectsString = localStorage.getItem('subProjects');
-        if (subProjectsString) {
-          const subProjects = JSON.parse(subProjectsString);
-          const foundSubProject = subProjects.find(sp => sp.id === id);
-          if (foundSubProject) {
-            setSubProject(foundSubProject);
-            
-            const documentsString = localStorage.getItem('documents');
-            if (documentsString) {
-              const allDocuments = JSON.parse(documentsString);
-              const subProjectDocs = allDocuments.filter(doc => doc.subProjectId === id);
-              setSubProjectDocuments(subProjectDocs);
-            }
-            
-            const meetingsString = localStorage.getItem('meetings');
-            if (meetingsString) {
-              const allMeetings = JSON.parse(meetingsString);
-              const subProjectMeetings = allMeetings.filter(meeting => meeting.subProjectId === id);
-              setSubProjectMeetings(subProjectMeetings);
-            }
-          } else {
-            console.error('SubProject not found');
-          }
-        }
+        const response = await sousProjetService.getSousProjetById(id);
+        setSubProject(response.data);
       } catch (error) {
-        console.error('Error fetching subproject:', error);
+        console.error('Error fetching project:', error);
       } finally {
         setLoading(false);
       }
     };
     
-    fetchSubProject();
+    fetchProject();
   }, [id]);
   
   const handlePrint = () => {
@@ -130,16 +108,16 @@ const EmployeeSubProjectDetailsPage = () => {
           <CardContent>
             <Badge 
               className={`${
-                subProject.status === 'Terminé' ? 'bg-green-100 text-green-800' :
-                subProject.status === 'En cours' ? 'bg-blue-100 text-blue-800' :
-                subProject.status === 'En attente' ? 'bg-yellow-100 text-yellow-800' :
+                subProject.statut_sous_projet === 'Terminé' ? 'bg-green-100 text-green-800' :
+                subProject.statut_sous_projet === 'En cours' ? 'bg-blue-100 text-blue-800' :
+                subProject.statut_sous_projet === 'En attente' ? 'bg-yellow-100 text-yellow-800' :
                 'bg-gray-100 text-gray-800'
               }`}
             >
-              {subProject.status}
+              {subProject.statut_sous_projet}
             </Badge>
             <p className="mt-4 text-sm text-gray-500">
-              Échéance: {subProject.deadline || 'Non définie'}
+              Échéance: {subProject.date_finsousprojet || 'Non définie'}
             </p>
           </CardContent>
         </Card>
@@ -151,11 +129,11 @@ const EmployeeSubProjectDetailsPage = () => {
           <CardContent className="space-y-2">
             <div className="flex justify-between">
               <span className="text-sm text-gray-500">Projet parent:</span>
-              <span className="text-sm font-medium">{subProject.parentProjectName || 'Non assigné'}</span>
+              <span className="text-sm font-medium">{subProject.project.nom_projet || 'Non assigné'}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm text-gray-500">Chef de sous-projet:</span>
-              <span className="text-sm font-medium">{subProject.chef || 'Non assigné'}</span>
+              <span className="text-sm text-gray-500">Chef de projet:</span>
+              <span className="text-sm font-medium">{subProject?.hef_projet?.nom_utilisateur || 'Non assigné'}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-gray-500">Budget:</span>
@@ -163,11 +141,11 @@ const EmployeeSubProjectDetailsPage = () => {
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-gray-500">Date début:</span>
-              <span className="text-sm font-medium">{subProject.startDate || 'Non définie'}</span>
+              <span className="text-sm font-medium">{subProject.date_debut_sousprojet || 'Non définie'}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-gray-500">Date fin:</span>
-              <span className="text-sm font-medium">{subProject.endDate || 'Non définie'}</span>
+              <span className="text-sm font-medium">{subProject.date_finsousprojet || 'Non définie'}</span>
             </div>
           </CardContent>
         </Card>
@@ -182,10 +160,10 @@ const EmployeeSubProjectDetailsPage = () => {
                 subProject.members.map((member, index) => (
                   <div key={index} className="flex items-center space-x-2">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={member.avatar} alt={member.name} />
-                      <AvatarFallback>{member.name?.charAt(0) || '?'}</AvatarFallback>
+                      <AvatarImage src={member.avatar} alt={member.nom} />
+                      <AvatarFallback>{member.nom?.charAt(0) || '?'}</AvatarFallback>
                     </Avatar>
-                    <span className="text-sm">{member.name}</span>
+                    <span className="text-sm">{member.nom}</span>
                   </div>
                 ))
               ) : (
@@ -199,7 +177,6 @@ const EmployeeSubProjectDetailsPage = () => {
       <Tabs defaultValue="documents">
         <TabsList>
           <TabsTrigger value="documents">Documents</TabsTrigger>
-          <TabsTrigger value="reunions">Réunions</TabsTrigger>
         </TabsList>
         <TabsContent value="documents" className="mt-4">
           <Card>
@@ -208,10 +185,10 @@ const EmployeeSubProjectDetailsPage = () => {
                 <h3 className="text-lg font-medium">Documents du sous-projet</h3>
               </div>
               <div className="space-y-4">
-                {subProjectDocuments.length > 0 ? (
+                {subProject.documents.length > 0 ? (
                   <div className="grid grid-cols-1 gap-2">
-                    {subProjectDocuments.map((doc) => (
-                      <div key={doc.id} className="flex items-center justify-between border rounded-md p-3">
+                    {subProject.documents.map((doc) => (
+                      <div key={doc.id_document} className="flex items-center justify-between border rounded-md p-3">
                         <div className="flex items-center space-x-3">
                           <div className="flex-shrink-0">
                             {doc.type === 'pdf' && (
@@ -231,8 +208,8 @@ const EmployeeSubProjectDetailsPage = () => {
                             )}
                           </div>
                           <div>
-                            <div className="font-medium">{doc.title}</div>
-                            <div className="text-sm text-gray-500">{doc.dateAdded || 'Date inconnue'}</div>
+                            <div className="font-medium">{doc.titre}</div>
+                            <div className="text-sm text-gray-500">{doc.date_ajout || 'Date inconnue'}</div>
                           </div>
                         </div>
                         <Button 
@@ -249,34 +226,6 @@ const EmployeeSubProjectDetailsPage = () => {
                   </div>
                 ) : (
                   <p className="text-gray-500">Aucun document associé à ce sous-projet</p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        <TabsContent value="reunions" className="mt-4">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-medium">Réunions du sous-projet</h3>
-              </div>
-              <div className="space-y-4">
-                {subProjectMeetings.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {subProjectMeetings.map((meeting) => (
-                      <div 
-                        key={meeting.id} 
-                        className="border rounded-md p-4 hover:bg-gray-50 cursor-pointer"
-                        onClick={() => navigate(`/employee/reunions/${meeting.id}`)}
-                      >
-                        <div className="font-medium">{meeting.title}</div>
-                        <div className="text-sm text-gray-500">Date: {meeting.date}</div>
-                        <div className="text-sm text-gray-500">Lieu: {meeting.location}</div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-gray-500">Aucune réunion associée à ce sous-projet</p>
                 )}
               </div>
             </CardContent>

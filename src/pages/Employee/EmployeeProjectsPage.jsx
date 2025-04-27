@@ -2,59 +2,28 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import ProjectCard from '@/components/ProjectCard';
 import { useSearchQuery } from '@/components/Layout/EmployeeLayout';
+import { projetService } from '@/services/projetService';
 
 const EmployeeProjectsPage = () => {
-  const { searchQuery } = useSearchQuery() || { searchQuery: '' };
   const [localSearchTerm, setLocalSearchTerm] = useState('');
-  const [allProjects, setAllProjects] = useState([]);
   const [filteredProjects, setFilteredProjects] = useState([]);
 
-  // Load projects from localStorage on component mount
   useEffect(() => {
-    const savedProjects = localStorage.getItem('projects');
-    if (savedProjects) {
+    const fetchProjects = async () => {
       try {
-        const parsedProjects = JSON.parse(savedProjects);
-        // Sort projects with newest first
-        const sortedProjects = sortByNewest(parsedProjects);
-        setAllProjects(sortedProjects);
+        const response = await projetService.getAllProjets(1, 'employee');
+        setFilteredProjects(response.data);
       } catch (error) {
-        console.error('Error parsing projects from localStorage:', error);
+        console.error('Error fetching projects:', error); 
         setAllProjects([]);
       }
-    } else {
-      setAllProjects([]);
-    }
+    };
+    fetchProjects();
   }, []);
 
-  // Helper function to sort items by newest first
-  const sortByNewest = (items) => {
-    return [...items].sort((a, b) => {
-      // If items have createdAt or timestamp field, sort by that
-      if (a.createdAt && b.createdAt) {
-        return new Date(b.createdAt) - new Date(a.createdAt);
-      }
-      if (a.timestamp && b.timestamp) {
-        return new Date(b.timestamp) - new Date(a.timestamp);
-      }
-      // Otherwise, reverse the order to put newer items (likely those with higher IDs) first
-      return b.id.localeCompare(a.id);
-    });
-  };
 
-  // Effect to handle both header search and local search
-  useEffect(() => {
-    const combinedSearchTerm = searchQuery || localSearchTerm;
-    const results = allProjects.filter(project =>
-      project.name.toLowerCase().includes(combinedSearchTerm.toLowerCase()) ||
-      project.description.toLowerCase().includes(combinedSearchTerm.toLowerCase())
-    );
-    setFilteredProjects(results);
-  }, [searchQuery, localSearchTerm, allProjects]);
+  
 
-  const handleSearch = (e) => {
-    setLocalSearchTerm(e.target.value);
-  };
 
   return (
     <div>
@@ -64,9 +33,9 @@ const EmployeeProjectsPage = () => {
           <div className="relative">
             <input
               type="text"
-              placeholder="Rechercher un projet..."
+              placeholder="Rechercher un projet..." 
               value={localSearchTerm}
-              onChange={handleSearch}
+              onChange={(e) => setLocalSearchTerm(e.target.value)}
               className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
             />
             <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -94,7 +63,7 @@ const EmployeeProjectsPage = () => {
           filteredProjects.map(project => (
             <div key={project.id} className="block">
               <div className="h-full transition-transform hover:scale-102 hover:shadow-lg">
-                <Link to={`/employee/projects/${project.id}`} className="block h-full">
+                <Link to={`/employee/projects/${project.id_projet}`} className="block h-full">
                   <ProjectCard project={project} />
                 </Link>
               </div>

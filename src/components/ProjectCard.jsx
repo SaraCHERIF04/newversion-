@@ -21,7 +21,7 @@ const ProjectCard = ({ project }) => {
   return (
     <div className="rounded-md border border-gray-200 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md h-full">
       <div className="mb-4 flex justify-between">
-        <h3 className="text-lg font-medium text-gray-800">{project.name}</h3>
+        <h3 className="text-lg font-medium text-gray-800">{project.nom_projet}</h3>
         <span
           className={cn(
             'rounded-full px-3 py-1 text-xs font-medium',
@@ -31,11 +31,11 @@ const ProjectCard = ({ project }) => {
           {project.status}
         </span>
       </div>
-      <p className="mb-4 line-clamp-2 text-sm text-gray-600">{project.description}</p>
+      <p className="mb-4 line-clamp-2 text-sm text-gray-600">{project.description_de_projet}</p>
       
       {project.deadline && (
         <div className="mb-3 text-xs text-gray-500">
-          <span className="font-medium">Date limite:</span> {project.deadline}
+          <span className="font-medium">Date limite:</span> {project.date_fin_de_projet}
         </div>
       )}
 
@@ -43,11 +43,11 @@ const ProjectCard = ({ project }) => {
         <div className="flex -space-x-2">
           {project.members && project.members.slice(0, 4).map((member, index) => (
             <img
-              key={member.id || index}
-              src={member.avatar}
-              alt={member.name || `member-${index}`}
+              key={member.id_utilisateur || index}
+              src={`https://ui-avatars.com/api/?name=${encodeURIComponent(member.nom + (member.prenom ? ' ' + member.prenom : ''))}&background=random`} 
+              alt={member.nom_utilisateur || `member-${index}`}
               className="h-6 w-6 rounded-full border border-white"
-              title={member.name}
+              title={member.nom_utilisateur}
             />
           ))}
           {project.members && project.members.length > 4 && (
@@ -72,7 +72,7 @@ const ProjectCard = ({ project }) => {
               d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" 
             />
           </svg>
-          {project.documentsCount || 0} documents
+          {project.documents.length || 0} documents
         </div>
       </div>
 

@@ -1,66 +1,68 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, FileEdit, Trash2, Plus } from 'lucide-react';
+import { Eye, FileEdit, Trash2, Plus, AlertTriangle } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/use-toast';
+import { documentService } from '@/services/documentService';
+import { remoteConfigService } from '@/services/remoteConfigService';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const EmployeeDocumentsPage = () => {
   const [documents, setDocuments] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [documentConfig, setDocumentConfig] = useState({
+    maxFileSizeMB: 10,
+    allowedDocumentTypes: ['pdf', 'doc', 'docx'],
+    documentSharingEnabled: false
+  });
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
   
   useEffect(() => {
-    // Load documents from localStorage
-    const docsString = localStorage.getItem('documents');
-    if (docsString) {
-      try {
-        const docs = JSON.parse(docsString);
-        // Sort documents by dateAdded in descending order (newest first)
-        const sortedDocs = [...docs].sort((a, b) => {
-          return new Date(b.dateAdded || b.createdAt || 0).getTime() - 
-                 new Date(a.dateAdded || a.createdAt || 0).getTime();
-        });
-        setDocuments(sortedDocs);
-      } catch (error) {
-        console.error('Error loading documents:', error);
-      }
-    }
+    // Load remote config settings
+    const loadRemoteConfig = () => {
+      const maxFileSizeMB = remoteConfigService.getMaxFileSizeMB();
+      const allowedDocumentTypes = remoteConfigService.getAllowedDocumentTypes();
+      const documentSharingEnabled = remoteConfigService.isDocumentSharingEnabled();
+      
+      setDocumentConfig({
+        maxFileSizeMB,
+        allowedDocumentTypes,
+        documentSharingEnabled
+      });
+      
+      console.log('Document configuration loaded from Remote Config:', {
+        maxFileSizeMB,
+        allowedDocumentTypes,
+        documentSharingEnabled
+      });
+    };
+    
+    loadRemoteConfig();
   }, []);
   
-  const getProjectName = (projectId) => {
-    if (!projectId) return 'N/A';
-    try {
-      const projectsString = localStorage.getItem('projects');
-      if (projectsString) {
-        const projects = JSON.parse(projectsString);
-        const project = projects.find((p) => p.id === projectId);
-        return project ? project.name : 'N/A';
+  useEffect(() => {
+    const fetchDocuments = async () => {
+      setLoading(true);
+      try {
+        const response = await documentService.getAllDocuments(1, 'employee');
+        setDocuments(response.data);
+      } catch (error) {
+        console.error('Error fetching documents:', error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error('Error getting project name:', error);
-    }
-    return 'N/A';
-  };
+    };
+    
+    fetchDocuments();
+  }, []);
   
-  const getSubProjectName = (subProjectId) => {
-    if (!subProjectId) return 'N/A';
-    try {
-      const subProjectsString = localStorage.getItem('subProjects');
-      if (subProjectsString) {
-        const subProjects = JSON.parse(subProjectsString);
-        const subProject = subProjects.find((sp) => sp.id === subProjectId);
-        return subProject ? subProject.name : 'N/A';
-      }
-    } catch (error) {
-      console.error('Error getting subproject name:', error);
-    }
-    return 'N/A';
-  };
+
   
+
   const handleViewDocument = (doc) => {
     navigate(`/employee/documents/${doc.id}`);
   };
@@ -86,16 +88,24 @@ const EmployeeDocumentsPage = () => {
     return doc.createdBy === userId;
   };
   
-  const filteredDocuments = documents.filter(doc => 
-    doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    doc.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    getProjectName(doc.projectId).toLowerCase().includes(searchTerm.toLowerCase()) ||
-    getSubProjectName(doc.subProjectId).toLowerCase().includes(searchTerm.toLowerCase())
-  );
+
   
   return (
     <div className="max-w-7xl mx-auto p-4">
       <h1 className="text-2xl font-bold mb-8">Documents</h1>
+      
+      {/* Show allowed document types info */}
+      <Alert className="mb-6">
+        <AlertTriangle className="h-4 w-4" />
+        <AlertTitle>Restrictions de documents</AlertTitle>
+        <AlertDescription>
+          Taille maximale: {documentConfig.maxFileSizeMB} MB. 
+          Types permis: {documentConfig.allowedDocumentTypes.join(', ')}
+          {documentConfig.documentSharingEnabled ? 
+            '. Le partage de documents est activé.' : 
+            '. Le partage de documents est désactivé.'}
+        </AlertDescription>
+      </Alert>
       
       <div className="flex justify-between items-center mb-6">
         <div className="relative w-80">
@@ -127,14 +137,14 @@ const EmployeeDocumentsPage = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredDocuments.length > 0 ? (
-              filteredDocuments.map((doc) => (
-                <TableRow key={doc.id}>
-                  <TableCell>{doc.title}</TableCell>
+            {documents.length > 0 ? (
+              documents.map((doc) => (
+                <TableRow key={doc.id_document}>
+                  <TableCell>{doc.titre}</TableCell>
                   <TableCell>{doc.type}</TableCell>
-                  <TableCell>{doc.dateAdded || new Date(doc.createdAt || Date.now()).toISOString().split('T')[0]}</TableCell>
-                  <TableCell>{getProjectName(doc.projectId)}</TableCell>
-                  <TableCell>{getSubProjectName(doc.subProjectId)}</TableCell>
+                  <TableCell>{doc.date_ajout || new Date(doc.date_ajout || Date.now()).toISOString().split('T')[0]}</TableCell>
+                  <TableCell>{doc?.project}</TableCell>
+                  <TableCell>{doc?.subproject}</TableCell>
                   <TableCell className="text-right space-x-2">
                     <Button variant="ghost" size="sm" onClick={() => handleViewDocument(doc)}>
                       <Eye className="h-4 w-4" />
