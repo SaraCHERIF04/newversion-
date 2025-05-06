@@ -64,16 +64,16 @@ const EmployeeDocumentsPage = () => {
   
 
   const handleViewDocument = (doc) => {
-    navigate(`/employee/documents/${doc.id}`);
+    navigate(`/employee/documents/${doc.id_document}`);
   };
 
   const handleEditDocument = (doc) => {
-    navigate(`/employee/documents/new?edit=${doc.id}`);
+    navigate(`/employee/documents/new?edit=${doc.id_document}`);
   };
 
   const handleDeleteDocument = (doc) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer ce document?')) {
-      const updatedDocuments = documents.filter(d => d.id !== doc.id);
+      const updatedDocuments = documents.filter(d => d.id_document !== doc.id_document);
       localStorage.setItem('documents', JSON.stringify(updatedDocuments));
       setDocuments(updatedDocuments);
       toast({
@@ -83,10 +83,7 @@ const EmployeeDocumentsPage = () => {
     }
   };
   
-  // Helper function to check if a document was created by the current user
-  const isOwnDocument = (doc) => {
-    return doc.createdBy === userId;
-  };
+
   
 
   
@@ -151,16 +148,7 @@ const EmployeeDocumentsPage = () => {
                     </Button>
                     
                     {/* Only show edit/delete for documents created by this user */}
-                    {isOwnDocument(doc) && (
-                      <>
-                        <Button variant="ghost" size="sm" onClick={() => handleEditDocument(doc)}>
-                          <FileEdit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" onClick={() => handleDeleteDocument(doc)}>
-                          <Trash2 className="h-4 w-4 text-red-500" />
-                        </Button>
-                      </>
-                    )}
+
                   </TableCell>
                 </TableRow>
               ))

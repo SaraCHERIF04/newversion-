@@ -56,7 +56,12 @@ export const get = async <T>(url: string, params?: Record<string, any>): Promise
 // POST request
 export const post = async <T>(url: string, data?: any): Promise<T> => {
   try {
-    const response = await api.post<T>(`${url}`, data);
+    const config = {
+      headers: {
+        'Content-Type': data instanceof FormData ? 'multipart/form-data' : 'application/json'
+      }
+    };
+    const response = await api.post<T>(`${url}`, data, config);
     return response.data;
   } catch (error) {
     throw error;
@@ -66,7 +71,12 @@ export const post = async <T>(url: string, data?: any): Promise<T> => {
 // PUT request
 export const put = async <T>(url: string, data?: any): Promise<T> => {
   try {
-    const response = await api.put<T>(`${url}`, data);
+    const config = {
+      headers: {
+        'Content-Type': data instanceof FormData ? 'multipart/form-data' : 'application/json'
+      }
+    };
+    const response = await api.put<T>(`${url}`, data, config);
     return response.data;
   } catch (error) {
     throw error;

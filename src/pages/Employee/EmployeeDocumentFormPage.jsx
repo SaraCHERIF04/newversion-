@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
@@ -10,10 +9,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from '@/components/ui/use-toast';
 import { ArrowLeft } from 'lucide-react';
 import { addNotification } from '@/types/User';
+import { projetService } from '@/services/projetService';
+import { documentService } from '@/services/documentService';
+import { sousProjetService } from '@/services/sousProjetService';
 
 const DOCUMENT_TYPES = [
   { id: 'pdf', name: 'PDF' },
-  { id: 'word', name: 'Word' },
+{ id: 'word', name: 'Word' },
   { id: 'excel', name: 'Excel' },
   { id: 'image', name: 'Image' },
   { id: 'autre', name: 'Autre' }
@@ -30,109 +32,46 @@ const EmployeeDocumentFormPage = () => {
 
   const [document, setDocument] = useState({
     id: uuidv4(),
-    title: '',
+    titre: '',
     type: 'pdf',
     description: '',
-    dateAdded: new Date().toISOString().split('T')[0],
-    projectId: '',
-    subProjectId: '',
-    fileUrl: '',
-    fileName: '',
-    createdAt: new Date().toISOString(),
-    createdBy: userId,
-    createdByName: userName,
+    date_ajout: new Date().toISOString().split('T')[0],
+    id_projet: '',
+    id_sous_projet: '',
+    nom_projet: '',
+    nom_sous_projet: '',
   });
 
   const [projects, setProjects] = useState([]);
-  const [subProjects, setSubProjects] = useState([]);
   const [filteredSubProjects, setFilteredSubProjects] = useState([]);
   const [files, setFiles] = useState([]);
   const [existingFiles, setExistingFiles] = useState([]);
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    const projectsString = localStorage.getItem('projects');
-    const subProjectsString = localStorage.getItem('subProjects');
-    const usersString = localStorage.getItem('users');
+    const fetchProjects = async () => {
+      const response = await projetService.getAllProjets(1, 'employee');
+      setProjects(response.data);
+    };
 
-    if (projectsString) {
-      try {
-        const loadedProjects = JSON.parse(projectsString);
-        setProjects(loadedProjects);
-      } catch (error) {
-        console.error('Error loading projects:', error);
-      }
-    }
-
-    if (subProjectsString) {
-      try {
-        const loadedSubProjects = JSON.parse(subProjectsString);
-        setSubProjects(loadedSubProjects);
-      } catch (error) {
-        console.error('Error loading subprojects:', error);
-      }
-    }
-    
-    if (usersString) {
-      try {
-        const loadedUsers = JSON.parse(usersString);
-        setUsers(loadedUsers);
-      } catch (error) {
-        console.error('Error loading users:', error);
-      }
-    }
-
+    const fetchDocument = async () => {
+      const response = await documentService.getDocumentById(editId, 'employee');
+      setDocument(response.data);
+    };
+    fetchProjects();
     if (isEdit) {
-      const documentsString = localStorage.getItem('documents');
-      if (documentsString) {
-        try {
-          const documents = JSON.parse(documentsString);
-          const docToEdit = documents.find(doc => doc.id === editId);
-          
-          if (docToEdit) {
-            if (docToEdit.createdBy !== userId && userId !== 'default-user') {
-              toast({
-                title: "Accès refusé",
-                description: "Vous ne pouvez pas modifier ce document car il ne vous appartient pas.",
-                variant: "destructive"
-              });
-              navigate('/employee/documents');
-              return;
-            }
-            
-            setDocument(docToEdit);
-            
-            if (docToEdit.files && docToEdit.files.length > 0) {
-              setExistingFiles(docToEdit.files);
-            } else if (docToEdit.fileUrl && docToEdit.fileName) {
-              setExistingFiles([{
-                url: docToEdit.fileUrl,
-                name: docToEdit.fileName
-              }]);
-            }
-          } else {
-            toast({
-              title: "Document introuvable",
-              description: "Le document que vous essayez de modifier n'existe pas.",
-              variant: "destructive"
-            });
-            navigate('/employee/documents');
-          }
-        } catch (error) {
-          console.error('Error loading document:', error);
-        }
-      }
+      fetchDocument();
     }
-  }, [editId, isEdit, navigate, userId]);
+  }, [editId, isEdit, userId]);
 
   useEffect(() => {
-    if (document.projectId) {
-      const filtered = subProjects.filter(sp => sp.projectId === document.projectId);
-      setFilteredSubProjects(filtered);
-    } else {
-      setFilteredSubProjects([]);
-    }
-  }, [document.projectId, subProjects]);
+    const fetchSubProjects = async () => {
+      const response = await sousProjetService.getSousProjetsByProjetId(document.id_projet);
+      // console.log(response.data.results);
+      setFilteredSubProjects(response.data.results);
+    };
+    fetchSubProjects();
+  }, [document.id_projet]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -140,10 +79,25 @@ const EmployeeDocumentFormPage = () => {
   };
 
   const handleSelectChange = (name, value) => {
-    setDocument({ ...document, [name]: value });
-    
-    if (name === 'projectId') {
-      setDocument(prev => ({ ...prev, subProjectId: '' }));
+    if (name === 'id_projet') {
+      const selectedProject = projects.find(project => project.id_projet == value);
+      setDocument(prev => ({ 
+        ...prev, 
+        [name]: value,
+        nom_projet: selectedProject ? selectedProject.nom_projet : null,
+        id_sous_projet: ''
+      }));
+    } else if(name === 'id_sous_projet'){
+      console.log(value);
+      const selectedSubProject = filteredSubProjects.find(project => project.id_sous_projet == value);
+      setDocument(prev => ({ 
+        ...prev, 
+        [name]: value,
+        nom_sous_projet: selectedSubProject ? selectedSubProject.nom_sous_projet : null ,
+        id_sous_projet: selectedSubProject ? selectedSubProject.id_sous_projet : null
+      }));
+    }else{
+      setDocument(prev => ({ ...prev, [name]: value }));
     }
   };
 
@@ -182,10 +136,10 @@ const EmployeeDocumentFormPage = () => {
     setExistingFiles(newExistingFiles);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!document.title.trim()) {
+    if (!document.titre.trim()) {
       toast({
         title: "Erreur",
         description: "Le titre du document est requis",
@@ -212,108 +166,44 @@ const EmployeeDocumentFormPage = () => {
       return;
     }
 
-    const fileInfos = files.map(file => ({
-      url: `data:application/octet-stream;base64,${file.name}`,
-      name: file.name,
-      type: document.type
-    }));
+    const formData = new FormData();
     
-    const allFiles = [...existingFiles, ...fileInfos];
-    
-    const updatedDocument = {
-      ...document,
-      files: allFiles,
-      fileUrl: allFiles.length > 0 ? allFiles[0].url : '',
-      fileName: allFiles.length > 0 ? allFiles[0].name : '',
-      updatedAt: new Date().toISOString()
-    };
+    // Add document metadata
+    formData.append('titre', document.titre);
+    formData.append('type', document.type);
+    formData.append('description', document.description);
+    formData.append('date_ajout', document.date_ajout);
+    formData.append('id_projet', document.id_projet || '');
+    formData.append('id_sous_projet', document.id_sous_projet || '');
 
-    const documentsString = localStorage.getItem('documents');
-    let documents = [];
-    
-    if (documentsString) {
-      try {
-        documents = JSON.parse(documentsString);
-      } catch (error) {
-        console.error('Error parsing documents:', error);
-      }
-    }
+    // Add files
+    files.forEach((file, index) => {
+      formData.append(`files`, file);
+    });
 
-    if (isEdit) {
-      const updatedDocuments = documents.map(doc => 
-        doc.id === editId ? updatedDocument : doc
-      );
-      localStorage.setItem('documents', JSON.stringify(updatedDocuments));
-      
-      toast({
-        title: "Document modifié",
-        description: "Le document a été mis à jour avec succès"
-      });
-    } else {
-      documents.unshift(updatedDocument);
-      localStorage.setItem('documents', JSON.stringify(documents));
-      
-      // Send notifications to chefs and colleagues (other employees)
-      const chefsAndColleagues = users.filter(user => 
-        user.id !== userId && (user.role === 'chef' || user.role === 'employee')
-      );
-      
-      if (chefsAndColleagues.length > 0) {
-        const targetUserIds = chefsAndColleagues.map(user => user.id);
-        const projectName = document.projectId ? 
-          (projects.find(p => p.id === document.projectId)?.name || '') : '';
-        
-        const title = "Nouveau document ajouté";
-        const message = projectName ? 
-          `${userName} a ajouté un nouveau document "${document.title}" au projet "${projectName}"` :
-          `${userName} a ajouté un nouveau document "${document.title}"`;
-        
-        addNotification(
-          targetUserIds,
-          title,
-          message,
-          'info',
-          `/employee/documents/${updatedDocument.id}`
-        );
+    try {
+      if (isEdit) {
+        await documentService.updateDocument(editId, formData, 'employee');
+        toast({
+          title: "Document modifié",
+          description: "Le document a été mis à jour avec succès"
+        });
+      } else {
+        await documentService.createDocument(formData,'');
+        toast({
+          title: "Document ajouté",
+          description: "Le document a été ajouté avec succès"
+        });
       }
-      
+      navigate('/employee/documents');
+    } catch (error) {
+      console.error('Error saving document:', error);
       toast({
-        title: "Document ajouté",
-        description: "Le document a été ajouté avec succès"
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la sauvegarde du document",
+        variant: "destructive"
       });
     }
-
-    if (document.projectId) {
-      const projectsString = localStorage.getItem('projects');
-      if (projectsString) {
-        try {
-          const projects = JSON.parse(projectsString);
-          const projectIndex = projects.findIndex(p => p.id === document.projectId);
-          
-          if (projectIndex !== -1) {
-            if (!projects[projectIndex].documents) {
-              projects[projectIndex].documents = [];
-            }
-            
-            const docExists = projects[projectIndex].documents.some(d => d.id === updatedDocument.id);
-            if (!docExists) {
-              projects[projectIndex].documents.push({
-                id: updatedDocument.id,
-                title: updatedDocument.title,
-                url: updatedDocument.fileUrl,
-                type: updatedDocument.type
-              });
-              
-              localStorage.setItem('projects', JSON.stringify(projects));
-            }
-          }
-        } catch (error) {
-          console.error('Error updating project:', error);
-        }
-      }
-    }
-
-    navigate('/employee/documents');
   };
 
   return (
@@ -334,11 +224,11 @@ const EmployeeDocumentFormPage = () => {
       <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm p-6 space-y-6">
         <div className="space-y-4">
           <div>
-            <Label htmlFor="title" className="text-sm font-medium">Titre du document</Label>
+            <Label htmlFor="titre" className="text-sm font-medium">Titre du document</Label>
             <Input
-              id="title"
-              name="title"
-              value={document.title}
+              id="titre"
+              name="titre"
+              value={document.titre}
               onChange={handleChange}
               className="mt-1"
               placeholder="Entrez le titre du document"
@@ -352,7 +242,7 @@ const EmployeeDocumentFormPage = () => {
               onValueChange={(value) => handleSelectChange('type', value)}
             >
               <SelectTrigger id="type" className="mt-1">
-                <SelectValue placeholder="Sélectionnez un type" />
+                <SelectValue placeholder="Sélectionnez un type"  />
               </SelectTrigger>
               <SelectContent>
                 {DOCUMENT_TYPES.map((type) => (
@@ -378,44 +268,59 @@ const EmployeeDocumentFormPage = () => {
           </div>
           
           <div>
-            <Label htmlFor="projectId" className="text-sm font-medium">Projet associé</Label>
+            <Label htmlFor="id_projet" className="text-sm font-medium">Projet associé</Label>
             <Select
-              value={document.projectId}
-              onValueChange={(value) => handleSelectChange('projectId', value)}
+              value={document.id_projet}
+              onValueChange={(value) => handleSelectChange('id_projet', value)}
             >
-              <SelectTrigger id="projectId" className="mt-1">
-                <SelectValue placeholder="Sélectionnez un projet (optionnel)" />
+              <SelectTrigger id="id_projet" className="mt-1">
+                <SelectValue placeholder="Sélectionnez un projet (optionnel)">
+                  {document.nom_projet || null}
+                </SelectValue>
               </SelectTrigger>
+              
               <SelectContent>
                 <SelectItem value="none">Aucun</SelectItem>
                 {projects.map((project) => (
-                  <SelectItem key={project.id} value={project.id}>
-                    {project.name}
+                  <SelectItem key={project.id_projet} value={project.id_projet}>
+                    {project.nom_projet}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            {document.nom_projet && (
+              <p className="mt-2 text-sm text-gray-600">
+                Projet sélectionné: <span className="font-medium">{document.nom_projet}</span>
+              </p>
+            )}
           </div>
           
           <div>
-            <Label htmlFor="subProjectId" className="text-sm font-medium">Sous-projet associé</Label>
+            <Label htmlFor="id_sous_projet" className="text-sm font-medium">Sous-projet associé</Label>
             <Select
-              value={document.subProjectId}
-              onValueChange={(value) => handleSelectChange('subProjectId', value)}
-              disabled={!document.projectId || filteredSubProjects.length === 0}
+              value={document.id_sous_projet}
+              onValueChange={(value) => handleSelectChange('id_sous_projet', value)}
+              disabled={!document.id_projet || filteredSubProjects.length === 0}
             >
-              <SelectTrigger id="subProjectId" className="mt-1">
-                <SelectValue placeholder={document.projectId ? "Sélectionnez un sous-projet (optionnel)" : "Veuillez d'abord sélectionner un projet"} />
+              <SelectTrigger id="id_sous_projet" className="mt-1">
+                <SelectValue placeholder={document.id_projet ? "Sélectionnez un sous-projet (optionnel)" : "Veuillez d'abord sélectionner un projet"} >
+                  {document.nom_sous_projet || null}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">Aucun</SelectItem>
                 {filteredSubProjects.map((subProject) => (
-                  <SelectItem key={subProject.id} value={subProject.id}>
-                    {subProject.name}
+                  <SelectItem key={subProject.id_sous_projet} value={subProject.id_sous_projet}>
+                    {subProject.nom_sous_projet}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            {document.nom_sous_projet && (
+              <p className="mt-2 text-sm text-gray-600">
+                Sous-projet sélectionné: <span className="font-medium">{document.nom_sous_projet}</span>
+              </p>
+            )}
           </div>
           
           <div>

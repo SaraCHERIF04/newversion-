@@ -57,7 +57,17 @@ export const sousProjetService = {
             throw error;
         }
     },
+    
 
+
+    async getSousProjetsByProjetId(id: string): Promise<SousProjetResponse> {
+        try {
+            return await get<SousProjetResponse>(`${SOUS_PROJETS_ENDPOINT}/projet/${id}`);
+        } catch (error) {
+            console.error('Error fetching sous projets:', error);
+            throw error;
+        }
+    },
 
     async createSousProjet(sousProjetData : Omit<SousProjetInterface, 'id'>, userRole:string): Promise<SousProjetInterface> {
         try {

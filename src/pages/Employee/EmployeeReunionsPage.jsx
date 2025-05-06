@@ -5,8 +5,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Eye } from 'lucide-react';
-
+import { reunionService } from '@/services/reuinionService';
 const EmployeeReunionsPage = () => {
+  
   const [reunions, setReunions] = useState([]);
   const [filteredReunions, setFilteredReunions] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -14,26 +15,13 @@ const EmployeeReunionsPage = () => {
 
   useEffect(() => {
     // Load meetings from localStorage
-    const reunionsString = localStorage.getItem('meetings');
-    if (reunionsString) {
-      try {
-        const parsedReunions = JSON.parse(reunionsString);
-        // Sort by date (newest first)
-        const sortedReunions = [...parsedReunions].sort((a, b) => {
-          if (a.createdAt && b.createdAt) {
-            return new Date(b.createdAt) - new Date(a.createdAt);
-          }
-          if (a.date && b.date) {
-            return new Date(b.date) - new Date(a.date);
-          }
-          return 0;
-        });
-        setReunions(sortedReunions);
-        setFilteredReunions(sortedReunions);
-      } catch (error) {
-        console.error('Error loading meetings:', error);
-      }
-    }
+    const fetchReunions = async () => {
+      const response = await reunionService.getAllReunions(1,'employee');
+      // console.log(response);
+      setReunions(response.data);
+      setFilteredReunions(response.data);
+    };
+    fetchReunions();
   }, []);
 
   // Handle search
@@ -115,11 +103,11 @@ const EmployeeReunionsPage = () => {
           <TableBody>
             {filteredReunions.length > 0 ? (
               filteredReunions.map((reunion) => (
-                <TableRow key={reunion.id}>
-                  <TableCell className="font-medium">{reunion.title}</TableCell>
-                  <TableCell>{formatDate(reunion.date)}</TableCell>
-                  <TableCell>{formatTime(reunion.time)}</TableCell>
-                  <TableCell>{reunion.location}</TableCell>
+                <TableRow key={reunion.id_reunion}>
+                  <TableCell className="font-medium">{reunion.ordre_de_jour}</TableCell>
+                  <TableCell>{formatDate(reunion.date_reunion)}</TableCell>
+                  <TableCell>{formatTime(reunion.heure_re)}</TableCell>
+                  <TableCell>{reunion.lieu_reunion}</TableCell>
                   <TableCell>
                     {reunion.participants ? 
                       <div className="flex -space-x-2">
@@ -141,7 +129,7 @@ const EmployeeReunionsPage = () => {
                     : '-'}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Link to={`/employee/reunions/${reunion.id}`}>
+                    <Link to={`/employee/reunions/${reunion.id_reunion}`}>
                       <Button variant="ghost" size="sm">
                         <Eye className="h-4 w-4 mr-1" />
                         Voir

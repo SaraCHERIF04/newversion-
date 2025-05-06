@@ -7,49 +7,29 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@
 import { Eye } from 'lucide-react';
 import { Incident } from '@/types/Incident';
 import { useSearchQuery } from '@/components/Layout/EmployeeLayout';
-
+import { incidentService } from '@/services/incidentService';
+import { IncidentInterface } from '@/interfaces/IncidentInterface';
 const EmployeeIncidentsPage: React.FC = () => {
   const navigate = useNavigate();
-  const [incidents, setIncidents] = useState<Incident[]>([]);
+  const [incidents, setIncidents] = useState<IncidentInterface[]>([]);
   const { searchQuery } = useSearchQuery() as { searchQuery: string };
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
   useEffect(() => {
     // Load incidents from localStorage
-    const storedIncidents = localStorage.getItem('incidents');
-    if (storedIncidents) {
-      try {
-        setIncidents(JSON.parse(storedIncidents));
-      } catch (error) {
-        console.error("Error loading incidents:", error);
-      }
-    } else {
-      // Demo data if none exists
-      const demoData: Incident[] = Array.from({ length: 8 }, (_, i) => ({
-        id: `inc-${i + 1}`,
-        type: "Incident de type " + (i + 1),
-        signaledBy: "Employé " + (i % 3 + 1),
-        date: "15/01/2024",
-        time: "14H30",
-        location: "ALGER",
-        projectName: "Project A",
-        subProjectName: "Sub Project 1",
-        description: "Description de l'incident...",
-        documents: [],
-        createdAt: new Date().toISOString()
-      }));
-      
-      localStorage.setItem('incidents', JSON.stringify(demoData));
-      setIncidents(demoData);
-    }
+    const fetchIncidents = async () => {
+      const response = await incidentService.getAllIncidents(currentPage, 'employee');
+      setIncidents(response.data);
+    };
+    fetchIncidents();
   }, []);
 
   const filteredIncidents = incidents.filter(incident =>
-    incident.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    incident.signaledBy.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    incident.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    incident.projectName.toLowerCase().includes(searchQuery.toLowerCase())
+    incident?.type_incident?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    incident?.signale_par?.nom?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    incident?.lieu_incident?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    incident?.id_projet?.toString().includes(searchQuery)
   );
 
   // Calculate pagination
@@ -84,18 +64,18 @@ const EmployeeIncidentsPage: React.FC = () => {
           <TableBody>
             {currentItems.length > 0 ? (
               currentItems.map((incident, index) => (
-                <TableRow key={incident.id} className={index % 2 === 0 ? 'bg-gray-100' : ''}>
-                  <TableCell>{incident.type}</TableCell>
-                  <TableCell>{incident.signaledBy}</TableCell>
-                  <TableCell>{incident.date}</TableCell>
-                  <TableCell>{incident.time}</TableCell>
-                  <TableCell>{incident.location}</TableCell>
-                  <TableCell>{incident.projectName}</TableCell>
+                <TableRow key={incident.id_incident} className={index % 2 === 0 ? 'bg-gray-100' : ''}>
+                  <TableCell>{incident.type_incident}</TableCell>
+                  <TableCell>{incident?.signale_par?.nom}</TableCell>
+                  <TableCell>{incident?.date_incident}</TableCell>
+                  <TableCell>{incident?.lheure_incident}</TableCell>
+                  <TableCell>{incident?.lieu_incident}</TableCell>
+                  <TableCell>{incident?.id_projet}</TableCell>
                   <TableCell className="flex justify-end gap-2">
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleViewIncidentDetails(incident.id)}
+                      onClick={() => handleViewIncidentDetails(incident.id_incident.toString())}
                     >
                       <Eye className="h-5 w-5" />
                     </Button>

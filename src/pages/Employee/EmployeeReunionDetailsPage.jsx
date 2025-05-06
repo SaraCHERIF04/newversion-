@@ -1,44 +1,34 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ArrowLeft, Printer, Download } from 'lucide-react';
+import { reunionService } from '@/services/reuinionService';
 
 const EmployeeReunionDetailsPage = () => {
+  console.log('EmployeeReunionDetailsPage');
   const { id } = useParams();
   const navigate = useNavigate();
   const [reunion, setReunion] = useState(null);
   const [documents, setDocuments] = useState([]);
   
   useEffect(() => {
-    // Load the reunion from localStorage
-    const reunionsString = localStorage.getItem('meetings');
-    if (reunionsString && id) {
+    const fetchReunion = async () => {
       try {
-        const reunions = JSON.parse(reunionsString);
-        const foundReunion = reunions.find(r => r.id === id);
-        if (foundReunion) {
-          setReunion(foundReunion);
-          
-          // Load associated documents if any
-          if (foundReunion.documents && foundReunion.documents.length > 0) {
-            setDocuments(foundReunion.documents);
-          } else {
-            // Try to find documents linked to this meeting
-            const documentsString = localStorage.getItem('documents');
-            if (documentsString) {
-              const allDocuments = JSON.parse(documentsString);
-              const meetingDocs = allDocuments.filter(doc => doc.meetingId === id);
-              setDocuments(meetingDocs);
-            }
-          }
+        const response = await reunionService.getReunionById(id);
+        console.log(response);
+        setReunion(response.data);
+        
+        // Fetch documents if they exist in the response
+        if (response.data.documents) {
+          setDocuments(response.data.documents);
         }
       } catch (error) {
-        console.error('Error loading reunion:', error);
+        console.error('Error fetching reunion:', error);
       }
-    }
+    };
+    fetchReunion();
   }, [id]);
 
   const formatDate = (dateString) => {
@@ -58,11 +48,11 @@ const EmployeeReunionDetailsPage = () => {
     window.print();
   };
   
-  const handleDownload = (document) => {
+  const handleDownload = (doc) => {
     // Create a dummy anchor element to trigger download
     const link = document.createElement('a');
-    link.href = document.url || document.fileUrl || `/documents/${document.fileName || 'document'}`;
-    link.download = document.title || document.fileName || 'document';
+    link.href = doc.url || doc.fileUrl || `/documents/${doc.fileName || 'document'}`;
+    link.download = doc.title || doc.fileName || 'document';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -114,25 +104,19 @@ const EmployeeReunionDetailsPage = () => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <h3 className="text-sm font-medium text-gray-500">Date</h3>
-              <p>{formatDate(reunion.date)}</p>
+              <p>{formatDate(reunion.date_reunion)}</p>
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-500">Heure</h3>
-              <p>{reunion.time || '-'}</p>
+              <p>{reunion.heure_re || '-'}</p>
             </div>
           </div>
           
           <div>
             <h3 className="text-sm font-medium text-gray-500">Lieu</h3>
-            <p>{reunion.location}</p>
+            <p>{reunion.lieu_reunion}</p>
           </div>
           
-          {reunion.description && (
-            <div>
-              <h3 className="text-sm font-medium text-gray-500">Description</h3>
-              <p className="mt-1 whitespace-pre-line">{reunion.description}</p>
-            </div>
-          )}
           
           {reunion.participants && reunion.participants.length > 0 && (
             <div>
@@ -169,7 +153,7 @@ const EmployeeReunionDetailsPage = () => {
             </div>
           )}
           
-          {documents && documents.length > 0 && (
+          {/* {documents && documents.length > 0 && (
             <div>
               <h3 className="text-sm font-medium text-gray-500 mb-2">Documents associés</h3>
               <div className="grid grid-cols-1 gap-2">
@@ -210,7 +194,7 @@ const EmployeeReunionDetailsPage = () => {
                 ))}
               </div>
             </div>
-          )}
+          )} */}
         </CardContent>
       </Card>
     </div>

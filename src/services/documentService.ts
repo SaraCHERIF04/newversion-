@@ -58,19 +58,31 @@ export const documentService = {
     },
 
 
-    async createDocument(documentData : Omit<DocumentInterface, 'id'>, userRole:string): Promise<DocumentInterface> {
+    async createDocument(documentData: FormData | Omit<DocumentInterface, 'id'>, userRole:string): Promise<DocumentInterface> {
         try {
-            return await post<DocumentInterface>(DOCUMENTS_ENDPOINT, documentData);
+            let url = '';
+            if(userRole === ''){
+                url = DOCUMENTS_ENDPOINT;
+            }else{
+                url = `${userRole}${DOCUMENTS_ENDPOINT}`;
+            }
+            return await post<DocumentInterface>(url, documentData);
         } catch (error) {
             console.error('Error creating document:', error);
             throw error;
         }
     },
 
-    // Update user
-    async updateDocument(id: string, documentData   : Partial<DocumentInterface>, userRole:string): Promise<DocumentInterface> {
+    // Update document
+    async updateDocument(id: string, documentData: FormData | Partial<DocumentInterface>, userRole:string): Promise<DocumentInterface> {
         try {
-            return await put<DocumentInterface>(`${DOCUMENTS_ENDPOINT}/${id}`, documentData);
+            let url = '';
+            if(userRole === ''){
+                url = `${DOCUMENTS_ENDPOINT}/${id}`;
+            }else{
+                url = `${userRole}${DOCUMENTS_ENDPOINT}/${id}`;
+            }
+            return await put<DocumentInterface>(url, documentData);
         } catch (error) {
             console.error('Error updating document:', error);
             throw error;

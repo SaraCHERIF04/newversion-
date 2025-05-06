@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {documentService} from '@/services/documentService';
 
 const EmployeeDocumentDetailsPage = () => {
   const { id } = useParams();
@@ -11,44 +12,15 @@ const EmployeeDocumentDetailsPage = () => {
   const [project, setProject] = useState(null);
   const [subProject, setSubProject] = useState(null);
 
-  useEffect(() => {
+  useEffect( () => {
     // Load the document from localStorage
-    const documentsString = localStorage.getItem('documents');
-    if (documentsString && id) {
-      try {
-        const documents = JSON.parse(documentsString);
-        const foundDocument = documents.find(doc => doc.id === id);
-        if (foundDocument) {
-          setDocument(foundDocument);
-          
-          // Load associated project
-          if (foundDocument.projectId) {
-            const projectsString = localStorage.getItem('projects');
-            if (projectsString) {
-              const projects = JSON.parse(projectsString);
-              const foundProject = projects.find(p => p.id === foundDocument.projectId);
-              if (foundProject) {
-                setProject(foundProject);
-              }
-            }
-          }
-          
-          // Load associated subproject
-          if (foundDocument.subProjectId) {
-            const subProjectsString = localStorage.getItem('subProjects');
-            if (subProjectsString) {
-              const subProjects = JSON.parse(subProjectsString);
-              const foundSubProject = subProjects.find(sp => sp.id === foundDocument.subProjectId);
-              if (foundSubProject) {
-                setSubProject(foundSubProject);
-              }
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Error loading document:', error);
-      }
-    }
+    const fetchDocument = async () => {
+      const document = await documentService.getDocumentById(id);
+      setDocument(document.data);
+    };
+    fetchDocument();
+    
+    
   }, [id]);
 
   if (!document) {
@@ -74,7 +46,7 @@ const EmployeeDocumentDetailsPage = () => {
       
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>{document.title}</CardTitle>
+          <CardTitle>{document.titre}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -84,7 +56,7 @@ const EmployeeDocumentDetailsPage = () => {
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-500">Date d'ajout</h3>
-              <p>{document.dateAdded}</p>
+              <p>{document.date_ajout}</p>
             </div>
           </div>
           
@@ -98,20 +70,20 @@ const EmployeeDocumentDetailsPage = () => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <h3 className="text-sm font-medium text-gray-500">Projet associé</h3>
-              <p>{project ? project.name : 'Aucun'}</p>
+              <p>{document.project ? document.project.nom_projet : 'Aucun'}</p>
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-500">Sous-projet associé</h3>
-              <p>{subProject ? subProject.name : 'Aucun'}</p>
+              <p>{document.subproject ? document.subproject.nom_sous_projet : 'Aucun'}</p>
             </div>
           </div>
           
           <div>
             <h3 className="text-sm font-medium text-gray-500">Fichier</h3>
-            <p>{document.fileName}</p>
+            <p>{document.files ? document.files.map(file => file.chemin).join(', ') : 'Aucun'}</p>
             <div className="mt-2">
-              <Button variant="outline" disabled className="text-sm">
-                Télécharger le fichier
+              <Button variant="outline" className="text-sm">
+                Télécharger les fichiers
               </Button>
               <p className="text-xs text-gray-500 mt-1">
                 (Fonctionnalité de téléchargement simulée pour cette démo)

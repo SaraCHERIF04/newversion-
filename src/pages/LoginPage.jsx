@@ -119,7 +119,7 @@ const LoginPage = () => {
               <br />
               <strong>Admin:</strong> admin@sonelgaz.dz / admin123
               <br />
-              <strong>Chef:</strong> alexarowles@sonelgaz.dz / admin123
+              <strong>Chef:</strong> alexarowles@sonelgaz.dz / sadmin123
               <br />
               <strong>Responsable:</strong> ahmed.benali@sonelgaz.dz / responsable123
               <br />
