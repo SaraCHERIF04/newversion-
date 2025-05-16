@@ -194,7 +194,7 @@ function App() {
             
             <Route path="/" element={
               <ProtectedRoute>
-                {localStorage.getItem('userRole') === 'chef' ? 
+                {localStorage.getItem('userRole') === 'chef ' ? 
                   <Navigate to="/dashboard" replace /> : 
                   localStorage.getItem('userRole') === 'employee' ?
                   <Navigate to="/employee/dashboard" replace /> :

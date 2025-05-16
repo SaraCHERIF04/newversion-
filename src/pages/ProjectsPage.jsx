@@ -2,91 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import ProjectCard from '@/components/ProjectCard';
 import { useSearchQuery } from '@/components/Layout/MainLayout';
+import { projetService } from '@/services/projetService';
 
 // Sample data for projects
-const sampleProjects = [
-  {
-    id: '1',
-    name: 'Nom projet',
-    description: 'Petite description du projet',
-    status: 'En cours',
-    deadline: '23 JUIN 2023',
-    members: [
-      { id: '1', name: 'User 1', avatar: 'https://randomuser.me/api/portraits/women/44.jpg' },
-      { id: '2', name: 'User 2', avatar: 'https://randomuser.me/api/portraits/men/32.jpg' },
-      { id: '3', name: 'User 3', avatar: 'https://randomuser.me/api/portraits/men/44.jpg' },
-      { id: '4', name: 'User 4', avatar: 'https://randomuser.me/api/portraits/women/58.jpg' },
-    ],
-    documentsCount: 1,
-    createdAt: '2023-06-01',
-  },
-  {
-    id: '2',
-    name: 'Nom projet',
-    description: 'Petite description du projet',
-    status: 'Terminé',
-    deadline: '14 JUIN 2023',
-    members: [
-      { id: '1', name: 'User 1', avatar: 'https://randomuser.me/api/portraits/women/44.jpg' },
-      { id: '2', name: 'User 2', avatar: 'https://randomuser.me/api/portraits/men/32.jpg' },
-      { id: '3', name: 'User 3', avatar: 'https://randomuser.me/api/portraits/men/44.jpg' },
-    ],
-    documentsCount: 13,
-    createdAt: '2023-05-15',
-  },
-  {
-    id: '3',
-    name: 'Nom projet',
-    description: 'Petite description du projet',
-    status: 'En cours',
-    members: [
-      { id: '1', name: 'User 1', avatar: 'https://randomuser.me/api/portraits/women/44.jpg' },
-      { id: '2', name: 'User 2', avatar: 'https://randomuser.me/api/portraits/men/32.jpg' },
-      { id: '3', name: 'User 3', avatar: 'https://randomuser.me/api/portraits/men/44.jpg' },
-    ],
-    documentsCount: 5,
-    createdAt: '2023-04-20',
-  },
-  {
-    id: '4',
-    name: 'Nom projet',
-    description: 'Petite description du projet',
-    status: 'Annulé',
-    members: [
-      { id: '1', name: 'User 1', avatar: 'https://randomuser.me/api/portraits/women/44.jpg' },
-      { id: '2', name: 'User 2', avatar: 'https://randomuser.me/api/portraits/men/32.jpg' },
-      { id: '3', name: 'User 3', avatar: 'https://randomuser.me/api/portraits/men/44.jpg' },
-    ],
-    documentsCount: 5,
-    createdAt: '2023-03-10',
-  },
-  {
-    id: '5',
-    name: 'Nom projet',
-    description: 'Petite description du projet',
-    status: 'En attente',
-    members: [
-      { id: '1', name: 'User 1', avatar: 'https://randomuser.me/api/portraits/women/44.jpg' },
-      { id: '2', name: 'User 2', avatar: 'https://randomuser.me/api/portraits/men/32.jpg' },
-      { id: '3', name: 'User 3', avatar: 'https://randomuser.me/api/portraits/men/44.jpg' },
-    ],
-    documentsCount: 5,
-    createdAt: '2023-02-01',
-  },
-  {
-    id: '6',
-    name: 'Nom projet',
-    description: 'Petite description du projet',
-    status: 'Terminé',
-    members: [
-      { id: '1', name: 'User 1', avatar: 'https://randomuser.me/api/portraits/women/44.jpg' },
-      { id: '2', name: 'User 2', avatar: 'https://randomuser.me/api/portraits/men/32.jpg' },
-      { id: '3', name: 'User 3', avatar: 'https://randomuser.me/api/portraits/men/44.jpg' },
-    ],
-    documentsCount: 5,
-    createdAt: '2023-01-15',
-  },
-];
+
 
 const ProjectsPage = () => {
   const { searchQuery } = useSearchQuery();
@@ -96,21 +15,20 @@ const ProjectsPage = () => {
 
   // Load projects from localStorage on component mount
   useEffect(() => {
-    const savedProjects = localStorage.getItem('projects');
-    if (savedProjects) {
+    console.log("sdsd");
+    const fetchProjects = async () => {
       try {
-        const parsedProjects = JSON.parse(savedProjects);
-        // Sort projects with newest first
-        const sortedProjects = sortByNewest([...parsedProjects, ...sampleProjects]);
-        setAllProjects(sortedProjects);
+        const response = await projetService.getAllProjets(1,"chef");
+        setFilteredProjects(response.data);
+        // setLoading(false);  
       } catch (error) {
-        console.error('Error parsing projects from localStorage:', error);
-        setAllProjects(sortByNewest(sampleProjects));
+        console.error('Error fetching projects:', error); 
+        setFilteredProjects([]);
       }
-    } else {
-      setAllProjects(sortByNewest(sampleProjects));
-    }
+    };
+    fetchProjects();
   }, []);
+
 
   // Helper function to sort items by newest first
   const sortByNewest = (items) => {

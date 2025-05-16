@@ -16,22 +16,26 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { projetService } from '@/services/projetService';
 
 const ProjectsPage = () => {
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   
   useEffect(() => {
-    const storedProjects = localStorage.getItem('projects');
-    if (storedProjects) {
+    console.log("sdsd");
+    const fetchProjects = async () => {
       try {
-        setProjects(JSON.parse(storedProjects));
+        const response = await projetService.getAllProjets(1);
+        setProjects(response.data);
+        setLoading(false);  
       } catch (error) {
-        console.error("Erreur lors du chargement des projets:", error);
+        console.error('Error fetching projects:', error); 
+        setProjects([]);
       }
-    }
-    setLoading(false);
+    };
+    fetchProjects();
   }, []);
 
   const handleCreateProject = () => {
