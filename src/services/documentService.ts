@@ -1,7 +1,7 @@
 import { get, post, put, del } from '@/utils/apiHelpers';
 import { DocumentInterface } from '@/interfaces/DocumentInterface';
 
-const DOCUMENTS_ENDPOINT = '/documents';
+const DOCUMENTS_ENDPOINT = '/document/';
 
 interface PaginatedResponse {
     success: boolean;
@@ -58,7 +58,7 @@ export const documentService = {
     },
 
 
-    async createDocument(documentData : Omit<DocumentInterface, 'id'>, userRole:string): Promise<DocumentInterface> {
+    async createDocument(documentData : Omit<DocumentInterface, 'id_document'>, userRole:string): Promise<DocumentInterface> {
         try {
             return await post<DocumentInterface>(DOCUMENTS_ENDPOINT, documentData);
         } catch (error) {

@@ -162,7 +162,7 @@ const ChefDashboardPage: React.FC = () => {
       <Card className="mb-6">
         <CardHeader className="pb-2">
           <CardTitle className="text-lg">État d'avancement des sous-projets</CardTitle>
-          <Badge variant="outline" className="bg-blue-50 text-blue-700 absolute top-4 right-4">Vue d'ensemble</Badge>
+          <Badge variant="outline" className="bg-blue-50 text-blue-700 absolute top-6 right-4">Vue d'ensemble</Badge>
         </CardHeader>
         <CardContent className="p-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

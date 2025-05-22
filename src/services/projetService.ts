@@ -17,6 +17,8 @@ interface PaginatedResponse {
 }
 
 interface ProjetResponse {
+    description: string;
+    name: string;
     success: boolean;
     message: string;
     data: ProjetInterface;
@@ -57,7 +59,7 @@ export const projetService = {
     },
 
 
-    async createProjet(projetData : Omit<ProjetInterface, 'id'>, userRole:string): Promise<ProjetInterface> {
+    async createProjet(projetData : Omit<ProjetInterface, 'id_projet'>, userRole:string): Promise<ProjetInterface> {
         try {
             return await post<ProjetInterface>(PROJETS_ENDPOINT, projetData);
         } catch (error) {
@@ -67,19 +69,20 @@ export const projetService = {
     },
 
     // Update user
-    async updateProjet(id: string, projetData   : Partial<ProjetInterface>, userRole:string): Promise<ProjetInterface> {
+    async updateProjet(id: string, projetData: Partial<ProjetInterface>): Promise<ProjetInterface> {
         try {
-            return await put<ProjetInterface>(`${PROJETS_ENDPOINT}/${id}`, projetData);
+            return await put<ProjetInterface>(`${PROJETS_ENDPOINT}${id}`, projetData);
         } catch (error) {
             console.error('Error updating projet:', error);
             throw error;
         }
     },
+    
 
     // Delete user
     async deleteProjet(id: string, userRole:string): Promise<void> {
         try {
-            await del(`${PROJETS_ENDPOINT}/${id}`);
+            await del(`${PROJETS_ENDPOINT}${id}`);
         } catch (error) {
             console.error('Error deleting projet:', error);
             throw error;

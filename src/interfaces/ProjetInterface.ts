@@ -20,7 +20,7 @@ export interface ProjetInterface {
     chef_projet: UserInterface;
     subprojects: SousProjetInterface[];
     reunions: ReuinionInterface[];
-
+    
 
     // 🔽 Added fields
     budget: number;                // budget of the project
@@ -37,7 +37,7 @@ export interface ProjetInterface {
     incidentSignalePar?: UserInterface; // optional: user who reported the incident
     incidentSignaleParId?: number; // optional: ID of the user who reported the incident
     incidentDate?: string; // optional: date of the incident
-
+    
 }
 
 

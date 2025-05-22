@@ -1,9 +1,9 @@
 import { get, post, put, del } from '@/utils/apiHelpers';
 import { MaitreOuvrage } from '@/interfaces/MaitreOuvrageInterface';
 
-const BASE_URL = '/maitre-ouvrage';
+const BASE_URL = '/maitre-ouvrage/';
 
-const MaitreOuvrageService = {
+export const  maitreOuvrage  = {
   // Fetch all Maitre Ouvrages
   fetchAll: async (): Promise<MaitreOuvrage[]> => {
     return await get<MaitreOuvrage[]>(`${BASE_URL}`);
@@ -26,8 +26,8 @@ const MaitreOuvrageService = {
 
   // Delete a Maitre Ouvrage by ID
   delete: async (id: number): Promise<{ message: string }> => {
-    return await del<{ message: string }>(`${BASE_URL}/${id}`);
+    return await del<{ message: string }>(`${BASE_URL}${id}`);
   }
 };
 
-export default MaitreOuvrageService;
+export default maitreOuvrage;

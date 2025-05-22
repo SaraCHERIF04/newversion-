@@ -1,79 +1,55 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import ProjectDetails from '@/components/ProjectDetails';
+import { useParams, useNavigate } from 'react-router-dom';
+import ProjectForm from '@/components/ProjectForm';
+import { projetService } from '@/services/projetService'; // adjust path as needed
 import { Project } from '@/components/ProjectCard';
-import { projetService } from '@/services/projetService';
+import { ProjetInterface } from '@/interfaces/ProjetInterface';
+import { ProjetListResponse } from '@/interfaces/ProjetListResponse';
+import  ProjectDetails  from '@/components/ProjectDetails'; // adjust path as needed
 
-export type ExtendedProject = Project & {
-  chef?: string;
-  region?: string;
-  budget?: string;
-  startDate?: string;
-  endDate?: string;
-  documents?: Array<{ id: string; title: string; url: string }>;
-  subProjects?: Array<any>;
-};
 
 const ProjectDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [project, setProject] = useState<ExtendedProject | undefined>(undefined);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
+  const navigate = useNavigate();
+  const [project, setProject] = useState<Project | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+    
+   
   useEffect(() => {
     const fetchProject = async () => {
-      if (!id) return;
-
       try {
-        const userRole = localStorage.getItem('userRole') || 'user';
-        const response = await projetService.getProjetById(id, userRole);
-
-        if (response.success && response.data) {
-          const p = response.data;
-
-          const formattedProject: ExtendedProject = {
-            id: String(p.id_projet),
+        if (id) {
+          const response = await projetService.getProjetById(id, 'chef de projet');
+          const p: ProjetInterface = response.data;
+  
+          const transformedProject: Project = {
+            id: p.id_projet.toString(),
             name: p.nom_projet,
             description: p.description_de_projet,
-            status: p.status as 'En cours' | 'Terminé' | 'En attente', // Updated to match backend field
-            deadline: p.deadline,  // Ensure backend provides this field if needed
-            members: (p.members || []).map((member) => ({
-                id: String(member.id_utilisateur),  // Ensure 'id_utilisateur' is correct
-                name: `${member.nom} ${member.prenom}`,
-                avatar: member.avatar || '/default-avatar.png'
-            })),
             documentsCount: p.documents?.length || 0,
-            chef: p.chef_projet?.nom || '',  // Changed to match 'chef_projet' in backend
-            region: p.wilaya || '',  // Ensure backend provides 'wilaya' if needed
-            budget: `${p.budget} Da`,  // Ensure backend provides 'budget' if needed
-            startDate: p.date_debut_de_projet,
-            endDate: p.date_fin_de_projet,
-            documents: (p.documents || []).map((doc) => ({
-                id: String(doc.id_document), // Ensure 'id_document' is correct
-                title: doc.titre || 'Untitled Document',
-                url: doc.chemin || '#'
+            status: (p.status as 'En attente' | 'En cours' | 'Terminé') || 'En attente',
+            members: (p.members || []).map((member) => ({
+              id: member.id_utilisateur.toString(),
+              name: member.nom,
+              avatar: member.avatar || '',
+              role: member.role_de_utilisateur || '',
             })),
-            subProjects: p.subprojects || [] // Ensure 'subprojects' is correctly mapped
-        };
-        
-          
-          setProject(formattedProject);
-        } else {
-          setError(response.message || 'Projet introuvable');
+          };
+  
+          setProject(transformedProject);
         }
-      } catch (err) {
-        console.error('Erreur lors de la récupération du projet :', err);
-        setError('Erreur serveur');
+      } catch (error) {
+        console.error('Failed to fetch project:', error);
       } finally {
-        setLoading(false);
+        setLoading(false); // <- ✅ IMPORTANT
       }
     };
-
+  
     fetchProject();
   }, [id]);
 
   if (loading) return <div className="text-center">Chargement...</div>;
-  if (error) return <div className="text-red-500 text-center">{error}</div>;
+  <div className="text-red-500 text-center">{Error instanceof Error ? Error.message : 'An unknown error occurred'}</div>;
 
   return <ProjectDetails project={project} />;
 };

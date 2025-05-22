@@ -12,7 +12,6 @@ export interface SousProjetInterface {
     nom_sous_projet: string;
     statut_sous_projet: string;
     members: UserInterface[];
-    project: ProjetInterface;
+    project: number;
     documents: DocumentInterface[];
 }
-

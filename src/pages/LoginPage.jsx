@@ -20,7 +20,7 @@ const LoginPage = () => {
 
     try {
       const response = await login({ email, password });
-      
+      const role = response.user?.role;
       toast({
         title: "Connexion réussie",
         description: "Bienvenue sur votre tableau de bord",

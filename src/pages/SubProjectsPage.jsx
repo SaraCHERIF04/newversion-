@@ -2,34 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import SubProjectCard from '@/components/SubProjectCard';
 import { useSearchQuery } from '@/components/Layout/MainLayout';
+import { sousProjetService } from '@/services/sousProjetService';
 
-// Sample data for sub-projects with different statuses
-const generateSampleSubProjects = () => {
-  const statuses = ['En attente', 'En cours', 'Terminé'];
-  const members = [
-    { id: '1', name: 'User 1', avatar: 'https://randomuser.me/api/portraits/women/44.jpg' },
-    { id: '2', name: 'User 2', avatar: 'https://randomuser.me/api/portraits/men/32.jpg' },
-    { id: '3', name: 'User 3', avatar: 'https://randomuser.me/api/portraits/men/44.jpg' },
-    { id: '4', name: 'User 4', avatar: 'https://randomuser.me/api/portraits/women/58.jpg' },
-  ];
 
-  return Array.from({ length: 18 }, (_, i) => {
-    const statusIndex = Math.floor(i / 6);
-    const status = statuses[statusIndex % 3];
-    
-    return {
-      id: `sp-${i + 1}`,
-      name: `Nom sous_projet ${i + 1}`,
-      description: 'Petite description du sous projet',
-      status,
-      daysAgo: 12,
-      projectId: `p-${Math.floor(Math.random() * 5) + 1}`,
-      members: members.slice(0, Math.floor(Math.random() * 4) + 1),
-      documentsCount: Math.floor(Math.random() * 10) + 1,
-      createdAt: new Date(Date.now() - (i * 24 * 60 * 60 * 1000)).toISOString(), // Older as i increases
-    };
-  });
-};
+
+
 
 const SubProjectsPage = () => {
   const { searchQuery } = useSearchQuery();
@@ -38,74 +15,67 @@ const SubProjectsPage = () => {
   const [filteredSubProjects, setFilteredSubProjects] = useState([]);
   const [statusFilter, setStatusFilter] = useState('all');
 
-  // Load sub-projects from localStorage on component mount or use sample data
   useEffect(() => {
-    const savedSubProjects = localStorage.getItem('subProjects');
-    if (savedSubProjects) {
+   
+    const fetchSubProjects = async () => {
       try {
-        const parsedSubProjects = JSON.parse(savedSubProjects);
-        // Sort by createdAt or timestamp to ensure newer items are at the top
-        const sortedSubProjects = sortByNewest(parsedSubProjects);
-        setAllSubProjects(sortedSubProjects);
+        const response = await sousProjetService.getAllSousProjets(1, 'admin');
+        if (response.success) {
+          const sorted = sortByNewest(response.data.results);
+          setAllSubProjects(sorted);
+        } else {
+          console.warn('Failed to fetch sub-projects:', response.message);
+        }
       } catch (error) {
-        console.error('Error parsing sub-projects from localStorage:', error);
-        setAllSubProjects(sortByNewest(generateSampleSubProjects()));
+        console.error('Error fetching sub-projects:', error);
       }
-    } else {
-      setAllSubProjects(sortByNewest(generateSampleSubProjects()));
-    }
+    };
+
+    fetchSubProjects();
   }, []);
 
-  // Helper function to sort items by newest first
   const sortByNewest = (items) => {
-    // If items have createdAt or timestamp field, sort by that
-    if (items.length > 0) {
-      return [...items].sort((a, b) => {
-        const dateA = a.createdAt ? new Date(a.createdAt) : new Date(a.timestamp || 0);
-        const dateB = b.createdAt ? new Date(b.createdAt) : new Date(b.timestamp || 0);
-        return dateB.getTime() - dateA.getTime();
-      });
-    }
-    // Otherwise, keep the existing order
-    return items;
+    return [...items].sort((a, b) => {
+      const dateA = new Date(a.createdAt ?? 0);
+      const dateB = new Date(b.createdAt ?? 0);
+      return dateB.getTime() - dateA.getTime();
+    });
   };
 
-  // Filter sub-projects by search term and status
   useEffect(() => {
     const combinedSearchTerm = searchQuery || localSearchTerm;
     let results = allSubProjects;
-    
-    // Apply search filter
+  
     if (combinedSearchTerm) {
-      results = results.filter(subProject =>
-        subProject.name.toLowerCase().includes(combinedSearchTerm.toLowerCase()) ||
-        subProject.description.toLowerCase().includes(combinedSearchTerm.toLowerCase())
+      results = results.filter(sp =>
+        (sp.nom_sous_projet && sp.nom_sous_projet.toLowerCase().includes(combinedSearchTerm.toLowerCase())) ||
+        (sp.description_sous_projet && sp.description_sous_projet.toLowerCase().includes(combinedSearchTerm.toLowerCase()))
       );
     }
-    
-    // Apply status filter
+  
     if (statusFilter !== 'all') {
-      results = results.filter(subProject => subProject.status === statusFilter);
+      results = results.filter(sp => sp.statut_sous_projet === statusFilter);
     }
-    
+  
     setFilteredSubProjects(results);
   }, [searchQuery, localSearchTerm, allSubProjects, statusFilter]);
-
+  
   const handleSearch = (e) => {
     setLocalSearchTerm(e.target.value);
   };
-
+  
+  // ✅ Corrected: statusCounts using `statut_sous_projet`
   const statusCounts = {
-    'En attente': allSubProjects.filter(sp => sp.status === 'En attente').length,
-    'En cours': allSubProjects.filter(sp => sp.status === 'En cours').length,
-    'Terminé': allSubProjects.filter(sp => sp.status === 'Terminé').length,
+    'en attente': allSubProjects.filter(sp => sp.statut_sous_projet === 'en attente').length,
+    'En cours': allSubProjects.filter(sp => sp.statut_sous_projet === 'En cours').length,
+    'Terminé': allSubProjects.filter(sp => sp.statut_sous_projet === 'Terminé').length,
   };
-
-  // Group projects by status for the UI
-  const pendingProjects = filteredSubProjects.filter(sp => sp.status === 'En attente');
-  const inProgressProjects = filteredSubProjects.filter(sp => sp.status === 'En cours');
-  const completedProjects = filteredSubProjects.filter(sp => sp.status === 'Terminé');
-
+  
+  // ✅ Corrected filtering with correct status key
+  const pendingProjects = filteredSubProjects.filter(sp => sp.statut_sous_projet=== 'en attente');
+  const inProgressProjects = filteredSubProjects.filter(sp => sp.statut_sous_projet === 'En cours');
+  const completedProjects = filteredSubProjects.filter(sp => sp.statut_sous_projet === 'Terminé');
+  
   return (
     <div>
       <div className="mb-6 flex justify-between items-center">
@@ -149,12 +119,12 @@ const SubProjectsPage = () => {
         {/* En attente projects */}
         <div className="bg-gray-50 rounded-lg p-4">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-medium">En attente <span className="text-gray-500 text-sm">({statusCounts['En attente']})</span></h2>
+            <h2 className="text-lg font-medium">En attente <span className="text-gray-500 text-sm">({statusCounts['en attente']})</span></h2>
           </div>
           <div className="space-y-4">
             {pendingProjects.length > 0 ? (
               pendingProjects.map(subProject => (
-                <Link key={subProject.id} to={`/sous-projet/${subProject.id}`} className="block">
+                <Link key={subProject.id_sous_projet} to={`/sous-projet/${subProject.id_sous_projet}`} className="block">
                   <SubProjectCard subProject={subProject} />
                 </Link>
               ))
@@ -171,8 +141,8 @@ const SubProjectsPage = () => {
           </div>
           <div className="space-y-4">
             {inProgressProjects.length > 0 ? (
-              inProgressProjects.map(subProject => (
-                <Link key={subProject.id} to={`/sous-projet/${subProject.id}`} className="block">
+             inProgressProjects.map(subProject => (
+                <Link key={subProject.id_sous_projet} to={`/sous-projet/${subProject.id_sous_projet}`} className="block">
                   <SubProjectCard subProject={subProject} />
                 </Link>
               ))
@@ -190,7 +160,7 @@ const SubProjectsPage = () => {
           <div className="space-y-4">
             {completedProjects.length > 0 ? (
               completedProjects.map(subProject => (
-                <Link key={subProject.id} to={`/sous-projet/${subProject.id}`} className="block">
+                <Link key={subProject.id_sous_projet} to={`/sous-projet/${subProject.id_sous_projet}`} className="block">
                   <SubProjectCard subProject={subProject} />
                 </Link>
               ))

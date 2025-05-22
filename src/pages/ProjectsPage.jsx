@@ -96,7 +96,7 @@ const ProjectsPage = () => {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProjects.map((project) => (
-              <div key={project.id}>
+              <div key={project.id_projet}>
                 <Link to={`/project/${project.id_projet}`}>
                   <ProjectCard project={project} />
                 </Link>

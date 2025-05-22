@@ -187,6 +187,7 @@ function App() {
               <Route path="dashboard" element={<ChefDashboardPage />} />
               <Route path="project" element={<ProjectsPage />} />
               <Route path="project/new" element={<ProjectNewPage />} />
+              <Route path="users/new" element={<AdminUserFormPage />} />
               <Route path="project/edit/:id" element={<ProjectEditPage />} />
               <Route
                 path="project/:id"
@@ -203,10 +204,14 @@ function App() {
               <Route
                 path="sous-projet"
                 element={<SubProjectsPage />}
-              />
+              /> 
               <Route
                 path="sous-projet/new"
                 element={<SubProjectNewPage />}
+              />
+              <Route
+                path="sous-projet/dashboard"
+                element={<SubProjectDashboardPage />}
               />
               <Route
                 path="sous-projet/edit/:id"

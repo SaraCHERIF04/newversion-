@@ -16,6 +16,7 @@ export interface UserInterface {
     is_authenticated: boolean;
     is_active: boolean;
     
+    
 
 
 }
