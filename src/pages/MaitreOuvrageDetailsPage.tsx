@@ -17,7 +17,7 @@ const MaitreOuvrageDetailsPage = () => {
     if (maitreOuvragesString && id) {
       try {
         const maitreOuvrages = JSON.parse(maitreOuvragesString);
-        const foundMaitreOuvrage = maitreOuvrages.find((mo: MaitreOuvrage) => mo.id.toString() === id);
+        const foundMaitreOuvrage = maitreOuvrages.find((mo: MaitreOuvrage) => mo.id_mo.toString() === id);
 
         if (foundMaitreOuvrage) {
           setMaitreOuvrage(foundMaitreOuvrage);
@@ -68,17 +68,17 @@ const MaitreOuvrageDetailsPage = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>{maitreOuvrage.name}</CardTitle>
+          <CardTitle>{maitreOuvrage.nom_mo}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-sm font-medium text-gray-500">Email</p>
-              <p>{maitreOuvrage.contact_email}</p>
+              <p>{maitreOuvrage.email_mo}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500">Adresse</p>
-              <p>{maitreOuvrage.address}</p>
+              <p>{maitreOuvrage.adress_mo}</p>
             </div>
           </div>
         </CardContent>

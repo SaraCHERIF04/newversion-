@@ -37,8 +37,13 @@ export const UserFormFields: React.FC<UserFormFieldsProps> = ({
     // Get stored users
     const storedUsers = JSON.parse(localStorage.getItem('mockUsers') || '[]');
     
+    // Define a User type matching your user structure
+    interface User {
+      id: string;
+      [key: string]: unknown;
+    }
     // Filter out the user to delete
-    const updatedUsers = storedUsers.filter((user: any) => user.id !== userId);
+    const updatedUsers = (storedUsers as User[]).filter((user) => user.id !== userId);
     
     // Update localStorage
     localStorage.setItem('mockUsers', JSON.stringify(updatedUsers));

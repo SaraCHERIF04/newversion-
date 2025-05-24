@@ -50,12 +50,12 @@ const AdminProfileDetailsPage: React.FC = () => {
         <CardContent>
           <div className="flex flex-col items-center space-y-4">
             <Avatar className="h-32 w-32">
-              <AvatarImage src={admin.imageUrl} alt={admin.data.nom} />
-              <AvatarFallback>{admin?.data.nom?.charAt(0) ?? "A"}</AvatarFallback>
+              <AvatarImage src={admin.imageUrl} alt={admin.nom} />
+              <AvatarFallback>{admin?.nom?.charAt(0) ?? "A"}</AvatarFallback>
             </Avatar>
             <div className="space-y-1 text-center">
-            <h4 className="text-xl font-semibold">{admin?.data?.nom ?? "Nom inconnu"}</h4>
-            <p className="text-gray-500">{admin?.data?.email ?? "Email non disponible"}</p>
+            <h4 className="text-xl font-semibold">{admin?.nom ?? "Nom inconnu"}</h4>
+            <p className="text-gray-500">{admin?.email ?? "Email non disponible"}</p>
 
 
 

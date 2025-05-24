@@ -11,14 +11,14 @@ export const reunionService = {
       console.log("Réponse API brute reçue:", response)
 
       // Si la réponse est déjà au format attendu, la retourner directement
-      if (response && response.success !== undefined) {
+      if (response && (response as { success?: boolean }).success !== undefined) {
         return response
       }
 
       // Si la réponse est un objet avec data
-      if (response && response.data) {
-        console.log("Réponse API avec data:", response.data)
-        return response.data
+      if (response && (response as { data?: unknown }).data) {
+        console.log("Réponse API avec data:", (response as { data: unknown }).data)
+        return (response as { data: unknown }).data
       }
 
       // Fallback
@@ -85,12 +85,12 @@ export const reunionService = {
       console.log(`Création d'une nouvelle réunion avec les données:`, reunionData)
       const response = await post(REUNIONS_ENDPOINT, reunionData)
 
-      if (response && response.success !== undefined) {
+      if (response && (response as { success?: boolean }).success !== undefined) {
         return response
       }
 
-      if (response && response.data) {
-        return response.data
+      if (response && (response as { data?: unknown }).data) {
+        return (response as { data: unknown }).data
       }
 
       return {

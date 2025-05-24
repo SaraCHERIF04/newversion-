@@ -170,8 +170,8 @@ const MarcheFormPage = () => {
                   </SelectTrigger>
                   <SelectContent>
                     {maitresOeuvre.map((mo) => (
-                      <SelectItem key={mo.id} value={mo.id.toString()}>
-                        {mo.name}
+                      <SelectItem key={mo.id_mo} value={mo.id_mo.toString()}>
+                        {mo.nom_mo}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -196,8 +196,8 @@ const MarcheFormPage = () => {
                   </SelectTrigger>
                   <SelectContent>
                     {maitresOuvrage.map((mo) => (
-                      <SelectItem key={mo.id} value={mo.id.toString()}>
-                        {mo.name}
+                      <SelectItem key={mo.id_mo} value={mo.id_mo.toString()}>
+                        {mo.nom_mo }
                       </SelectItem>
                     ))}
                   </SelectContent>

@@ -2,10 +2,15 @@ export interface MaitreOuvrage {
   id_mo: number;
   nom_mo: string;
   id_projet: number;
-  address?: string;
-  contact_email?: string;
+  adress_mo?: string;
+  email_mo?: string;
   created_at?: string;
   updated_at?: string;
+  description_mo?: string;
+  tel_mo?: string;
+  type_mo?: string;
+  nom_projet?: string;
+
 }
 export interface MaitreOuvrageResponse {
   success: boolean;

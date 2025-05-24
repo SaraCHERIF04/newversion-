@@ -45,7 +45,7 @@ const MaitreOuvragePage = () => {
   if (window.confirm('Êtes-vous sûr de vouloir supprimer ce MaitreOuvrage?')) {
     try {
       const userRole = 'chef de projet'; // replace this with the actual user role variable
-      await maitreOuvrage.delete(moId, userRole); 
+      await maitreOuvrage.delete(Number(moId)); 
 
       alert('MaitreOuvrage supprimé avec succès.');
       window.location.reload();
@@ -99,7 +99,7 @@ const MaitreOuvragePage = () => {
           <TableBody>
             {filteredMaitreOuvrages.length > 0 ? (
               filteredMaitreOuvrages.map((mo) => (
-                <TableRow key={mo.id_mo} className={mo.id === '2' || mo.id === '4' || mo.id === '6' || mo.id === '8' ? 'bg-gray-100' : ''}>
+                <TableRow key={mo.id_mo} className={String(mo.id_mo) === '2' || String(mo.id_mo) === '4' || String(mo.id_mo) === '6' || String(mo.id_mo) === '8' ? 'bg-gray-100' : ''}>
                   <TableCell>{mo.nom_mo}</TableCell>
                   <TableCell>{mo.type_mo}</TableCell>
                   <TableCell>{mo.email_mo}</TableCell>
@@ -112,7 +112,7 @@ const MaitreOuvragePage = () => {
                     <Button variant="ghost" size="sm" onClick={() => handleEditMaitreOuvrage(mo)}>
                       <FileEdit className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={() => handleDeleteMaitreOuvrage(mo.id_mo)}>
+                    <Button variant="ghost" size="sm" onClick={() => handleDeleteMaitreOuvrage(String(mo.id_mo))}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </TableCell>

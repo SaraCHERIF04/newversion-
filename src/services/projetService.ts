@@ -21,12 +21,12 @@ interface ProjetResponse {
     name: string;
     success: boolean;
     message: string;
-    data: ProjetInterface;
-}
+    data: ProjetInterface; 
+} 
 export const projetService = {
     async getAllProjets(pageNumber: number = 1, userRole: string = ''): Promise<PaginatedResponse> {
         try {
-            let url = `${PROJETS_ENDPOINT}?page=${pageNumber}&per_page=5`;
+            const url = `${PROJETS_ENDPOINT}?page=${pageNumber}&per_page=5`;
 
             console.log('Fetching projets...');
             const response = await get<PaginatedResponse>(url);
@@ -35,12 +35,20 @@ export const projetService = {
             console.log('Projets data:', response.data);
 
             return response;
-        } catch (error: any) {
+        } catch (error) {
+            interface ApiError {
+                response?: {
+                    status?: number;
+                    data?: unknown;
+                    headers?: unknown;
+                };
+            }
+            const apiError = error as ApiError;
             console.error('Detailed error in getAllProjets:', {
                 error,
-                status: error.response?.status,
-                data: error.response?.data,
-                headers: error.response?.headers
+                status: apiError.response?.status,
+                data: apiError.response?.data,
+                headers: apiError.response?.headers
             });
             throw error;
         }

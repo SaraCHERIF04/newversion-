@@ -161,7 +161,25 @@ const FactureFormPage = () => {
       if (isEditing && id) {
         response = await factureService.updateFacture(id, factureData)
       } else {
-        response = await factureService.createFacture(factureData as any)
+        // Assurez-vous que tous les champs requis sont présents pour Omit<FactureInterface, "id_facture">
+        const completeFactureData: Omit<FactureInterface, "id_facture"> = {
+          designation: formData.designation,
+          numero_facture: formData.contractNumber ? Number.parseInt(formData.contractNumber) : 0,
+          date_facturation: formData.invoiceDate,
+          date_reception: formData.receptionDate,
+          brut_ht: formData.grossAmount ? Number.parseFloat(formData.grossAmount) : 0,
+          montant_net_ht: formData.netAmount ? Number.parseFloat(formData.netAmount) : 0,
+          montant_tva: formData.tvaAmount ? Number.parseFloat(formData.tvaAmount) : 0,
+          montant_ttc: formData.totalAmount ? Number.parseFloat(formData.totalAmount) : 0,
+          date_ordre_virement: formData.paymentOrderDate,
+          numero_ordre_virement: formData.paymentOrderNumber ? Number.parseInt(formData.paymentOrderNumber) : 0,
+          id_projet: formData.projectId ? Number.parseInt(formData.projectId) : 0,
+          id_sous_projet: formData.subProjectId ? Number.parseInt(formData.subProjectId) : 0,
+          id_marche: formData.marche ? Number.parseInt(formData.marche) : 0,
+          id_ap: 0,
+          id_md: 0
+        }
+        response = await factureService.createFacture(completeFactureData)
       }
 
       console.log("Réponse API:", response)

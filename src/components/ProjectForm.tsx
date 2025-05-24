@@ -128,7 +128,7 @@ type ProjectMember = {
     };
 
     fetchData();
-  }, [chefId]);
+  }, [chefId, project.maitreOuvrage]);
 useEffect(() => {
     const fetchAllUsers = async () => {
       try {
@@ -168,7 +168,6 @@ useEffect(() => {
          id_document: `doc-${Date.now()}`,
          title: newFile.name,
          file: newFile,
-         id_projet: projectId ,
        };
        setDocuments([...documents, newDocument]);
      }

@@ -93,7 +93,7 @@ const ProjectsPage = () => {
       ) : error ? (
         <p className="text-red-500">{error}</p>
       ) : (
-        <>
+        
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProjects.map((project) => (
               <div key={project.id_projet}>
@@ -103,26 +103,6 @@ const ProjectsPage = () => {
               </div>
             ))}
           </div>
-
-          {/* Pagination Controls */}
-          <div className="flex justify-center items-center mt-6 gap-4">
-            <button
-              onClick={handlePreviousPage}
-              disabled={page === 1}
-              className="px-4 py-2 border rounded-md bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
-            >
-              Précédent
-            </button>
-            <span>Page {page} sur {totalPages}</span>
-            <button
-              onClick={handleNextPage}
-              disabled={page === totalPages}
-              className="px-4 py-2 border rounded-md bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
-            >
-              Suivant
-            </button>
-          </div>
-        </>
       )}
     </div>
   );

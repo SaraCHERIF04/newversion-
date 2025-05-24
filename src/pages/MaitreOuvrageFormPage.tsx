@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import { MaitreOuvrage } from '@/types/MaitreOuvrage';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { v4 as uuidv4 } from 'uuid';
+import { MaitreOuvrage } from '@/interfaces/MaitreOuvrageInterface';
+import { MaitreOuvrageResponse} from '@/interfaces/MaitreOuvrageInterface';
+import { maitreOuvrage }  from '@/services/MaitreOuvrageService';
+
 
 const MaitreOuvrageFormPage = () => {
   const { id } = useParams();
@@ -21,22 +24,27 @@ const MaitreOuvrageFormPage = () => {
 
   useEffect(() => {
     if (isEditing) {
-      const maitreOuvragesString = localStorage.getItem('maitreOuvrages');
-      if (maitreOuvragesString) {
-        try {
-          const maitreOuvrages = JSON.parse(maitreOuvragesString);
-          const maitreOuvrage = maitreOuvrages.find((mo: MaitreOuvrage) => mo.id === id);
-          if (maitreOuvrage) {
-            setNom(maitreOuvrage.nom);
-            setType(maitreOuvrage.type);
-            setEmail(maitreOuvrage.email);
-            setTelephone(maitreOuvrage.telephone);
-            setAdresse(maitreOuvrage.adresse);
+      const fetchData = async () => {
+        const moResponse = await maitreOuvrage.fetchById(Number(id)) as unknown as MaitreOuvrageResponse;
+        const maitreOuvragesData = moResponse.data || [];
+        console.log('Données maîtres d’ouvrage:', maitreOuvragesData);
+        if (maitreOuvragesData) {
+          try {
+            const maitreOuvrages = Array.isArray(maitreOuvragesData) ? maitreOuvragesData : JSON.parse(maitreOuvragesData);
+            const maitreOuvrageItem = maitreOuvrages.find((mo: MaitreOuvrage) => String(mo.id_mo) === id);
+            if (maitreOuvrageItem) {
+              setNom(maitreOuvrageItem.nom);
+              setType(maitreOuvrageItem.type);
+              setEmail(maitreOuvrageItem.email);
+              setTelephone(maitreOuvrageItem.telephone);
+              setAdresse(maitreOuvrageItem.adresse);
+            }
+          } catch (error) {
+            console.error('Error loading maître d\'ouvrage data:', error);
           }
-        } catch (error) {
-          console.error('Error loading maître d\'ouvrage data:', error);
         }
-      }
+      };
+      fetchData();
     }
   }, [id, isEditing]);
 
@@ -49,12 +57,13 @@ const MaitreOuvrageFormPage = () => {
     }
 
     const maitreOuvrageData: MaitreOuvrage = {
-      id: isEditing ? id! : uuidv4(),
-      nom,
-      type,
-      email,
-      telephone,
-      adresse
+      id_mo: isEditing ? Number(id) : Date.now(),
+      nom_mo: nom,
+      type_mo: type,
+      email_mo: email,
+      tel_mo: telephone,
+      adress_mo: adresse,
+      id_projet: 0
     };
 
     try {
@@ -66,7 +75,7 @@ const MaitreOuvrageFormPage = () => {
       }
 
       if (isEditing) {
-        maitreOuvrages = maitreOuvrages.map(mo => mo.id === id ? maitreOuvrageData : mo);
+        maitreOuvrages = maitreOuvrages.map(mo => mo.id_mo === Number(id) ? maitreOuvrageData : mo);
       } else {
         maitreOuvrages.unshift(maitreOuvrageData);
       }
