@@ -2,7 +2,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, FileEdit } from 'lucide-react';
+<<<<<<< HEAD
 import { MaitreOuvrage } from '@/interfaces/MaitreOuvrageInterface';
+=======
+import { MaitreOuvrage } from '@/types/MaitreOuvrage';
+>>>>>>> upstream/main
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -17,8 +21,12 @@ const MaitreOuvrageDetailsPage = () => {
     if (maitreOuvragesString && id) {
       try {
         const maitreOuvrages = JSON.parse(maitreOuvragesString);
+<<<<<<< HEAD
         const foundMaitreOuvrage = maitreOuvrages.find((mo: MaitreOuvrage) => mo.id_mo.toString() === id);
 
+=======
+        const foundMaitreOuvrage = maitreOuvrages.find((mo: MaitreOuvrage) => mo.id === id);
+>>>>>>> upstream/main
         if (foundMaitreOuvrage) {
           setMaitreOuvrage(foundMaitreOuvrage);
         } else {
@@ -68,17 +76,38 @@ const MaitreOuvrageDetailsPage = () => {
 
       <Card>
         <CardHeader>
+<<<<<<< HEAD
           <CardTitle>{maitreOuvrage.nom_mo}</CardTitle>
+=======
+          <CardTitle>{maitreOuvrage.nom}</CardTitle>
+>>>>>>> upstream/main
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-4">
             <div>
+<<<<<<< HEAD
               <p className="text-sm font-medium text-gray-500">Email</p>
               <p>{maitreOuvrage.email_mo}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500">Adresse</p>
               <p>{maitreOuvrage.adress_mo}</p>
+=======
+              <p className="text-sm font-medium text-gray-500">Type</p>
+              <p>{maitreOuvrage.type}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500">Email</p>
+              <p>{maitreOuvrage.email}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500">Téléphone</p>
+              <p>{maitreOuvrage.telephone}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500">Adresse</p>
+              <p>{maitreOuvrage.adresse}</p>
+>>>>>>> upstream/main
             </div>
           </div>
         </CardContent>

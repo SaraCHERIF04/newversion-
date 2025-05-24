@@ -8,7 +8,12 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { v4 as uuidv4 } from 'uuid';
+<<<<<<< HEAD
 import { MaitreOuvrage } from '@/interfaces/MaitreOuvrageInterface';
+=======
+import { MaitreOuvrage } from '@/types/MaitreOuvrage';
+
+>>>>>>> upstream/main
 const MarcheFormPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -170,8 +175,13 @@ const MarcheFormPage = () => {
                   </SelectTrigger>
                   <SelectContent>
                     {maitresOeuvre.map((mo) => (
+<<<<<<< HEAD
                       <SelectItem key={mo.id_mo} value={mo.id_mo.toString()}>
                         {mo.nom_mo}
+=======
+                      <SelectItem key={mo.id} value={mo.id}>
+                        {mo.nom}
+>>>>>>> upstream/main
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -196,8 +206,13 @@ const MarcheFormPage = () => {
                   </SelectTrigger>
                   <SelectContent>
                     {maitresOuvrage.map((mo) => (
+<<<<<<< HEAD
                       <SelectItem key={mo.id_mo} value={mo.id_mo.toString()}>
                         {mo.nom_mo }
+=======
+                      <SelectItem key={mo.id} value={mo.id}>
+                        {mo.nom}
+>>>>>>> upstream/main
                       </SelectItem>
                     ))}
                   </SelectContent>

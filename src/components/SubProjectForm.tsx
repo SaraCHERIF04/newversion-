@@ -6,6 +6,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { SubProject } from './SubProjectCard';
 import { Project } from './ProjectCard';
 import { notifyNewSubProject } from '@/utils/notificationHelpers';
+<<<<<<< HEAD
 import { sousProjetService } from '@/services/sousProjetService';
 import { projetService } from '@/services/projetService';
 import { ProjetInterface } from '@/interfaces/ProjetInterface';
@@ -16,6 +17,8 @@ import { documentService } from '@/services/documentService';
 import { DocumentInterface } from '@/interfaces/DocumentInterface';
 import { ProjetListResponse } from '@/interfaces/ProjetListResponse';
 
+=======
+>>>>>>> upstream/main
 
 type SubProjectFormProps = {
   subProject?: SubProject;
@@ -27,9 +30,12 @@ type SubProjectDocument = {
   title: string;
   file?: File;
   url?: string;
+<<<<<<< HEAD
   description?: string; // Added description property
   type?: string; // Added type property
   project?: string; // Added project property
+=======
+>>>>>>> upstream/main
 };
 
 type ProjectMember = {
@@ -37,7 +43,11 @@ type ProjectMember = {
   name: string;
   avatar: string;
   selected?: boolean;
+<<<<<<< HEAD
   role: string; // Made role a required property
+=======
+  role?: string;
+>>>>>>> upstream/main
 };
 
 const SubProjectForm: React.FC<SubProjectFormProps> = ({ subProject, isEdit = false }) => {
@@ -54,16 +64,26 @@ const SubProjectForm: React.FC<SubProjectFormProps> = ({ subProject, isEdit = fa
   const [documents, setDocuments] = useState<SubProjectDocument[]>(
     subProject?.documents?.map(doc => ({ ...doc })) || []
   );
+<<<<<<< HEAD
   const [availableMembers, setAvailableMembers] = useState<UserInterface[]>([]);
   const [selectedMembers, setSelectedMembers] = useState<UserInterface[]>(
     subProject?.members?.map(member => ({
       ...member,
       name: member.name || '',
       selected: true
+=======
+  const [availableMembers, setAvailableMembers] = useState<ProjectMember[]>([]);
+  const [selectedMembers, setSelectedMembers] = useState<ProjectMember[]>(
+    subProject?.members?.map(member => ({ 
+      ...member, 
+      name: member.name || '',
+      selected: true 
+>>>>>>> upstream/main
     })) || []
   );
   const [availableProjects, setAvailableProjects] = useState<Project[]>([]);
   const [searchMember, setSearchMember] = useState('');
+<<<<<<< HEAD
   const [projectMembers, setProjectMembers] = useState<UserInterface[]>([]);
 
   useEffect(() => {
@@ -128,6 +148,57 @@ const SubProjectForm: React.FC<SubProjectFormProps> = ({ subProject, isEdit = fa
     fetchAllUsers();
   }, [selectedMembers]);
   
+=======
+  const [projectMembers, setProjectMembers] = useState<ProjectMember[]>([]);
+
+  useEffect(() => {
+    const savedProjects = localStorage.getItem('projects');
+    if (savedProjects) {
+      try {
+        const projects = JSON.parse(savedProjects);
+        setAvailableProjects(projects);
+        if (!projectId && projects.length > 0) {
+          setProjectId(projects[0].id);
+        }
+      } catch (error) {
+        console.error('Error loading projects:', error);
+      }
+    }
+  }, [projectId]);
+
+  useEffect(() => {
+    if (projectId) {
+      const savedProjects = localStorage.getItem('projects');
+      if (savedProjects) {
+        try {
+          const projects = JSON.parse(savedProjects);
+          const selectedProject = projects.find((p: Project) => p.id === projectId);
+          
+          if (selectedProject && selectedProject.members) {
+            const projectMembersList = selectedProject.members.map((member: any) => ({
+              id: member.id,
+              name: member.name,
+              avatar: member.avatar,
+              role: member.role || 'Membre'
+            }));
+            
+            setProjectMembers(projectMembersList);
+            
+            const selectedMemberIds = new Set(selectedMembers.map(m => m.id));
+            const filteredMembers = projectMembersList.filter(
+              m => !selectedMemberIds.has(m.id)
+            );
+            
+            setAvailableMembers(filteredMembers);
+          }
+        } catch (error) {
+          console.error('Error loading project members:', error);
+        }
+      }
+    }
+  }, [projectId, selectedMembers]);
+
+>>>>>>> upstream/main
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const newFile = e.target.files[0];
@@ -143,6 +214,7 @@ const SubProjectForm: React.FC<SubProjectFormProps> = ({ subProject, isEdit = fa
   const removeDocument = (docId: string) => {
     setDocuments(documents.filter(doc => doc.id !== docId));
   };
+<<<<<<< HEAD
   const toggleMemberSelection = (member: ProjectMember) => {
     const isAlreadySelected = selectedMembers.some(
       (m) => m.id_utilisateur === Number(member.id)
@@ -197,10 +269,21 @@ const SubProjectForm: React.FC<SubProjectFormProps> = ({ subProject, isEdit = fa
           (m) => m.id_utilisateur !== Number(member.id)
         )
       );
+=======
+
+  const toggleMemberSelection = (member: ProjectMember) => {
+    if (selectedMembers.some(m => m.id === member.id)) {
+      setSelectedMembers(selectedMembers.filter(m => m.id !== member.id));
+      setAvailableMembers([...availableMembers, member]);
+    } else {
+      setSelectedMembers([...selectedMembers, { ...member, selected: true }]);
+      setAvailableMembers(availableMembers.filter(m => m.id !== member.id));
+>>>>>>> upstream/main
     }
   };
 
   const removeMember = (memberId: string) => {
+<<<<<<< HEAD
     const removedMember = selectedMembers.find(m => m.id_utilisateur === Number(memberId));
     if (removedMember) {
       setSelectedMembers(selectedMembers.filter(m => m.id_utilisateur !== Number(memberId)));
@@ -215,6 +298,22 @@ const SubProjectForm: React.FC<SubProjectFormProps> = ({ subProject, isEdit = fa
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
   
+=======
+    const removedMember = selectedMembers.find(m => m.id === memberId);
+    if (removedMember) {
+      setSelectedMembers(selectedMembers.filter(m => m.id !== memberId));
+      setAvailableMembers([...availableMembers, { ...removedMember, selected: false }]);
+    }
+  };
+
+  const filteredAvailableMembers = availableMembers.filter(member => 
+    member.name.toLowerCase().includes(searchMember.toLowerCase())
+  );
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+>>>>>>> upstream/main
     if (!name.trim()) {
       toast({
         title: "Erreur",
@@ -223,16 +322,25 @@ const SubProjectForm: React.FC<SubProjectFormProps> = ({ subProject, isEdit = fa
       });
       return;
     }
+<<<<<<< HEAD
   
     const selectedProject = availableProjects.find(p => p.id === projectId);
     if (!selectedProject) {
       toast({
         title: "Erreur",
         description: "Projet principal non trouvé.",
+=======
+
+    if (!projectId) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez sélectionner un projet principal.",
+>>>>>>> upstream/main
         variant: "destructive",
       });
       return;
     }
+<<<<<<< HEAD
   
     try {
       const uploadedDocuments: DocumentInterface[] = await Promise.all(
@@ -286,16 +394,113 @@ await sousProjetService.createSousProjet(sousProjetData, 'chef');
         description: "Le sous-projet a été créé avec succès.",
       });
   
+=======
+
+    const updatedSubProject: SubProject = {
+      id: subProject?.id || `sp-${Date.now()}`,
+      name,
+      description,
+      status,
+      daysAgo: subProject?.daysAgo || 0,
+      projectId,
+      startDate,
+      endDate,
+      members: selectedMembers.map(member => ({
+        id: member.id,
+        avatar: member.avatar,
+        name: member.name,
+        role: member.role
+      })),
+      documentsCount: documents.length,
+      documents: documents.map(doc => ({
+        id: doc.id,
+        title: doc.title,
+        url: doc.url || `/documents/${doc.title}`
+      })),
+    };
+
+    try {
+      const subProjectsString = localStorage.getItem('subProjects');
+      let subProjects = [];
+      
+      if (subProjectsString) {
+        subProjects = JSON.parse(subProjectsString);
+        
+        if (isEdit) {
+          const index = subProjects.findIndex((p: SubProject) => p.id === updatedSubProject.id);
+          if (index !== -1) {
+            subProjects[index] = updatedSubProject;
+          } else {
+            subProjects.push(updatedSubProject);
+          }
+        } else {
+          subProjects.push(updatedSubProject);
+        }
+      } else {
+        subProjects = [updatedSubProject];
+      }
+      
+      localStorage.setItem('subProjects', JSON.stringify(subProjects));
+      
+      const projectsString = localStorage.getItem('projects');
+      if (projectsString) {
+        const projects = JSON.parse(projectsString);
+        const projectIndex = projects.findIndex((p: Project) => p.id === projectId);
+        
+        if (projectIndex !== -1) {
+          if (!projects[projectIndex].subProjects) {
+            projects[projectIndex].subProjects = [];
+          }
+          
+          const subProjectIndex = projects[projectIndex].subProjects.findIndex(
+            (sp: any) => sp.id === updatedSubProject.id
+          );
+          
+          const subProjectSummary = {
+            id: updatedSubProject.id,
+            name: updatedSubProject.name,
+            description: updatedSubProject.description,
+            daysAgo: updatedSubProject.daysAgo,
+            members: updatedSubProject.members,
+            documentsCount: updatedSubProject.documentsCount
+          };
+          
+          if (subProjectIndex !== -1) {
+            projects[projectIndex].subProjects[subProjectIndex] = subProjectSummary;
+          } else {
+            projects[projectIndex].subProjects.push(subProjectSummary);
+          }
+          
+          localStorage.setItem('projects', JSON.stringify(projects));
+        }
+      }
+
+      if (!isEdit) {
+        const projectName = availableProjects.find(p => p.id === projectId)?.name || '';
+        notifyNewSubProject(name, projectName);
+      }
+
+      toast({
+        title: isEdit ? "Sous-projet modifié" : "Sous-projet créé",
+        description: isEdit ? "Les modifications ont été enregistrées." : "Le sous-projet a été créé avec succès.",
+      });
+      
+>>>>>>> upstream/main
       navigate("/sous-projet");
     } catch (error) {
       console.error('Error saving subProject:', error);
       toast({
         title: "Erreur",
+<<<<<<< HEAD
         description: "Une erreur est survenue lors de la création du sous-projet.",
+=======
+        description: "Une erreur est survenue lors de l'enregistrement du sous-projet.",
+>>>>>>> upstream/main
         variant: "destructive",
       });
     }
   };
+<<<<<<< HEAD
   
   
   
@@ -303,6 +508,13 @@ await sousProjetService.createSousProjet(sousProjetData, 'chef');
     <div className="max-w-5xl mx-auto">
       <div className="flex items-center mb-6">
         <button
+=======
+
+  return (
+    <div className="max-w-5xl mx-auto">
+      <div className="flex items-center mb-6">
+        <button 
+>>>>>>> upstream/main
           onClick={() => navigate('/sous-projet')}
           className="flex items-center text-gray-600 hover:text-gray-900 font-medium"
         >
@@ -310,9 +522,15 @@ await sousProjetService.createSousProjet(sousProjetData, 'chef');
           <span>Retour aux sous-projets</span>
         </button>
       </div>
+<<<<<<< HEAD
 
       <h1 className="text-2xl font-bold mb-8">{isEdit ? 'Modifier' : 'Créer'} Sous projet</h1>
 
+=======
+      
+      <h1 className="text-2xl font-bold mb-8">{isEdit ? 'Modifier' : 'Créer'} Sous projet</h1>
+      
+>>>>>>> upstream/main
       <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
@@ -329,7 +547,11 @@ await sousProjetService.createSousProjet(sousProjetData, 'chef');
               required
             />
           </div>
+<<<<<<< HEAD
 
+=======
+          
+>>>>>>> upstream/main
           <div>
             <label htmlFor="project" className="block text-sm font-medium text-gray-700 mb-1">
               Projet principal
@@ -350,7 +572,11 @@ await sousProjetService.createSousProjet(sousProjetData, 'chef');
             </select>
           </div>
         </div>
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> upstream/main
         <div className="mb-6">
           <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
             Status
@@ -366,7 +592,11 @@ await sousProjetService.createSousProjet(sousProjetData, 'chef');
             <option value="Terminé">Terminé</option>
           </select>
         </div>
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> upstream/main
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
             <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-1">
@@ -380,7 +610,11 @@ await sousProjetService.createSousProjet(sousProjetData, 'chef');
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
+<<<<<<< HEAD
 
+=======
+          
+>>>>>>> upstream/main
           <div>
             <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 mb-1">
               Date fin
@@ -394,7 +628,11 @@ await sousProjetService.createSousProjet(sousProjetData, 'chef');
             />
           </div>
         </div>
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> upstream/main
         <div className="mb-6">
           <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
             Description du sous projet
@@ -408,13 +646,21 @@ await sousProjetService.createSousProjet(sousProjetData, 'chef');
             placeholder="Décrivez le sous-projet..."
           ></textarea>
         </div>
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> upstream/main
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">
               Ajouter/supprimer membre
             </label>
+<<<<<<< HEAD
 
+=======
+            
+>>>>>>> upstream/main
             <div className="mb-3">
               <div className="relative">
                 <input
@@ -431,7 +677,11 @@ await sousProjetService.createSousProjet(sousProjetData, 'chef');
                 </div>
               </div>
             </div>
+<<<<<<< HEAD
 
+=======
+            
+>>>>>>> upstream/main
             <div className="border border-gray-200 rounded-md max-h-64 overflow-y-auto">
               <table className="min-w-full">
                 <thead className="bg-gray-50">
@@ -443,6 +693,7 @@ await sousProjetService.createSousProjet(sousProjetData, 'chef');
                 <tbody className="bg-white divide-y divide-gray-200">
                   {filteredAvailableMembers.length > 0 ? (
                     filteredAvailableMembers.map(member => (
+<<<<<<< HEAD
                       <tr key={member.id_utilisateur}>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
@@ -451,12 +702,23 @@ await sousProjetService.createSousProjet(sousProjetData, 'chef');
                             </div>
                             <div className="ml-4">
                               <div className="text-sm font-medium text-gray-900">{member.nom}</div>
+=======
+                      <tr key={member.id}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="flex-shrink-0 h-8 w-8">
+                              <img src={member.avatar} alt="" className="h-8 w-8 rounded-full" />
+                            </div>
+                            <div className="ml-4">
+                              <div className="text-sm font-medium text-gray-900">{member.name}</div>
+>>>>>>> upstream/main
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <button
                             type="button"
+<<<<<<< HEAD
                             onClick={() => toggleMemberSelection({
                               id: member.id_utilisateur.toString(),
                               name: member.nom,
@@ -464,6 +726,9 @@ await sousProjetService.createSousProjet(sousProjetData, 'chef');
                               selected: false,
                               role: member.role_de_utilisateur
                             })}
+=======
+                            onClick={() => toggleMemberSelection(member)}
+>>>>>>> upstream/main
                             className="text-[#192759] hover:text-blue-700"
                           >
                             <Check className="h-5 w-5" />
@@ -482,20 +747,32 @@ await sousProjetService.createSousProjet(sousProjetData, 'chef');
               </table>
             </div>
           </div>
+<<<<<<< HEAD
 
+=======
+          
+>>>>>>> upstream/main
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">
               Documents du sous projet
             </label>
+<<<<<<< HEAD
 
             <div className="mb-3">
               <label
                 htmlFor="fileUpload"
+=======
+            
+            <div className="mb-3">
+              <label 
+                htmlFor="fileUpload" 
+>>>>>>> upstream/main
                 className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
               >
                 <Upload className="h-5 w-5 mr-2" />
                 Télécharger document
               </label>
+<<<<<<< HEAD
               <input
                 id="fileUpload"
                 type="file"
@@ -504,14 +781,29 @@ await sousProjetService.createSousProjet(sousProjetData, 'chef');
               />
             </div>
 
+=======
+              <input 
+                id="fileUpload" 
+                type="file" 
+                className="hidden" 
+                onChange={handleFileChange}
+              />
+            </div>
+            
+>>>>>>> upstream/main
             <div className="border border-gray-200 rounded-md max-h-[172px] overflow-y-auto">
               {documents.length > 0 ? (
                 <div className="divide-y divide-gray-200">
                   {documents.map(doc => (
                     <div key={doc.id} className="px-4 py-3 flex justify-between items-center">
                       <span className="text-sm truncate">{doc.title}</span>
+<<<<<<< HEAD
                       <button
                         type="button"
+=======
+                      <button 
+                        type="button" 
+>>>>>>> upstream/main
                         onClick={() => removeDocument(doc.id)}
                         className="text-red-500 hover:text-red-700"
                       >
@@ -528,12 +820,17 @@ await sousProjetService.createSousProjet(sousProjetData, 'chef');
             </div>
           </div>
         </div>
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> upstream/main
         <div className="mb-6">
           <h3 className="text-sm font-medium text-gray-700 mb-3">Membres sélectionnés</h3>
           <div className="flex flex-wrap gap-2">
             {selectedMembers.length > 0 ? (
               selectedMembers.map(member => (
+<<<<<<< HEAD
                 <div
                   key={member.id_utilisateur}
                   className="flex items-center bg-blue-50 text-blue-700 rounded-full px-3 py-1"
@@ -547,6 +844,21 @@ await sousProjetService.createSousProjet(sousProjetData, 'chef');
                   <button
                     type="button"
                     onClick={() => removeMember(member.id_utilisateur.toString())}
+=======
+                <div 
+                  key={member.id} 
+                  className="flex items-center bg-blue-50 text-blue-700 rounded-full px-3 py-1"
+                >
+                  <img 
+                    src={member.avatar} 
+                    alt={member.name} 
+                    className="h-6 w-6 rounded-full mr-2"
+                  />
+                  <span className="text-sm">{member.name}</span>
+                  <button 
+                    type="button"
+                    onClick={() => removeMember(member.id)}
+>>>>>>> upstream/main
                     className="ml-2 text-blue-400 hover:text-blue-600"
                   >
                     <X className="h-4 w-4" />
@@ -558,10 +870,17 @@ await sousProjetService.createSousProjet(sousProjetData, 'chef');
             )}
           </div>
         </div>
+<<<<<<< HEAD
 
         <div className="flex justify-end gap-3 mt-8">
           <Button
             type="button"
+=======
+        
+        <div className="flex justify-end gap-3 mt-8">
+          <Button 
+            type="button" 
+>>>>>>> upstream/main
             onClick={() => navigate('/sous-projet')}
             variant="outline"
           >

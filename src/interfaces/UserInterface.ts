@@ -11,12 +11,18 @@ export interface UserInterface {
     etat?: string;
     matricule?: string;
     fcm_token?: string;
+<<<<<<< HEAD
     avatar?: string
+=======
+>>>>>>> upstream/main
     is_anonymous: boolean;
     is_authenticated: boolean;
     is_active: boolean;
     
+<<<<<<< HEAD
     
+=======
+>>>>>>> upstream/main
 
 
 }

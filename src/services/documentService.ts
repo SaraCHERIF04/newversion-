@@ -1,7 +1,11 @@
 import { get, post, put, del } from '@/utils/apiHelpers';
 import { DocumentInterface } from '@/interfaces/DocumentInterface';
 
+<<<<<<< HEAD
 const DOCUMENTS_ENDPOINT = '/document/';
+=======
+const DOCUMENTS_ENDPOINT = '/documents';
+>>>>>>> upstream/main
 
 interface PaginatedResponse {
     success: boolean;
@@ -58,19 +62,44 @@ export const documentService = {
     },
 
 
+<<<<<<< HEAD
     async createDocument(documentData : Omit<DocumentInterface, 'id_document'>, userRole:string): Promise<DocumentInterface> {
         try {
             return await post<DocumentInterface>(DOCUMENTS_ENDPOINT, documentData);
+=======
+    async createDocument(documentData: FormData | Omit<DocumentInterface, 'id'>, userRole:string): Promise<DocumentInterface> {
+        try {
+            let url = '';
+            if(userRole === ''){
+                url = DOCUMENTS_ENDPOINT;
+            }else{
+                url = `${userRole}${DOCUMENTS_ENDPOINT}`;
+            }
+            return await post<DocumentInterface>(url, documentData);
+>>>>>>> upstream/main
         } catch (error) {
             console.error('Error creating document:', error);
             throw error;
         }
     },
 
+<<<<<<< HEAD
     // Update user
     async updateDocument(id: string, documentData   : Partial<DocumentInterface>, userRole:string): Promise<DocumentInterface> {
         try {
             return await put<DocumentInterface>(`${DOCUMENTS_ENDPOINT}/${id}`, documentData);
+=======
+    // Update document
+    async updateDocument(id: string, documentData: FormData | Partial<DocumentInterface>, userRole:string): Promise<DocumentInterface> {
+        try {
+            let url = '';
+            if(userRole === ''){
+                url = `${DOCUMENTS_ENDPOINT}/${id}`;
+            }else{
+                url = `${userRole}${DOCUMENTS_ENDPOINT}/${id}`;
+            }
+            return await put<DocumentInterface>(url, documentData);
+>>>>>>> upstream/main
         } catch (error) {
             console.error('Error updating document:', error);
             throw error;

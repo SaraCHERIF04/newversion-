@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination";
+<<<<<<< HEAD
 import { Eye, PenSquare, Trash2 } from 'lucide-react';
 import { Incident } from '@/types/Incident';
 
@@ -11,11 +12,23 @@ const IncidentsPage = () => {
   const navigate = useNavigate();
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+=======
+import { Eye } from 'lucide-react';
+import { Incident } from '@/types/Incident';
+import { useSearchQuery } from '@/components/Layout/EmployeeLayout';
+import { incidentService } from '@/services/incidentService';
+import { IncidentInterface } from '@/interfaces/IncidentInterface';
+const IncidentsPage: React.FC = () => {
+  const navigate = useNavigate();
+  const [incidents, setIncidents] = useState<IncidentInterface[]>([]);
+  const { searchQuery } = useSearchQuery() as { searchQuery: string };
+>>>>>>> upstream/main
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
   useEffect(() => {
     // Load incidents from localStorage
+<<<<<<< HEAD
     const storedIncidents = localStorage.getItem('incidents');
     if (storedIncidents) {
       try {
@@ -48,6 +61,20 @@ const IncidentsPage = () => {
     incident.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
     incident.signaledBy.toLowerCase().includes(searchTerm.toLowerCase()) ||
     incident.location.toLowerCase().includes(searchTerm.toLowerCase())
+=======
+    const fetchIncidents = async () => {
+      const response = await incidentService.getAllIncidents(currentPage, 'chef');
+      setIncidents(response.data);
+    };
+    fetchIncidents();
+  }, []);
+
+  const filteredIncidents = incidents.filter(incident =>
+    incident?.type_incident?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    incident?.signale_par?.nom?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    incident?.lieu_incident?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    incident?.id_projet?.toString().includes(searchQuery)
+>>>>>>> upstream/main
   );
 
   // Calculate pagination
@@ -56,17 +83,23 @@ const IncidentsPage = () => {
   const currentItems = filteredIncidents.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredIncidents.length / itemsPerPage);
 
+<<<<<<< HEAD
   const handleDeleteIncident = (id: string) => {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer cet incident ?")) {
       const updatedIncidents = incidents.filter(incident => incident.id !== id);
       setIncidents(updatedIncidents);
       localStorage.setItem('incidents', JSON.stringify(updatedIncidents));
     }
+=======
+  const handleViewIncidentDetails = (id: string) => {
+    navigate(`/employee/incidents/${id}`);
+>>>>>>> upstream/main
   };
 
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
+<<<<<<< HEAD
         <h1 className="text-2xl font-bold">Incidents</h1>
         <div className="flex gap-4">
           <div className="relative">
@@ -98,6 +131,9 @@ const IncidentsPage = () => {
             Créer nouveau
           </Button>
         </div>
+=======
+        <h1 className="text-2xl font-bold">Liste des Incidents</h1>
+>>>>>>> upstream/main
       </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -106,25 +142,43 @@ const IncidentsPage = () => {
             <TableRow>
               <TableHead>Type</TableHead>
               <TableHead>Signalé par</TableHead>
+<<<<<<< HEAD
               <TableHead>date</TableHead>
               <TableHead>l'heure</TableHead>
               <TableHead>lieu</TableHead>
+=======
+              <TableHead>Date</TableHead>
+              <TableHead>L'heure</TableHead>
+              <TableHead>Lieu</TableHead>
+              <TableHead>Projet</TableHead>
+>>>>>>> upstream/main
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {currentItems.length > 0 ? (
               currentItems.map((incident, index) => (
+<<<<<<< HEAD
                 <TableRow key={incident.id} className={index % 2 === 0 ? 'bg-gray-100' : ''}>
                   <TableCell>{incident.type}</TableCell>
                   <TableCell>{incident.signaledBy}</TableCell>
                   <TableCell>{incident.date}</TableCell>
                   <TableCell>{incident.time}</TableCell>
                   <TableCell>{incident.location}</TableCell>
+=======
+                <TableRow key={incident.id_incident} className={index % 2 === 0 ? 'bg-gray-100' : ''}>
+                  <TableCell>{incident.type_incident}</TableCell>
+                  <TableCell>{incident?.signale_par?.nom}</TableCell>
+                  <TableCell>{incident?.date_incident}</TableCell>
+                  <TableCell>{incident?.lheure_incident}</TableCell>
+                  <TableCell>{incident?.lieu_incident}</TableCell>
+                  <TableCell>{incident?.id_projet}</TableCell>
+>>>>>>> upstream/main
                   <TableCell className="flex justify-end gap-2">
                     <Button
                       variant="ghost"
                       size="icon"
+<<<<<<< HEAD
                       onClick={() => navigate(`/incidents/${incident.id}`)}
                     >
                       <Eye className="h-5 w-5" />
@@ -144,12 +198,22 @@ const IncidentsPage = () => {
                     >
                       <Trash2 className="h-5 w-5" />
                     </Button>
+=======
+                      onClick={() => handleViewIncidentDetails(incident.id_incident.toString())}
+                    >
+                      <Eye className="h-5 w-5" />
+                    </Button>
+>>>>>>> upstream/main
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
+<<<<<<< HEAD
                 <TableCell colSpan={6} className="text-center py-4">
+=======
+                <TableCell colSpan={7} className="text-center py-4">
+>>>>>>> upstream/main
                   Aucun incident trouvé
                 </TableCell>
               </TableRow>

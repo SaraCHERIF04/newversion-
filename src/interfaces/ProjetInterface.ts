@@ -2,14 +2,18 @@ import { DocumentInterface } from "./DocumentInterface";
 import { ReuinionInterface } from "./ReuinionInterface";
 import { SousProjetInterface } from "./SousProjetInterface";
 import { UserInterface } from "./UserInterface";
+<<<<<<< HEAD
 import { IncidentInterface } from "./IncidentInterface";
 import { MaitreOuvrage } from "./MaitreOuvrageInterface";
 
+=======
+>>>>>>> upstream/main
 
 export interface ProjetInterface {
     id_projet: number;
     nom_projet: string;
     description_de_projet: string;
+<<<<<<< HEAD
     deadline: string;
     date_debut_de_projet: string;
     date_fin_de_projet: string;
@@ -41,3 +45,16 @@ export interface ProjetInterface {
 }
 
 
+=======
+    date_debut_de_projet: string;
+    date_fin_de_projet: string;
+    statut: string;
+    id_utilisateur: number;
+    members : UserInterface[];
+    documents : DocumentInterface[];
+    chef : UserInterface;
+    subprojects : SousProjetInterface[];
+    reunions : ReuinionInterface[];
+}
+
+>>>>>>> upstream/main

@@ -2,21 +2,31 @@ import { addNotification } from '@/types/User';
 import { toast } from "@/hooks/use-toast";
 
 // Helper to get employee IDs from localStorage
+<<<<<<< HEAD
 type EmployeeUser = {
   id: string;
   role_de_utilisateur: string;
   // add other properties if needed
 };
 
+=======
+>>>>>>> upstream/main
 const getEmployeeIds = (): string[] => {
   const usersString = localStorage.getItem('users');
   if (!usersString) return [];
   
   try {
+<<<<<<< HEAD
     const users: EmployeeUser[] = JSON.parse(usersString);
     return users
       .filter((user: EmployeeUser) => user.role_de_utilisateur === 'employee')
       .map((user: EmployeeUser) => user.id);
+=======
+    const users = JSON.parse(usersString);
+    return users
+      .filter((user: any) => user.role === 'employee')
+      .map((user: any) => user.id);
+>>>>>>> upstream/main
   } catch (error) {
     console.error('Error getting employee IDs:', error);
     return [];
@@ -24,21 +34,31 @@ const getEmployeeIds = (): string[] => {
 };
 
 // Helper to get responsable IDs from localStorage
+<<<<<<< HEAD
 type ResponsableUser = {
   id: string;
   role: string;
   // add other properties if needed
 };
 
+=======
+>>>>>>> upstream/main
 const getResponsableIds = (): string[] => {
   const usersString = localStorage.getItem('users');
   if (!usersString) return [];
   
   try {
+<<<<<<< HEAD
     const users: ResponsableUser[] = JSON.parse(usersString);
     return users
       .filter((user: ResponsableUser) => user.role === 'responsable')
       .map((user: ResponsableUser) => user.id);
+=======
+    const users = JSON.parse(usersString);
+    return users
+      .filter((user: any) => user.role === 'responsable')
+      .map((user: any) => user.id);
+>>>>>>> upstream/main
   } catch (error) {
     console.error('Error getting responsable IDs:', error);
     return [];
