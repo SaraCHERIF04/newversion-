@@ -4,10 +4,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { SubProject } from '@/components/SubProjectCard';
 import { ArrowLeft, Printer, Download, BarChart } from 'lucide-react';
 import SubProjectMembersList from '@/components/SubProjectMembersList';
-<<<<<<< HEAD
-import { SousProjetInterface } from './SousProjetInterface';
-import { DocumentInterface } from './DocumentInterface';
-import { UserInterface } from './UserInterface';
 import { sousProjetService } from '@/services/sousProjetService';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,8 +11,6 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import SubProjectEditPage from '@/pages/SubProjectDetailsPage';
-=======
->>>>>>> upstream/main
 
 type Document = {
   id: string;
@@ -32,7 +26,6 @@ type SubProjectMember = {
 };
 
 const SubProjectDetailsPage: React.FC = () => {
-<<<<<<< HEAD
    const { id } = useParams();
   const navigate = useNavigate();
   const [subProject, setSubProject] = useState(null);
@@ -44,7 +37,7 @@ const SubProjectDetailsPage: React.FC = () => {
     const fetchProject = async () => {
       setLoading(true);
       try {
-        const response = await sousProjetService.getSousProjetById(id);
+        const response = await sousProjetService.getSousProjetById(id, 'chef de projet');
         setSubProject(response.data);
       } catch (error) {
         console.error('Error fetching project:', error);
@@ -114,122 +107,6 @@ const SubProjectDetailsPage: React.FC = () => {
     }
   };
   
-=======
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const [subProject, setSubProject] = useState<SubProject & {
-    documents?: Document[];
-    detailedMembers?: SubProjectMember[];
-  } | undefined>(undefined);
-  
-  useEffect(() => {
-    if (id) {
-      // Try to get the subProject from localStorage
-      const subProjectsString = localStorage.getItem('subProjects');
-      if (subProjectsString) {
-        try {
-          const subProjects = JSON.parse(subProjectsString);
-          const foundSubProject = subProjects.find((p: SubProject) => p.id === id);
-          if (foundSubProject) {
-            setSubProject(foundSubProject);
-          }
-        } catch (error) {
-          console.error('Error loading subProject:', error);
-        }
-      }
-    }
-  }, [id]);
-  
-  // Fallback sample subProject if not found in localStorage
-  const sampleSubProject = {
-    id: id || 'sp-1',
-    name: 'Nom sous_projet',
-    description: 'Petite description du sous projet de manière détaillée',
-    status: 'En cours' as const,
-    daysAgo: 12,
-    projectId: 'p-1',
-    startDate: '10/4/2023',
-    endDate: '15/9/2023',
-    members: [
-      { id: '1', name: 'User 1', avatar: 'https://randomuser.me/api/portraits/women/44.jpg' },
-      { id: '2', name: 'User 2', avatar: 'https://randomuser.me/api/portraits/men/32.jpg' },
-      { id: '3', name: 'User 3', avatar: 'https://randomuser.me/api/portraits/men/44.jpg' },
-    ],
-    documentsCount: 5,
-    documents: [
-      { id: '1', title: 'Rapport initial du sous-projet.pdf', url: '/documents/rapport-sous-projet.pdf' },
-      { id: '2', title: 'Plans techniques du sous-projet.pdf', url: '/documents/plans-sous-projet.pdf' },
-    ]
-  };
-
-  const subProjectDetails = subProject || sampleSubProject;
-  
-  // Transform members list to the detailed format required by SubProjectMembersList
-  const detailedMembers = subProjectDetails.members.map(member => ({
-    id: member.id,
-    name: member.name || `Membre ${member.id}`,
-    role: member.role || 'Membre',
-    avatar: member.avatar
-  }));
-
-  const printSubProject = () => {
-    window.print();
-  };
-
-  const downloadDocument = (doc: Document) => {
-    if (doc.url) {
-      const a = document.createElement('a');
-      a.href = doc.url;
-      a.download = doc.title;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    } else {
-      console.error('Document URL is missing');
-    }
-  };
-
-  const handleBack = () => {
-    navigate('/sous-projet');
-  };
-  
-  const handleDashboard = () => {
-    navigate(`/sous-projet/dashboard/${subProjectDetails.id}`);
-  };
-  
-  // Delete functionality
-  const handleDelete = () => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce sous-projet?')) {
-      try {
-        const subProjectsString = localStorage.getItem('subProjects');
-        if (subProjectsString) {
-          const subProjects = JSON.parse(subProjectsString);
-          const updatedSubProjects = subProjects.filter((sp: SubProject) => sp.id !== id);
-          localStorage.setItem('subProjects', JSON.stringify(updatedSubProjects));
-          
-          // Also remove reference from parent project
-          const projectsString = localStorage.getItem('projects');
-          if (projectsString && subProjectDetails.projectId) {
-            const projects = JSON.parse(projectsString);
-            const projectIndex = projects.findIndex((p: any) => p.id === subProjectDetails.projectId);
-            
-            if (projectIndex !== -1 && projects[projectIndex].subProjects) {
-              projects[projectIndex].subProjects = projects[projectIndex].subProjects.filter(
-                (sp: any) => sp.id !== id
-              );
-              localStorage.setItem('projects', JSON.stringify(projects));
-            }
-          }
-          
-          navigate('/sous-projet');
-        }
-      } catch (error) {
-        console.error('Error deleting sub-project:', error);
-      }
-    }
-  };
-
->>>>>>> upstream/main
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'En attente':
@@ -261,15 +138,9 @@ const SubProjectDetailsPage: React.FC = () => {
         {/* Main subProject details */}
         <div className="lg:col-span-2 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex justify-between items-start mb-4">
-<<<<<<< HEAD
             <h2 className="text-xl font-bold">{subProject.nom_sous_projet}</h2>
             <span className={`px-3 py-1 ${getStatusColor(subProject.statut_sous_projet)} rounded-full text-sm font-medium`}>
               {subProject.statut_sous_projet}
-=======
-            <h2 className="text-xl font-bold">{subProjectDetails.name}</h2>
-            <span className={`px-3 py-1 ${getStatusColor(subProjectDetails.status)} rounded-full text-sm font-medium`}>
-              {subProjectDetails.status}
->>>>>>> upstream/main
             </span>
           </div>
 
@@ -280,11 +151,7 @@ const SubProjectDetailsPage: React.FC = () => {
               </svg>
               <div>
                 <div className="text-xs text-gray-500">Projet principal</div>
-<<<<<<< HEAD
                 <div className="text-sm">Projet {subProject.project.id_projet}</div>
-=======
-                <div className="text-sm">Projet {subProjectDetails.projectId}</div>
->>>>>>> upstream/main
               </div>
             </div>
 
@@ -293,13 +160,8 @@ const SubProjectDetailsPage: React.FC = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <div>
-<<<<<<< HEAD
                 <div className="text-xs text-gray-500">Date de fin de projet </div>
                 <div className="text-sm">{subProject.project.date_fin_de_projet} </div>
-=======
-                <div className="text-xs text-gray-500">Il y a</div>
-                <div className="text-sm">{subProjectDetails.daysAgo} jours</div>
->>>>>>> upstream/main
               </div>
             </div>
 
@@ -308,13 +170,8 @@ const SubProjectDetailsPage: React.FC = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
               <div>
-<<<<<<< HEAD
                 <div className="text-xs text-gray-500">Date début de sous projet </div>
                 <div className="text-sm">{subProject.date_debut_sousprojet || "Non spécifié"}</div>
-=======
-                <div className="text-xs text-gray-500">Date début</div>
-                <div className="text-sm">{subProjectDetails.startDate || "Non spécifié"}</div>
->>>>>>> upstream/main
               </div>
             </div>
 
@@ -324,11 +181,7 @@ const SubProjectDetailsPage: React.FC = () => {
               </svg>
               <div>
                 <div className="text-xs text-gray-500">Date fin</div>
-<<<<<<< HEAD
                 <div className="text-sm">{subProject.date_finsousprojet || "Non spécifié"}</div>
-=======
-                <div className="text-sm">{subProjectDetails.endDate || "Non spécifié"}</div>
->>>>>>> upstream/main
               </div>
             </div>
           </div>
@@ -336,11 +189,7 @@ const SubProjectDetailsPage: React.FC = () => {
           <div className="mb-6">
             <h3 className="text-lg font-medium mb-2">Description du sous-projet</h3>
             <div className="p-4 bg-gray-50 rounded-md min-h-[100px] text-gray-700">
-<<<<<<< HEAD
               {subProject.description_sous_projet || "Aucune description disponible."}
-=======
-              {subProjectDetails.description || "Aucune description disponible."}
->>>>>>> upstream/main
             </div>
           </div>
 
@@ -352,14 +201,10 @@ const SubProjectDetailsPage: React.FC = () => {
               Supprimer
             </button>
             <button 
-<<<<<<< HEAD
               onClick={() =>{
     console.log('Navigate to:', `/sous-projet/edit/${subProject.id_sous_projet}`);
     navigate(`/sous-projet/edit/${ subProject.id_sous_projet}`);
   }}
-=======
-              onClick={() => navigate(`/sous-projet/edit/${subProjectDetails.id}`)}
->>>>>>> upstream/main
               className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
             >
               Modifier
@@ -371,17 +216,7 @@ const SubProjectDetailsPage: React.FC = () => {
               <BarChart className="mr-2 h-4 w-4" />
               Tableau de bord
             </button>
-<<<<<<< HEAD
             
-=======
-            <button 
-              onClick={printSubProject}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center"
-            >
-              <Printer className="mr-2 h-4 w-4" />
-              Imprimer
-            </button>
->>>>>>> upstream/main
           </div>
         </div>
 
@@ -391,17 +226,12 @@ const SubProjectDetailsPage: React.FC = () => {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <h3 className="text-lg font-medium mb-3">Documents du sous-projet</h3>
             <div className="space-y-2 max-h-60 overflow-y-auto">
-<<<<<<< HEAD
               {subProject.documents && subProject.documents.length > 0 ? (
                 subProject.documents.map(doc => (
-=======
-              {subProjectDetails.documents && subProjectDetails.documents.length > 0 ? (
-                subProjectDetails.documents.map(doc => (
->>>>>>> upstream/main
                   <div key={doc.id} className="p-2 bg-blue-50 text-blue-600 rounded-md flex justify-between items-center">
                     <span className="truncate">{doc.title}</span>
                     <button 
-                      onClick={() => downloadDocument(doc)}
+                      onClick={() => handleDownload(doc)}
                       className="text-blue-700 hover:text-blue-900 ml-2"
                     >
                       <Download className="h-4 w-4" />
@@ -418,7 +248,6 @@ const SubProjectDetailsPage: React.FC = () => {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <h3 className="text-lg font-medium mb-3">Membres du sous-projet</h3>
             <div className="space-y-3 max-h-60 overflow-y-auto">
-<<<<<<< HEAD
                {subProject.members && subProject.members.length > 0 ? (
                 subProject.members.map((member, index) => (
                   <div key={index} className="flex items-center space-x-2">
@@ -433,21 +262,6 @@ const SubProjectDetailsPage: React.FC = () => {
                 <p className="text-sm text-gray-500">Aucun membre assigné</p>
               )}
              
-=======
-              {detailedMembers.map(member => (
-                <div key={member.id} className="flex items-center gap-3">
-                  <img 
-                    src={member.avatar} 
-                    alt={member.name} 
-                    className="h-10 w-10 rounded-full"
-                  />
-                  <div>
-                    <div className="text-sm font-medium">{member.name}</div>
-                    <div className="text-xs text-gray-500">{member.role || "Membre"}</div>
-                  </div>
-                </div>
-              ))}
->>>>>>> upstream/main
             </div>
           </div>
         </div>
@@ -456,11 +270,7 @@ const SubProjectDetailsPage: React.FC = () => {
       {/* Members in grid format */}
       <div className="mt-8">
         <h3 className="text-xl font-medium mb-4">Membres du sous-projet</h3>
-<<<<<<< HEAD
         <SubProjectMembersList members={subProject.members} />
-=======
-        <SubProjectMembersList members={detailedMembers} />
->>>>>>> upstream/main
       </div>
     </div>
   );

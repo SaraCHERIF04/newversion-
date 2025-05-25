@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 "use client"
 
 import { useEffect, useState } from "react"
@@ -144,49 +143,11 @@ const FactureDetailsPage = () => {
         <div className="text-center py-10 text-red-600">{error || "Facture non trouvée"}</div>
       </div>
     )
-=======
-
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, FileEdit } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Invoice } from '@/types/Invoice';
-
-const FactureDetailsPage = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [invoice, setInvoice] = useState<Invoice | null>(null);
-  
-  useEffect(() => {
-    const invoicesData = localStorage.getItem('invoices');
-    if (invoicesData && id) {
-      const invoices = JSON.parse(invoicesData);
-      const invoiceData = invoices.find((i: Invoice) => i.id === id);
-      setInvoice(invoiceData || null);
-    }
-  }, [id]);
-
-  if (!invoice) {
-    return (
-      <div className="p-6">
-        <Button 
-          variant="ghost" 
-          className="flex items-center gap-2 mb-4"
-          onClick={() => navigate('/factures')}
-        >
-          <ArrowLeft className="h-4 w-4" /> Retour
-        </Button>
-        <div className="text-center py-10">Facture non trouvée</div>
-      </div>
-    );
->>>>>>> upstream/main
   }
 
   return (
     <div className="space-y-6 p-6">
       <div className="flex justify-between items-center">
-<<<<<<< HEAD
         <Button variant="ghost" className="flex items-center gap-2" onClick={() => navigate("/factures")}>
           <ArrowLeft className="h-4 w-4" /> Retour
         </Button>
@@ -207,25 +168,6 @@ const FactureDetailsPage = () => {
       </div>
 
       <h1 className="text-2xl font-bold">Facture {facture.numero_facture || `#${facture.id_facture}`}</h1>
-=======
-        <Button 
-          variant="ghost" 
-          className="flex items-center gap-2"
-          onClick={() => navigate('/factures')}
-        >
-          <ArrowLeft className="h-4 w-4" /> Retour
-        </Button>
-        
-        <Button 
-          onClick={() => navigate(`/factures/edit/${invoice.id}`)}
-          className="flex items-center gap-2"
-        >
-          <FileEdit className="h-4 w-4" /> Modifier
-        </Button>
-      </div>
-
-      <h1 className="text-2xl font-bold">Facture {invoice.invoiceNumber}</h1>
->>>>>>> upstream/main
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
@@ -234,7 +176,6 @@ const FactureDetailsPage = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-<<<<<<< HEAD
               <p className="text-sm text-gray-500">Désignation</p>
               <p>{facture.designation || "-"}</p>
             </div>
@@ -254,19 +195,6 @@ const FactureDetailsPage = () => {
               <p className="text-sm text-gray-500">Dates</p>
               <p>Facturation: {formatDate(facture.date_facturation)}</p>
               <p>Réception: {formatDate(facture.date_reception)}</p>
-=======
-              <p className="text-sm text-gray-500">Numéro de marché</p>
-              <p>{invoice.marche}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Fournisseur</p>
-              <p>{invoice.supplier}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Dates</p>
-              <p>Facture: {invoice.invoiceDate}</p>
-              <p>Réception: {invoice.receptionDate}</p>
->>>>>>> upstream/main
             </div>
           </CardContent>
         </Card>
@@ -277,7 +205,6 @@ const FactureDetailsPage = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-<<<<<<< HEAD
               <p className="text-sm text-gray-500">Montant brut HT</p>
               <p>{formatMontant(facture.brut_ht)}</p>
             </div>
@@ -326,28 +253,3 @@ const FactureDetailsPage = () => {
 }
 
 export default FactureDetailsPage
-=======
-              <p className="text-sm text-gray-500">Montant brut</p>
-              <p>{invoice.grossAmount} Da</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">TVA</p>
-              <p>{invoice.tvaAmount} Da</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Montant net</p>
-              <p>{invoice.netAmount} Da</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Montant total</p>
-              <p className="text-lg font-bold">{invoice.totalAmount} Da</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
-};
-
-export default FactureDetailsPage;
->>>>>>> upstream/main

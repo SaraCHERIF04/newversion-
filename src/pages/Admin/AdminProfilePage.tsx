@@ -64,11 +64,7 @@ const AdminProfilePage: React.FC = () => {
   useEffect(() => {
     // In a real app, this would fetch the current admin user
     // For now, we'll use the first admin from localStorage
-<<<<<<< HEAD
     const storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
-=======
-    const storedUsers = JSON.parse(localStorage.getItem('mockUsers') || '[]');
->>>>>>> upstream/main
     const admin = storedUsers.find((user: User) => user.role === 'admin');
     
     if (admin) {
@@ -96,11 +92,7 @@ const AdminProfilePage: React.FC = () => {
     // Simulate API call
     setTimeout(() => {
       // Get stored users
-<<<<<<< HEAD
-      const storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
-=======
       const storedUsers = JSON.parse(localStorage.getItem('mockUsers') || '[]');
->>>>>>> upstream/main
       
       // Generate avatar URL
       const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(values.name + ' ' + values.prenom)}&background=random`;
@@ -125,11 +117,7 @@ const AdminProfilePage: React.FC = () => {
         user.id === adminUser.id ? updatedUser : user
       );
       
-<<<<<<< HEAD
-      localStorage.setItem('users', JSON.stringify(updatedUsers));
-=======
       localStorage.setItem('mockUsers', JSON.stringify(updatedUsers));
->>>>>>> upstream/main
       setAdminUser(updatedUser);
       
       toast({

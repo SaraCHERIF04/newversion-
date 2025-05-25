@@ -1,36 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import ProjectCard from '@/components/ProjectCard';
-<<<<<<< HEAD
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-=======
->>>>>>> upstream/main
 import { useSearchQuery } from '@/components/Layout/EmployeeLayout';
 import { projetService } from '@/services/projetService';
 
 const EmployeeProjectsPage = () => {
   const [localSearchTerm, setLocalSearchTerm] = useState('');
   const [filteredProjects, setFilteredProjects] = useState([]);
-<<<<<<< HEAD
   const [isSearching, setIsSearching] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-=======
->>>>>>> upstream/main
 
   useEffect(() => {
     const fetchProjects = async () => {
       try {
         const response = await projetService.getAllProjets(1, 'employee');
-<<<<<<< HEAD
         setFilteredProjects(response.data.results);
          setTotalPages(response.data.totalPages || 1);     // Make sure this exists
          setTotalCount(response.data.totalCount || 0); 
-=======
         setFilteredProjects(response.data);
->>>>>>> upstream/main
       } catch (error) {
         console.error('Error fetching projects:', error); 
         setAllProjects([]);
@@ -39,7 +30,6 @@ const EmployeeProjectsPage = () => {
     fetchProjects();
   }, []);
 
-<<<<<<< HEAD
 const handlePageChange = async (page) => {
   if (page < 1 || page > totalPages) return;
 
@@ -59,8 +49,6 @@ setTotalCount(response.data.count);
     setIsSearching(false);
   }
 };
-=======
->>>>>>> upstream/main
 
   
 
@@ -101,16 +89,9 @@ setTotalCount(response.data.count);
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredProjects.length > 0 ? (
           filteredProjects.map(project => (
-<<<<<<< HEAD
             <div key={project.id_projet} className="block">
-=======
-            <div key={project.id} className="block">
->>>>>>> upstream/main
-              <div className="h-full transition-transform hover:scale-102 hover:shadow-lg">
                 <Link to={`/employee/projects/${project.id_projet}`} className="block h-full">
-                  <ProjectCard project={project} />
                 </Link>
-              </div>
             </div>
           ))
         ) : (
@@ -119,7 +100,6 @@ setTotalCount(response.data.count);
           </div>
         )}
       </div>
-<<<<<<< HEAD
        {filteredProjects.length > 0 && !isSearching && totalPages > 1 && (
                   <div className="flex justify-center items-center mt-8 space-x-2">
                     <Button
@@ -171,8 +151,6 @@ setTotalCount(response.data.count);
                     </span>
                   </div>
                 )}
-=======
->>>>>>> upstream/main
     </div>
   );
 };

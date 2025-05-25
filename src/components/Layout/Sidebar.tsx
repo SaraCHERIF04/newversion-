@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { LayoutDashboard, FileText, AlertTriangle, Users, Building, ShoppingBag, CalendarDays, Settings, Info, BarChart, Receipt } from 'lucide-react';
 
-const SidebarMenuItem = ({ item, active }) => {
+ const SidebarMenuItem = ({ item, active }) => {
   return (
     <Link
       to={item.path}
@@ -99,21 +99,12 @@ const Sidebar = () => {
   };
 
   return (
-<<<<<<< HEAD
     <aside className="min-h-screen w-[200px]  border-gray-200 bg-white">
       <div className="flex h-24 items-center justify-center pt-0">
         <Link to="/" className="flex items-center gap-2">
           <img src="/public/lovable-uploads/58530a94-5d90-46f6-a581-d78a21f82b7a.png" alt="Sonelgaz Logo" className="h-16" />
           <div className="flex flex-col items-start">
             <span className="text-lg font-bold text-[#192759]">SONELGAZ</span>
-=======
-    <aside className="min-h-screen w-[200px] border-r border-gray-200 bg-white">
-      <div className="flex h-16 items-center justify-center border-b">
-        <Link to="/" className="flex items-center gap-2">
-          <img src="/public/lovable-uploads/58530a94-5d90-46f6-a581-d78a21f82b7a.png" alt="Sonelgaz Logo" className="h-10" />
-          <div className="flex flex-col items-start">
-            <span className="text-sm font-bold text-[#192759]">SONELGAZ</span>
->>>>>>> upstream/main
             <span className="text-xs text-gray-600">Projects</span>
           </div>
         </Link>

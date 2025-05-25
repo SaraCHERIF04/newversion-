@@ -1,11 +1,7 @@
 import { get, post, put, del } from '@/utils/apiHelpers';
 import { ProjetInterface } from '@/interfaces/ProjetInterface';
 
-<<<<<<< HEAD
 const PROJETS_ENDPOINT = 'projets/';   
-=======
-const PROJETS_ENDPOINT = '/projets';
->>>>>>> upstream/main
 
 interface PaginatedResponse {
     success: boolean;
@@ -21,7 +17,6 @@ interface PaginatedResponse {
 }
 
 interface ProjetResponse {
-<<<<<<< HEAD
     description: string;
     name: string;
     success: boolean;
@@ -54,49 +49,16 @@ export const projetService = {
                 status: apiError.response?.status,
                 data: apiError.response?.data,
                 headers: apiError.response?.headers
-=======
-    success: boolean;
-    message: string;
-    data: ProjetInterface;
-}
-
-export const projetService = {
-    async getAllProjets(pageNumber:number = 1, userRole:string=''): Promise<PaginatedResponse> {
-        try {
-            let url = '';
-            if(userRole === ''){
-                url = PROJETS_ENDPOINT;
-            }else{
-                url = `${userRole}${PROJETS_ENDPOINT}`;
-            }
-            console.log('Fetching projets...');
-            const response = await get<PaginatedResponse>(`${url}?page=${pageNumber}&per_page=5`);
-            console.log('Response received:', response);
-            return response;
-        } catch (error) {
-                console.error('Detailed error in getAllProjets:', {
-                error,
-                status: error.response?.status,
-                data: error.response?.data,
-                headers: error.response?.headers
->>>>>>> upstream/main
             });
             throw error;
         }
     },
 
-<<<<<<< HEAD
 
     
     async getProjetById(id: string, userRole:string): Promise<ProjetResponse> {
         try {
             return await get<ProjetResponse>(`${PROJETS_ENDPOINT}${id}`);
-=======
-    
-    async getProjetById(id: string, userRole:string): Promise<ProjetResponse> {
-        try {
-            return await get<ProjetResponse>(`${PROJETS_ENDPOINT}/${id}`);
->>>>>>> upstream/main
             
         } catch (error) {
             console.error('Error fetching projet:', error);
@@ -105,11 +67,7 @@ export const projetService = {
     },
 
 
-<<<<<<< HEAD
     async createProjet(projetData : Omit<ProjetInterface, 'id_projet'>, userRole:string): Promise<ProjetInterface> {
-=======
-    async createProjet(projetData : Omit<ProjetInterface, 'id'>, userRole:string): Promise<ProjetInterface> {
->>>>>>> upstream/main
         try {
             return await post<ProjetInterface>(PROJETS_ENDPOINT, projetData);
         } catch (error) {
@@ -119,33 +77,20 @@ export const projetService = {
     },
 
     // Update user
-<<<<<<< HEAD
     async updateProjet(id: string, projetData: Partial<ProjetInterface>): Promise<ProjetInterface> {
         try {
             return await put<ProjetInterface>(`${PROJETS_ENDPOINT}${id}`, projetData);
-=======
-    async updateProjet(id: string, projetData   : Partial<ProjetInterface>, userRole:string): Promise<ProjetInterface> {
-        try {
-            return await put<ProjetInterface>(`${PROJETS_ENDPOINT}/${id}`, projetData);
->>>>>>> upstream/main
         } catch (error) {
             console.error('Error updating projet:', error);
             throw error;
         }
     },
-<<<<<<< HEAD
     
-=======
->>>>>>> upstream/main
 
     // Delete user
     async deleteProjet(id: string, userRole:string): Promise<void> {
         try {
-<<<<<<< HEAD
             await del(`${PROJETS_ENDPOINT}${id}`);
-=======
-            await del(`${PROJETS_ENDPOINT}/${id}`);
->>>>>>> upstream/main
         } catch (error) {
             console.error('Error deleting projet:', error);
             throw error;

@@ -19,13 +19,8 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-<<<<<<< HEAD
-      const response = await login({ email, password });
-      const role = response.user?.role;
-=======
       await login({ email, password });
       
->>>>>>> upstream/main
       toast({
         title: "Connexion réussie",
         description: "Bienvenue sur votre tableau de bord",
@@ -33,16 +28,9 @@ const LoginPage = () => {
 
       // Navigate based on user role
       const userRole = localStorage.getItem('userRole');
-<<<<<<< HEAD
-                  
-      switch (userRole) {
-        case 'Chef de projet':
-          navigate('/dashboard');
-=======
       switch (userRole) {
         case 'chef':
           navigate('/project');
->>>>>>> upstream/main
           break;
         case 'employee':
           navigate('/employee/projects');
@@ -71,7 +59,6 @@ const LoginPage = () => {
   };
 
   return (
-<<<<<<< HEAD
     <div
       className="flex justify-start items-center min-h-screen"
       style={{
@@ -81,17 +68,11 @@ const LoginPage = () => {
         backgroundPosition: "center",
       }}
     >
-=======
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
->>>>>>> upstream/main
       <div className="w-full max-w-md p-4">
         <div className="flex justify-center mb-6">
           <div className="flex items-center space-x-2">
             <img src="/lovable-uploads/58530a94-5d90-46f6-a581-d78a21f82b7a.png" alt="Logo" className="h-12" />
-<<<<<<< HEAD
             
-=======
->>>>>>> upstream/main
             <div>
               <h1 className="text-2xl font-bold text-blue-900">SONELGAZ</h1>
               <p className="text-blue-800">Projects</p>
@@ -99,11 +80,7 @@ const LoginPage = () => {
           </div>
         </div>
         
-<<<<<<< HEAD
         <div>
-=======
-        <Card>
->>>>>>> upstream/main
           <CardHeader>
             <CardTitle className="text-center">Connexion</CardTitle>
             <CardDescription className="text-center">
@@ -145,26 +122,7 @@ const LoginPage = () => {
               </Button>
             </form>
           </CardContent>
-<<<<<<< HEAD
         </div>
-=======
-          <CardFooter className="flex justify-center">
-            <p className="text-sm text-gray-500">
-              Credentials for testing:
-              <br />
-              <strong>Admin:</strong> admin@sonelgaz.dz / admin123
-              <br />
-              <strong>Chef:</strong> alexarowles@sonelgaz.dz / sadmin123
-              <br />
-              <strong>Responsable:</strong> ahmed.benali@sonelgaz.dz / responsable123
-              <br />
-              <strong>Employee:</strong> jeandupont@sonelgaz.dz / employee123
-              <br />
-              <strong>Financier:</strong> finance@sonelgaz.dz / finance123
-            </p>
-          </CardFooter>
-        </Card>
->>>>>>> upstream/main
       </div>
     </div>
   );

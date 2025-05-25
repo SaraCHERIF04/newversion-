@@ -17,40 +17,10 @@ const projectData = [
   { month: 'Mar 2022', 'Projet A': 8, 'Projet B': 5 }
 ];
 
-<<<<<<< HEAD
-interface Incident {
-  id: string | number;
-  type: string;
-  projectName: string;
-  date: string;
-  location: string;
-  status?: string;
-}
-
-const ResponsableDashboardPage: React.FC = () => {
-  const [incidents, setIncidents] = useState<Incident[]>([]);
-  interface Project {
-    id: string | number;
-    name: string;
-    status: string;
-    // Add other fields as needed
-  }
-
-  interface SubProject {
-    id: string | number;
-    name: string;
-    status: string;
-    // Add other fields as needed
-  }
-  
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [subProjects, setSubProjects] = useState<SubProject[]>([]);
-=======
 const ResponsableDashboardPage: React.FC = () => {
   const [incidents, setIncidents] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
   const [subProjects, setSubProjects] = useState<any[]>([]);
->>>>>>> upstream/main
   const [budgetData, setBudgetData] = useState([
     { name: 'Completed', value: 32 },
     { name: 'On Hold', value: 25 },

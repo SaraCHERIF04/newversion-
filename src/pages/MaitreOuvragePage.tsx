@@ -1,19 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, FileEdit, Trash2, Plus } from 'lucide-react';
-<<<<<<< HEAD
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MaitreOuvrage } from '@/interfaces/MaitreOuvrageInterface';
 import { MaitreOuvrageResponse} from '@/interfaces/MaitreOuvrageInterface';
 import { maitreOuvrage }  from '@/services/MaitreOuvrageService';
-=======
-import { MaitreOuvrage } from '@/types/MaitreOuvrage';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
->>>>>>> upstream/main
 
 const MaitreOuvragePage = () => {
   const [maitreOuvrages, setMaitreOuvrages] = useState<MaitreOuvrage[]>([]);
@@ -21,7 +14,6 @@ const MaitreOuvragePage = () => {
   const navigate = useNavigate();
   
   useEffect(() => {
-<<<<<<< HEAD
     const fetchData = async () => {
       try {
         const moResponse = await maitreOuvrage.fetchAll() as unknown as MaitreOuvrageResponse;
@@ -43,101 +35,12 @@ const MaitreOuvragePage = () => {
   
   const handleEditMaitreOuvrage = (mo: MaitreOuvrage) => {
     navigate(`/maitre-ouvrage/edit/${mo.id_mo}`);
-=======
-    const maitreOuvragesString = localStorage.getItem('maitreOuvrages');
-    if (maitreOuvragesString) {
-      try {
-        const data = JSON.parse(maitreOuvragesString);
-        setMaitreOuvrages(data);
-      } catch (error) {
-        console.error('Error loading maitreOuvrages:', error);
-      }
-    } else {
-      const sampleData: MaitreOuvrage[] = [
-        {
-          id: '1',
-          nom: 'ABCDEF',
-          type: 'public',
-          email: 'xyz@gmail.com',
-          telephone: '0660078402',
-          adresse: 'Kouba'
-        },
-        {
-          id: '2',
-          nom: 'ABCDEF',
-          type: 'privé',
-          email: 'xyz@gmail.com',
-          telephone: 'x',
-          adresse: 'Alger plage'
-        },
-        {
-          id: '3',
-          nom: 'ABCDEF',
-          type: 'public',
-          email: 'xyz@gmail.com',
-          telephone: 'x',
-          adresse: 'Kouba'
-        },
-        {
-          id: '4',
-          nom: 'ABCDEF',
-          type: 'public',
-          email: 'xyz@gmail.com',
-          telephone: 'x',
-          adresse: 'alger'
-        },
-        {
-          id: '5',
-          nom: 'ABCDEF',
-          type: 'privé',
-          email: 'xyz@gmail.com',
-          telephone: 'x',
-          adresse: 'oran'
-        },
-        {
-          id: '6',
-          nom: 'ABCDEF',
-          type: 'privé',
-          email: 'xyz@gmail.com',
-          telephone: 'x',
-          adresse: 'alger'
-        },
-        {
-          id: '7',
-          nom: 'ABCDEF',
-          type: 'public',
-          email: 'xyz@gmail.com',
-          telephone: 'x',
-          adresse: 'yyy'
-        },
-        {
-          id: '8',
-          nom: 'ABCDEF',
-          type: 'privé',
-          email: 'xyz@gmail.com',
-          telephone: 'x',
-          adresse: 'yyy'
-        }
-      ];
-      setMaitreOuvrages(sampleData);
-      localStorage.setItem('maitreOuvrages', JSON.stringify(sampleData));
-    }
-  }, []);
-  
-  const handleViewMaitreOuvrage = (mo: MaitreOuvrage) => {
-    navigate(`/maitre-ouvrage/${mo.id}`);
-  };
-  
-  const handleEditMaitreOuvrage = (mo: MaitreOuvrage) => {
-    navigate(`/maitre-ouvrage/edit/${mo.id}`);
->>>>>>> upstream/main
   };
   
   const notifyUpdate = () => {
     window.dispatchEvent(new Event('maitreOuvragesUpdated'));
   };
   
-<<<<<<< HEAD
   const handleDeleteMaitreOuvrage = async (moId: string) => {
   if (window.confirm('Êtes-vous sûr de vouloir supprimer ce MaitreOuvrage?')) {
     try {
@@ -158,25 +61,6 @@ const MaitreOuvragePage = () => {
     mo.nom_mo.toLowerCase().includes(searchTerm.toLowerCase()) ||
     mo.email_mo.toLowerCase().includes(searchTerm.toLowerCase()) ||
     mo.description_mo.toLowerCase().includes(searchTerm.toLowerCase())
-=======
-  const handleDeleteMaitreOuvrage = (moId: string) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce maître d\'ouvrage?')) {
-      try {
-        const updatedMos = maitreOuvrages.filter(mo => mo.id !== moId);
-        setMaitreOuvrages(updatedMos);
-        localStorage.setItem('maitreOuvrages', JSON.stringify(updatedMos));
-        notifyUpdate();
-      } catch (error) {
-        console.error('Error deleting maître d\'ouvrage:', error);
-      }
-    }
-  };
-  
-  const filteredMaitreOuvrages = maitreOuvrages.filter(mo => 
-    mo.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    mo.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    mo.adresse.toLowerCase().includes(searchTerm.toLowerCase())
->>>>>>> upstream/main
   );
   
   return (
@@ -215,21 +99,12 @@ const MaitreOuvragePage = () => {
           <TableBody>
             {filteredMaitreOuvrages.length > 0 ? (
               filteredMaitreOuvrages.map((mo) => (
-<<<<<<< HEAD
                 <TableRow key={mo.id_mo} className={String(mo.id_mo) === '2' || String(mo.id_mo) === '4' || String(mo.id_mo) === '6' || String(mo.id_mo) === '8' ? 'bg-gray-100' : ''}>
                   <TableCell>{mo.nom_mo}</TableCell>
                   <TableCell>{mo.type_mo}</TableCell>
                   <TableCell>{mo.email_mo}</TableCell>
                   <TableCell>{mo.tel_mo}</TableCell>
                   <TableCell>{mo.adress_mo}</TableCell>
-=======
-                <TableRow key={mo.id} className={mo.id === '2' || mo.id === '4' || mo.id === '6' || mo.id === '8' ? 'bg-gray-100' : ''}>
-                  <TableCell>{mo.nom}</TableCell>
-                  <TableCell>{mo.type}</TableCell>
-                  <TableCell>{mo.email}</TableCell>
-                  <TableCell>{mo.telephone}</TableCell>
-                  <TableCell>{mo.adresse}</TableCell>
->>>>>>> upstream/main
                   <TableCell className="text-right space-x-2">
                     <Button variant="ghost" size="sm" onClick={() => handleViewMaitreOuvrage(mo)}>
                       <Eye className="h-4 w-4" />
@@ -237,11 +112,7 @@ const MaitreOuvragePage = () => {
                     <Button variant="ghost" size="sm" onClick={() => handleEditMaitreOuvrage(mo)}>
                       <FileEdit className="h-4 w-4" />
                     </Button>
-<<<<<<< HEAD
                     <Button variant="ghost" size="sm" onClick={() => handleDeleteMaitreOuvrage(String(mo.id_mo))}>
-=======
-                    <Button variant="ghost" size="sm" onClick={() => handleDeleteMaitreOuvrage(mo.id)}>
->>>>>>> upstream/main
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </TableCell>

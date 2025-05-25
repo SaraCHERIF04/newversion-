@@ -515,23 +515,14 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, isEmployee
   };
 
   return (
-<<<<<<< HEAD
     <header className="flex h-16 items-center justify-between  border-gray-200 bg-white px-6">
       <div className="relative w-64 max-w-md ">
-=======
-    <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-6">
-      <div className="relative w-full max-w-md">
->>>>>>> upstream/main
         <input
           type="text"
           placeholder="Rechercher..."
           value={searchQuery}
           onChange={handleSearch}
-<<<<<<< HEAD
           className="w-full rounded-2xl border border-gray-300 bg-gray-50 py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-=======
-          className="w-full rounded-full border border-gray-300 bg-gray-50 py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
->>>>>>> upstream/main
           onFocus={() => {
             if (searchQuery.length >= 2) {
               performGlobalSearch(searchQuery);
@@ -584,15 +575,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, isEmployee
       </div>
       
       <div className="flex items-center gap-4">
-<<<<<<< HEAD
        
-=======
-        <img 
-          src="https://apua-asea.org/wp-content/uploads/2023/01/sonelgaz.png" 
-          alt="Sonelgaz Logo" 
-          className="h-10"
-        />
->>>>>>> upstream/main
         
         <Popover>
           <PopoverTrigger asChild>
@@ -700,10 +683,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, isEmployee
                       : isResponsable 
                         ? '/responsable/profile'
                         : localStorage.getItem('userRole') === 'admin' 
-<<<<<<< HEAD
                         
-=======
->>>>>>> upstream/main
                           ? '/admin/profile' 
                           : '/profile');
                     setIsProfileOpen(false);

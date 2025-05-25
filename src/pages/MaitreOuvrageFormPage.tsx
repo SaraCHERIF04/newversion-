@@ -1,25 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-<<<<<<< HEAD
-=======
-import { MaitreOuvrage } from '@/types/MaitreOuvrage';
->>>>>>> upstream/main
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { v4 as uuidv4 } from 'uuid';
-<<<<<<< HEAD
 import { MaitreOuvrage } from '@/interfaces/MaitreOuvrageInterface';
 import { MaitreOuvrageResponse} from '@/interfaces/MaitreOuvrageInterface';
 import { maitreOuvrage }  from '@/services/MaitreOuvrageService';
 
-=======
->>>>>>> upstream/main
-
 const MaitreOuvrageFormPage = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const isEditing = Boolean(id);
 
@@ -31,14 +23,13 @@ const MaitreOuvrageFormPage = () => {
 
   useEffect(() => {
     if (isEditing) {
-<<<<<<< HEAD
+
       const fetchData = async () => {
         const moResponse = await maitreOuvrage.fetchById(Number(id)) as unknown as MaitreOuvrageResponse;
-        const maitreOuvragesData = moResponse.data || [];
-        console.log('Données maîtres d’ouvrage:', maitreOuvragesData);
-        if (maitreOuvragesData) {
+        console.log('Données maîtres d’ouvrage:', moResponse);
+        if (moResponse) {
           try {
-            const maitreOuvrages = Array.isArray(maitreOuvragesData) ? maitreOuvragesData : JSON.parse(maitreOuvragesData);
+            const maitreOuvrages = Array.isArray(moResponse) ? moResponse : JSON.parse(moResponse as any);
             const maitreOuvrageItem = maitreOuvrages.find((mo: MaitreOuvrage) => String(mo.id_mo) === id);
             if (maitreOuvrageItem) {
               setNom(maitreOuvrageItem.nom);
@@ -53,27 +44,14 @@ const MaitreOuvrageFormPage = () => {
         }
       };
       fetchData();
-=======
+
       const maitreOuvragesString = localStorage.getItem('maitreOuvrages');
       if (maitreOuvragesString) {
-        try {
-          const maitreOuvrages = JSON.parse(maitreOuvragesString);
-          const maitreOuvrage = maitreOuvrages.find((mo: MaitreOuvrage) => mo.id === id);
-          if (maitreOuvrage) {
-            setNom(maitreOuvrage.nom);
-            setType(maitreOuvrage.type);
-            setEmail(maitreOuvrage.email);
-            setTelephone(maitreOuvrage.telephone);
-            setAdresse(maitreOuvrage.adresse);
-          }
-        } catch (error) {
-          console.error('Error loading maître d\'ouvrage data:', error);
-        }
+        // You may want to handle localStorage logic here if needed
       }
->>>>>>> upstream/main
     }
   }, [id, isEditing]);
-
+  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -83,7 +61,6 @@ const MaitreOuvrageFormPage = () => {
     }
 
     const maitreOuvrageData: MaitreOuvrage = {
-<<<<<<< HEAD
       id_mo: isEditing ? Number(id) : Date.now(),
       nom_mo: nom,
       type_mo: type,
@@ -91,14 +68,6 @@ const MaitreOuvrageFormPage = () => {
       tel_mo: telephone,
       adress_mo: adresse,
       id_projet: 0
-=======
-      id: isEditing ? id! : uuidv4(),
-      nom,
-      type,
-      email,
-      telephone,
-      adresse
->>>>>>> upstream/main
     };
 
     try {
@@ -110,20 +79,16 @@ const MaitreOuvrageFormPage = () => {
       }
 
       if (isEditing) {
-<<<<<<< HEAD
         maitreOuvrages = maitreOuvrages.map(mo => mo.id_mo === Number(id) ? maitreOuvrageData : mo);
-=======
-        maitreOuvrages = maitreOuvrages.map(mo => mo.id === id ? maitreOuvrageData : mo);
->>>>>>> upstream/main
       } else {
         maitreOuvrages.unshift(maitreOuvrageData);
       }
 
-      localStorage.setItem('maitreOuvrages', JSON.stringify(maitreOuvrages));
-      window.dispatchEvent(new Event('maitreOuvragesUpdated'));
-      navigate('/maitre-ouvrage');
+        localStorage.setItem('maitreOuvrages', JSON.stringify(maitreOuvrages));
+        window.dispatchEvent(new Event('maitreOuvragesUpdated'));
     } catch (error) {
-      console.error('Error saving maître d\'ouvrage:', error);
+      console.error('Erreur lors de l\'enregistrement du maître d\'ouvrage:', error);
+      alert('Une erreur est survenue lors de l\'enregistrement.');
     }
   };
 

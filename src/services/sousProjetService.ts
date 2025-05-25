@@ -2,11 +2,7 @@ import { get, post, put, del } from '@/utils/apiHelpers';
 import { ProjetInterface } from '@/interfaces/ProjetInterface';
 import { SousProjetInterface } from '@/interfaces/SousProjetInterface';
 
-<<<<<<< HEAD
 const SOUS_PROJETS_ENDPOINT = '/sous-projets/';
-=======
-const SOUS_PROJETS_ENDPOINT = '/sous-projets';
->>>>>>> upstream/main
 
 interface PaginatedResponse {
     success: boolean;
@@ -34,11 +30,7 @@ export const sousProjetService = {
             if(userRole === ''){
                 url = SOUS_PROJETS_ENDPOINT;
             }else{
-<<<<<<< HEAD
                 url = `${SOUS_PROJETS_ENDPOINT}`;
-=======
-                url = `${userRole}${SOUS_PROJETS_ENDPOINT}`;
->>>>>>> upstream/main
             }
             console.log('Fetching projets...');
             const response = await get<PaginatedResponse>(`${url}?page=${pageNumber}&per_page=5`);
@@ -58,36 +50,16 @@ export const sousProjetService = {
     
     async getSousProjetById(id: string, userRole:string): Promise<SousProjetResponse> {
         try {
-<<<<<<< HEAD
             return await get<SousProjetResponse>(`${SOUS_PROJETS_ENDPOINT}${id}`);
-=======
-            return await get<SousProjetResponse>(`${SOUS_PROJETS_ENDPOINT}/${id}`);
->>>>>>> upstream/main
             
         } catch (error) {
             console.error('Error fetching projet:', error);
             throw error;
         }
     },
-<<<<<<< HEAD
 
 
     async createSousProjet(sousProjetData : Omit<SousProjetInterface, 'id_sous_projet'>, userRole:string): Promise<SousProjetInterface> {
-=======
-    
-
-
-    async getSousProjetsByProjetId(id: string): Promise<SousProjetResponse> {
-        try {
-            return await get<SousProjetResponse>(`${SOUS_PROJETS_ENDPOINT}/projet/${id}`);
-        } catch (error) {
-            console.error('Error fetching sous projets:', error);
-            throw error;
-        }
-    },
-
-    async createSousProjet(sousProjetData : Omit<SousProjetInterface, 'id'>, userRole:string): Promise<SousProjetInterface> {
->>>>>>> upstream/main
         try {
             return await post<SousProjetInterface>(SOUS_PROJETS_ENDPOINT, sousProjetData);
         } catch (error) {
@@ -99,11 +71,7 @@ export const sousProjetService = {
     // Update user
     async updateSousProjet(id: string, sousProjetData   : Partial<SousProjetInterface>, userRole:string): Promise<SousProjetInterface> {
         try {
-<<<<<<< HEAD
             return await put<SousProjetInterface>(`${SOUS_PROJETS_ENDPOINT}${id}`, sousProjetData);
-=======
-            return await put<SousProjetInterface>(`${SOUS_PROJETS_ENDPOINT}/${id}`, sousProjetData);
->>>>>>> upstream/main
         } catch (error) {
             console.error('Error updating projet:', error);
             throw error;
@@ -113,11 +81,7 @@ export const sousProjetService = {
     // Delete user
     async deleteSousProjet(id: string, userRole:string): Promise<void> {
         try {
-<<<<<<< HEAD
             await del(`${SOUS_PROJETS_ENDPOINT}${id}`);
-=======
-            await del(`${SOUS_PROJETS_ENDPOINT}/${id}`);
->>>>>>> upstream/main
         } catch (error) {
             console.error('Error deleting projet:', error);
             throw error;
